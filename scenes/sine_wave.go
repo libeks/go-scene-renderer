@@ -21,6 +21,24 @@ func (s SineWave) GetPixel(x, y int, t float64) color.Color {
 	}
 }
 
+type SineWaveWCross struct {
+	Frame        PictureFrame
+	XYRatio      float64
+	SigmoidRatio float64
+	SinCycles    int
+}
+
+func (s SineWaveWCross) GetPixel(x, y int, t float64) color.Color {
+	x = x - s.Frame.Width/2
+	y = y - s.Frame.Height/2
+	tRatio := 1 / (2 * math.Pi * float64(s.SinCycles))
+	waveComponent := float64(t)/tRatio + float64(x+y)/s.XYRatio
+	crossComponent := float64(1 / (math.Abs(float64(x*y)) + 1) / (1 / (t * 10000)))
+	valMinOneToOne := math.Sin(waveComponent + crossComponent)
+	valZeroOne := sigmoid(valMinOneToOne * s.SigmoidRatio)
+	return grayscaleColor(gammaCorrect(valZeroOne))
+}
+
 type SineWaveWBump struct {
 	Frame        PictureFrame
 	XYRatio      float64
@@ -32,7 +50,9 @@ func (s SineWaveWBump) GetPixel(x, y int, t float64) color.Color {
 	x = x - s.Frame.Width/2
 	y = y - s.Frame.Height/2
 	tRatio := 1 / (2 * math.Pi * float64(s.SinCycles))
-	valMinOneToOne := math.Sin(float64(t)/tRatio + float64(x+y)/s.XYRatio + float64(1/(math.Abs(float64(x*y))+1)/(1/(t*10000))))
+	waveComponent := float64(t)/tRatio + float64(x+y)/s.XYRatio
+	bumpComponent := float64(float64((math.Pow(float64(x), float64(2))) * (math.Pow(float64(y), float64(2)))))
+	valMinOneToOne := math.Sin(waveComponent + 100/bumpComponent)
 	valZeroOne := sigmoid(valMinOneToOne * s.SigmoidRatio)
 	return grayscaleColor(gammaCorrect(valZeroOne))
 }

@@ -29,7 +29,7 @@ func main() {
 	if len(argsWithoutProg) > 0 {
 		outfile = argsWithoutProg[0]
 	}
-	scene := scenes.SineWaveWBump{
+	scene := scenes.SineWaveWCross{
 		Frame:        scenes.PictureFrame{width, height},
 		XYRatio:      20,
 		SigmoidRatio: 3,
