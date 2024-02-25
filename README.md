@@ -9,5 +9,6 @@ Example:
 
 ## TODOs:
 * Add objects to scenes
-* Add more intense gradients, linear, Bezier, etc
+* Add more intense gradients, like Bezier, etc
 * Find Lab color space transformation code, try that out
+* Add Perlin noise-based scenes

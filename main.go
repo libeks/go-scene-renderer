@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -17,10 +18,10 @@ import (
 )
 
 const (
-	frameSpacing = 5
-	nFrameCount  = 10
-	width        = 500
-	height       = 500
+	frameSpacing = 7
+	nFrameCount  = 20
+	width        = 200
+	height       = 200
 
 	interpolateN = 1
 
@@ -29,17 +30,33 @@ const (
 )
 
 var (
+	gradient = color.LinearGradient{
+		Points: []color.Color{
+			color.Hex("#6CB4F5"),
+			color.Hex("#EBF56C"),
+			color.Hex("#F5736C"),
+		},
+	}
+
+	// gradient = color.LinearGradient{
+	// 	Points: []color.Color{
+	// 		color.Hex("#FFF"), // black
+	// 		color.Hex("#DDF522"),
+	// 		color.Hex("#A0514C"),
+	// 		color.Hex("#000"), // white
+	// 	},
+	// }
 	scene = scenes.SineWaveWCross{
-		Frame:        scenes.PictureFrame{width, height},
-		XYRatio:      0.01,
+		XYRatio:      0.001,
 		SigmoidRatio: 3,
 		SinCycles:    3,
 		// Gradient:     color.Grayscale,
-		Gradient: color.Gradient{
-			Start: color.Hex("#DDF522"),
-			End:   color.Hex("#A0514C"),
-		},
+		Gradient: gradient,
 	}
+
+	// scene = scenes.HorizGradient{
+	// 	Gradient: gradient,
+	// }
 
 	// scene = scenes.SineWave{
 	// 	XYRatio:      0.1,
@@ -55,8 +72,11 @@ func main() {
 		log.Fatal("Insufficient arguments, expect <type> <output.gif>.")
 	}
 
-	outFile := argsWithoutProg[1]
 	format := argsWithoutProg[0]
+	outFile, err := filepath.Abs(argsWithoutProg[1])
+	if err != nil {
+		log.Fatalf("Invalid file path %s", err)
+	}
 	switch format {
 	case GIF_FORMAT:
 		err := renderGIF(scene, width, height, nFrameCount, outFile)
@@ -80,34 +100,9 @@ type Pixel struct {
 }
 
 func getGIFFrame(scene scenes.Scene, width, height int, t float64) *image.Paletted {
-	start := time.Now()
-	colorMap := map[color.Color]struct{}{}
-	grid := map[Pixel]go_color.Color{}
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
-			xR, yR := getImageSpace(x, width), getImageSpace(y, height)
-			pixelColor := scene.GetColor(xR, yR, t)
-			grid[Pixel{x, y}] = pixelColor
-			colorMap[pixelColor] = struct{}{}
-		}
-	}
-	fmt.Printf("%d colors in palette \n", len(colorMap))
-	var palette []color.Color
-	if palette = scene.GetColorPalette(t); len(palette) == 0 {
-		palette = make([]color.Color, 0, len(colorMap))
-		for color, _ := range colorMap {
-			palette = append(palette, color)
-		}
-		if len(colorMap) > 255 {
-			var err error
-			palette, err = computePalette(palette)
-			if err != nil {
-				panic(err)
-			}
-		}
-	}
-	fmt.Printf("Palette generation took %s\n", time.Since(start))
-	t2 := time.Now()
+	grid := getPixelGrid(scene, width, height, t)
+	palette := generateFramePalette(scene, grid, t)
+	now := time.Now()
 	img := image.NewPaletted(
 		image.Rect(
 			0, 0, width, height,
@@ -119,8 +114,48 @@ func getGIFFrame(scene scenes.Scene, width, height int, t float64) *image.Palett
 	for pixel, color := range grid {
 		img.Set(pixel.X, pixel.Y, color)
 	}
-	fmt.Printf("Pixel setting took %s\n", time.Since(t2))
+	fmt.Printf("Palette setting took %s\n", time.Since(now))
 	return img
+}
+
+func generateFramePalette(scene scenes.Scene, pixels map[Pixel]color.Color, t float64) []color.Color {
+	start := time.Now()
+	defer func() {
+		fmt.Printf("Palette generation took %s\n", time.Since(start))
+	}()
+	if palette := scene.GetColorPalette(t); len(palette) > 0 {
+		return palette
+	}
+	colorMap := map[color.Color]struct{}{}
+	for _, c := range pixels {
+		colorMap[c] = struct{}{}
+	}
+	palette := make([]color.Color, 0, len(colorMap))
+	for color, _ := range colorMap {
+		palette = append(palette, color)
+	}
+	fmt.Printf("%d colors in palette \n", len(colorMap))
+	if len(colorMap) > 255 {
+		var err error
+		palette, err = computePalette(palette)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return palette
+}
+
+func getPixelGrid(scene scenes.Scene, width, height int, t float64) map[Pixel]color.Color {
+	start := time.Now()
+	grid := map[Pixel]color.Color{}
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			xR, yR := getImageSpace(x, width), getImageSpace(y, height)
+			grid[Pixel{x, y}] = scene.GetColor(xR, yR, t)
+		}
+	}
+	fmt.Printf("Pixel generation took %s\n", time.Since(start))
+	return grid
 }
 
 func getImage(scene scenes.Scene, width, height int, t float64) image.Image {

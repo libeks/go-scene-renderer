@@ -13,3 +13,16 @@ func (d Dummy) GetPixel(x, y int, t float64) color.Color {
 func (d Dummy) GetColor(x, y float64, t float64) color.Color {
 	return color.GrayscaleColor(t)
 }
+
+type HorizGradient struct {
+	Gradient color.Gradient
+}
+
+func (d HorizGradient) GetColor(x, y float64, t float64) color.Color {
+	valZeroOne := x/2 + 0.5
+	return d.Gradient.Interpolate(valZeroOne)
+}
+
+func (d HorizGradient) GetColorPalette(t float64) []color.Color {
+	return color.GetGradientColorPalette(d.Gradient)
+}

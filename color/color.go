@@ -17,7 +17,7 @@ var (
 	Red   = Color{R: 1.0, G: 0.0, B: 0.0}
 	Blue  = Color{R: 0.0, G: 0.0, B: 1.0}
 
-	Grayscale = Gradient{
+	Grayscale = SimpleGradient{
 		Start: Black,
 		End:   White,
 	}

@@ -30,7 +30,6 @@ func (s SineWave) GetColor(x, y, t float64) color.Color {
 }
 
 type SineWaveWCross struct {
-	Frame        PictureFrame
 	XYRatio      float64
 	SigmoidRatio float64
 	SinCycles    int
@@ -49,19 +48,17 @@ type SineWaveWCross struct {
 // }
 
 func (s SineWaveWCross) GetColor(x, y float64, t float64) color.Color {
+	// tRatio := 1 / (2 * math.Pi * float64(s.SinCycles))
+	// waveComponent := float64(t)/tRatio + float64(x+y)/s.XYRatio
 	waveComponent := 0.0
 	crossComponent := (math.Abs(x * y)) / (t * 0.03)
-	valMinOneToOne := math.Sin(waveComponent + crossComponent)
+	valMinOneToOne := math.Cos(waveComponent + crossComponent)
 	valZeroOne := sigmoid(valMinOneToOne * s.SigmoidRatio)
 	return s.Gradient.Interpolate(valZeroOne)
 }
 
 func (s SineWaveWCross) GetColorPalette(t float64) []color.Color {
-	out := make([]color.Color, 256)
-	for i := range 256 {
-		out[i] = s.Gradient.Interpolate(float64(i) / 256.0)
-	}
-	return out
+	return color.GetGradientColorPalette(s.Gradient)
 }
 
 type SineWaveWBump struct {
