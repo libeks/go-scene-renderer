@@ -4,6 +4,8 @@ Rendering gifs in golang
 
 `go run ./... gif /Users/janis.libeks/own/go-scene-renderer/gallery/sin.gif`
 
+Example:
+![alt text](https://github.com/libeks/go-scene-renderer/blob/main/gallery/sin.gif)
 
 ## TODOs:
 * Add objects to scenes
