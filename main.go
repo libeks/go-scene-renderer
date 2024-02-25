@@ -251,7 +251,7 @@ func renderGIF(scene scenes.Scene, width, height, nFrames int, outfile string) e
 	animation := gif.GIF{
 		Image:     frames,
 		Delay:     delays, //[]int in 10ms
-		LoopCount: 10,
+		LoopCount: 0,
 	}
 	return gif.EncodeAll(f, &animation)
 
