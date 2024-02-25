@@ -20,10 +20,10 @@ import (
 const (
 	frameSpacing = 7
 	nFrameCount  = 20
-	width        = 500
-	height       = 500
+	width        = 1000
+	height       = 1000
 
-	interpolateN = 16
+	interpolateN = 9
 
 	GIF_FORMAT = "gif"
 	PNG_FORMAT = "png"
@@ -37,15 +37,15 @@ var (
 	// 		color.Hex("#F5736C"),
 	// 	},
 	// }
-	gradient = color.LinearGradient{
-		Points: []color.Color{
-			color.Hex("#F590C1"), // pink
-			color.Hex("#000"),
-			color.Hex("#90E8F5"), // light blue
-			color.Hex("#000"),
-			color.Hex("#F590C1"), // pink
-		},
-	}
+	// gradient = color.LinearGradient{
+	// 	Points: []color.Color{
+	// 		color.Hex("#F590C1"), // pink
+	// 		color.Hex("#000"),
+	// 		color.Hex("#90E8F5"), // light blue
+	// 		color.Hex("#000"),
+	// 		color.Hex("#F590C1"), // pink
+	// 	},
+	// }
 
 	// gradient = color.LinearGradient{
 	// 	Points: []color.Color{
@@ -55,15 +55,16 @@ var (
 	// 		color.Hex("#000"), // white
 	// 	},
 	// }
-	scene = scenes.SineWaveWCross{
-		XYRatio:      0.0001,
-		SigmoidRatio: 2.0,
-		SinCycles:    3,
-		TScale:       0.3,
-		// TOffset:      0.0,
-		// Gradient:     color.Grayscale,
-		Gradient: gradient,
-	}
+	// scene = scenes.SineWaveWCross{
+	// 	XYRatio:      0.0001,
+	// 	SigmoidRatio: 2.0,
+	// 	SinCycles:    3,
+	// 	TScale:       0.3,
+	// 	// TOffset:      0.0,
+	// 	// Gradient:     color.Grayscale,
+	// 	Gradient: gradient,
+	// }
+	scene = scenes.DummyTriangle()
 
 	// scene = scenes.HorizGradient{
 	// 	Gradient: gradient,
@@ -95,7 +96,7 @@ func main() {
 			fmt.Printf("Failure %s\n", err)
 		}
 	case PNG_FORMAT:
-		t := 1.0
+		t := 0.5
 		err := renderPNG(scene, width, height, t, outFile)
 		if err != nil {
 			fmt.Printf("Failure %s\n", err)

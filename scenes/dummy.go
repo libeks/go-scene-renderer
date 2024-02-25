@@ -26,3 +26,15 @@ func (d HorizGradient) GetColor(x, y float64, t float64) color.Color {
 func (d HorizGradient) GetColorPalette(t float64) []color.Color {
 	return color.GetGradientColorPalette(d.Gradient)
 }
+
+type Uniform struct {
+	Color color.Color
+}
+
+func (d Uniform) GetColor(x, y float64, t float64) color.Color {
+	return d.Color
+}
+
+func (d Uniform) GetColorPalette(t float64) []color.Color {
+	return []color.Color{d.Color}
+}
