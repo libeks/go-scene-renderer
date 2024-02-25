@@ -20,21 +20,30 @@ import (
 const (
 	frameSpacing = 7
 	nFrameCount  = 20
-	width        = 200
-	height       = 200
+	width        = 500
+	height       = 500
 
-	interpolateN = 1
+	interpolateN = 16
 
 	GIF_FORMAT = "gif"
 	PNG_FORMAT = "png"
 )
 
 var (
+	// gradient = color.LinearGradient{
+	// 	Points: []color.Color{
+	// 		color.Hex("#6CB4F5"),
+	// 		color.Hex("#EBF56C"),
+	// 		color.Hex("#F5736C"),
+	// 	},
+	// }
 	gradient = color.LinearGradient{
 		Points: []color.Color{
-			color.Hex("#6CB4F5"),
-			color.Hex("#EBF56C"),
-			color.Hex("#F5736C"),
+			color.Hex("#F590C1"), // pink
+			color.Hex("#000"),
+			color.Hex("#90E8F5"), // light blue
+			color.Hex("#000"),
+			color.Hex("#F590C1"), // pink
 		},
 	}
 
@@ -47,9 +56,11 @@ var (
 	// 	},
 	// }
 	scene = scenes.SineWaveWCross{
-		XYRatio:      0.001,
-		SigmoidRatio: 3,
+		XYRatio:      0.0001,
+		SigmoidRatio: 2.0,
 		SinCycles:    3,
+		TScale:       0.3,
+		// TOffset:      0.0,
 		// Gradient:     color.Grayscale,
 		Gradient: gradient,
 	}
@@ -213,6 +224,10 @@ func renderPNG(scene scenes.Scene, width, height int, t float64, outfile string)
 }
 
 func renderGIF(scene scenes.Scene, width, height, nFrames int, outfile string) error {
+	start := time.Now()
+	defer func() {
+		fmt.Printf("GIF generation took %s\n", time.Since(start))
+	}()
 	f, err := os.OpenFile(outfile, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		panic(err)

@@ -40,9 +40,6 @@ func (g LinearGradient) Interpolate(v float64) Color {
 	segmentLength := 1.0 / float64(nPoints-1)
 	segment := int(math.Floor(v / segmentLength))
 	remainder := math.Mod(v, segmentLength) / segmentLength
-	// if segment > nPoints-1 {
-	// 	return g.Points[nPoints-1]
-	// }
 	return SimpleGradient{g.Points[segment], g.Points[segment+1]}.Interpolate(remainder)
 }
 

@@ -66,10 +66,10 @@ func GrayscaleColor(v float64) Color {
 	}
 }
 
+// Parses Hex color value into Color
+// adapted from https://stackoverflow.com/a/54200713
 func Hex(s string) Color {
-	// from https://stackoverflow.com/a/54200713
 	var r, g, b uint32
-	// c.A = 0xff
 	switch len(s) {
 	case 7:
 		_, _ = fmt.Sscanf(s, "#%02x%02x%02x", &r, &g, &b)
@@ -79,16 +79,12 @@ func Hex(s string) Color {
 		r *= 17
 		g *= 17
 		b *= 17
-		// default:
-		//     err = fmt.Errorf("invalid length, must be 7 or 4")
-
 	}
 	c := Color{
 		R: uInt32ToFloat(r),
 		G: uInt32ToFloat(g),
 		B: uInt32ToFloat(b),
 	}
-	// fmt.Printf("Color %s\n", c)
 	return c
 }
 
