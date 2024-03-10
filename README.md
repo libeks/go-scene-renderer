@@ -8,7 +8,7 @@ Example:
 ![alt text](https://github.com/libeks/go-scene-renderer/blob/main/gallery/sin.gif)
 
 ## TODOs:
-* Add objects to scenes
+* Flip coordinates so a scene is rendered in usual x,y plot way
 * Add more intense gradients, like Bezier, etc
 * Find Lab color space transformation code, try that out
 * Add Perlin noise-based scenes

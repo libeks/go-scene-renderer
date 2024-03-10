@@ -6,19 +6,19 @@ import (
 
 type Dummy struct{}
 
-func (d Dummy) GetPixel(x, y int, t float64) color.Color {
+func (d Dummy) GetFrameColor(x, y int, t float64) color.Color {
 	return color.GrayscaleColor(t)
 }
 
-func (d Dummy) GetColor(x, y float64, t float64) color.Color {
-	return color.GrayscaleColor(t)
-}
+// func (d Dummy) GetColor(x, y float64, t float64) color.Color {
+// 	return color.GrayscaleColor(t)
+// }
 
 type HorizGradient struct {
 	Gradient color.Gradient
 }
 
-func (d HorizGradient) GetColor(x, y float64, t float64) color.Color {
+func (d HorizGradient) GetFrameColor(x, y float64, t float64) color.Color {
 	valZeroOne := x/2 + 0.5
 	return d.Gradient.Interpolate(valZeroOne)
 }
@@ -31,10 +31,18 @@ type Uniform struct {
 	Color color.Color
 }
 
-func (d Uniform) GetColor(x, y float64, t float64) color.Color {
+func (d Uniform) GetColor(x, y float64) color.Color {
 	return d.Color
 }
 
-func (d Uniform) GetColorPalette(t float64) []color.Color {
-	return []color.Color{d.Color}
+func (d Uniform) GetFrame(t float64) Frame {
+	return d
 }
+
+// func (d Uniform) GetFrameColor(x, y float64, t float64) color.Color {
+// 	return d.Color
+// }
+
+// func (d Uniform) GetColorPalette(t float64) []color.Color {
+// 	return []color.Color{d.Color}
+// }

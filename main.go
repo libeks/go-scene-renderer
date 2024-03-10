@@ -1,35 +1,72 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"image"
 	go_color "image/color"
-	"image/gif"
 	"image/png"
 	"log"
 	"math/rand"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"github.com/libeks/go-scene-renderer/color"
 	"github.com/libeks/go-scene-renderer/scenes"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
-	frameSpacing = 7
-	nFrameCount  = 20
-	width        = 1000
-	height       = 1000
+	// frameSpacing = 7
+	// nFrameCount  = 100
+	// width        = 1000
+	// height       = 1000
 
-	interpolateN = 9
+	// interpolateN = 1
+
+	cleanUpFrameCache = true
 
 	GIF_FORMAT = "gif"
 	PNG_FORMAT = "png"
+	MP4_FORMAT = "mp4"
 )
 
+type ImagePreset struct {
+	width        int
+	height       int
+	interpolateN int
+}
+
+type VideoPreset struct {
+	ImagePreset
+	nFrameCount int
+	frameRate   int
+}
+
 var (
+	videoPresetTest = VideoPreset{
+		ImagePreset: ImagePreset{
+			width:        200,
+			height:       200,
+			interpolateN: 1,
+		},
+		nFrameCount: 30,
+		frameRate:   15,
+	}
+	videoPresetHiDef = VideoPreset{
+		ImagePreset: ImagePreset{
+			width:        1000,
+			height:       1000,
+			interpolateN: 8,
+		},
+		nFrameCount: 100,
+		frameRate:   30,
+	}
+	defaultVideoPreset = videoPresetTest
+	// defaultVideoPreset = videoPresetHiDef
+	// defaultImagePreset =
 	// gradient = color.LinearGradient{
 	// 	Points: []color.Color{
 	// 		color.Hex("#6CB4F5"),
@@ -64,7 +101,8 @@ var (
 	// 	// Gradient:     color.Grayscale,
 	// 	Gradient: gradient,
 	// }
-	scene = scenes.DummyTriangle()
+	scene = scenes.DummySpinningTriangle()
+	// scene = scenes.DummyTriangle()
 
 	// scene = scenes.HorizGradient{
 	// 	Gradient: gradient,
@@ -90,14 +128,23 @@ func main() {
 		log.Fatalf("Invalid file path %s", err)
 	}
 	switch format {
-	case GIF_FORMAT:
-		err := renderGIF(scene, width, height, nFrameCount, outFile)
+	// case GIF_FORMAT:
+	// 	err := renderGIF(scene, width, height, nFrameCount, outFile)
+	// 	if err != nil {
+	// 		fmt.Printf("Failure %s\n", err)
+	// 	}
+	case PNG_FORMAT:
+		t := 0.5
+		err := renderPNG(scene.GetFrame(t), ImagePreset{
+			width:        200,
+			height:       200,
+			interpolateN: 1,
+		}, outFile)
 		if err != nil {
 			fmt.Printf("Failure %s\n", err)
 		}
-	case PNG_FORMAT:
-		t := 0.5
-		err := renderPNG(scene, width, height, t, outFile)
+	case MP4_FORMAT:
+		err := renderVideo(scene, defaultVideoPreset, outFile)
 		if err != nil {
 			fmt.Printf("Failure %s\n", err)
 		}
@@ -111,26 +158,106 @@ type Pixel struct {
 	Y int
 }
 
-func getGIFFrame(scene scenes.Scene, width, height int, t float64) *image.Paletted {
-	grid := getPixelGrid(scene, width, height, t)
-	palette := generateFramePalette(scene, grid, t)
-	now := time.Now()
-	img := image.NewPaletted(
-		image.Rect(
-			0, 0, width, height,
-		),
-		// palette.WebSafe,
-		color.ToInterfaceSlice(palette),
-	)
-
-	for pixel, color := range grid {
-		img.Set(pixel.X, pixel.Y, color)
+func renderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string) error {
+	start := time.Now()
+	ctx := context.Background()
+	// clean up frames in temp directory before starting
+	tmpDirectory := ".tmp"
+	fileWildcardPattern := filepath.Join(".", tmpDirectory, "frame_*.png")
+	if err := cleanUpTempFiles(fileWildcardPattern); err != nil {
+		return err
 	}
-	fmt.Printf("Palette setting took %s\n", time.Since(now))
-	return img
+
+	g, ctx := errgroup.WithContext(ctx)
+	// Write output files to temporary directory
+	outFileFormat := filepath.Join(tmpDirectory, "frame_%03d.png")
+	if err := createSubdirectories(outFileFormat); err != nil {
+		return err
+	}
+	for i := range vp.nFrameCount {
+		g.Go(func() error {
+			outFile := fmt.Sprintf(outFileFormat, i)
+			f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE, 0600)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+			fmt.Printf("frame %d\n", i)
+			t := float64(i) / float64(vp.nFrameCount-1) // range [0.0, 1.0]
+			frameObj := scene.GetFrame(t)
+			frame := getImage(frameObj, vp.ImagePreset)
+			fmt.Printf("finished frame %d\n", i)
+			return png.Encode(f, frame)
+		})
+
+	}
+	if err := g.Wait(); err != nil {
+		return err
+	}
+	fmt.Printf("PNG frame generation took %s\n", time.Since(start))
+	fmt.Printf("Finished rendering PNG frames\n")
+	encoder := "yuv444p"
+	format := "libx265"
+	cmd := exec.Command(
+		"ffmpeg", "-y",
+		"-framerate", fmt.Sprintf("%d", vp.frameRate),
+		"-i", outFileFormat,
+		"-c:v", format,
+		"-pix_fmt", encoder,
+		// "-preset", "slow",
+		// "-x265-params", "lossless=1",
+		"-b:v", "5000k",
+		outFile)
+	stdout, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Print(string(stdout))
+		return err
+	}
+	fmt.Print(string(stdout))
+	if cleanUpFrameCache {
+		return cleanUpTempFiles(fileWildcardPattern)
+	}
+	return nil
 }
 
-func generateFramePalette(scene scenes.Scene, pixels map[Pixel]color.Color, t float64) []color.Color {
+func cleanUpTempFiles(pattern string) error {
+	files, err := filepath.Glob(pattern)
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		// fmt.Printf("About to remove %s\n", f)
+		if err := os.Remove(f); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func createSubdirectories(outFileFormat string) error {
+	return os.MkdirAll(filepath.Dir(outFileFormat), os.ModePerm)
+}
+
+// func getGIFFrame(scene scenes.GIFScene, width, height int, t float64) *image.Paletted {
+// 	grid := getPixelGrid(scene, width, height, t)
+// 	palette := generateFramePalette(scene, grid, t)
+// 	now := time.Now()
+// 	img := image.NewPaletted(
+// 		image.Rect(
+// 			0, 0, width, height,
+// 		),
+// 		// palette.WebSafe,
+// 		color.ToInterfaceSlice(palette),
+// 	)
+
+// 	for pixel, color := range grid {
+// 		img.Set(pixel.X, pixel.Y, color)
+// 	}
+// 	fmt.Printf("Palette setting took %s\n", time.Since(now))
+// 	return img
+// }
+
+func generateFramePalette(scene scenes.GIFScene, pixels map[Pixel]color.Color, t float64) []color.Color {
 	start := time.Now()
 	defer func() {
 		fmt.Printf("Palette generation took %s\n", time.Since(start))
@@ -157,37 +284,43 @@ func generateFramePalette(scene scenes.Scene, pixels map[Pixel]color.Color, t fl
 	return palette
 }
 
-func getPixelGrid(scene scenes.Scene, width, height int, t float64) map[Pixel]color.Color {
+func getPixelGrid(scene scenes.Frame, width, height int) map[Pixel]color.Color {
 	start := time.Now()
 	grid := map[Pixel]color.Color{}
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
 			xR, yR := getImageSpace(x, width), getImageSpace(y, height)
-			grid[Pixel{x, y}] = scene.GetColor(xR, yR, t)
+			grid[Pixel{x, y}] = scene.GetColor(xR, yR)
 		}
 	}
 	fmt.Printf("Pixel generation took %s\n", time.Since(start))
 	return grid
 }
 
-func getImage(scene scenes.Scene, width, height int, t float64) image.Image {
+func getImage(scene scenes.Frame, ip ImagePreset) image.Image {
 	grid := map[Pixel]go_color.Color{}
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
-			xR, yR := getImageSpace(x, width), getImageSpace(y, height)
-			samples := make([]color.Color, interpolateN)
-			for i := range interpolateN {
-				dx, dy := getPixelWiggle(width), getPixelWiggle(height)
-				samples[i] = scene.GetColor(xR+rand.Float64()*dx, yR+rand.Float64()*dy, t)
+	for x := 0; x < ip.width; x++ {
+		for y := 0; y < ip.height; y++ {
+			xR, yR := getImageSpace(x, ip.width), getImageSpace(y, ip.height)
+			var pixelColor color.Color
+			if ip.interpolateN > 1 {
+
+				samples := make([]color.Color, ip.interpolateN)
+				for i := range ip.interpolateN {
+					dx, dy := getPixelWiggle(ip.width), getPixelWiggle(ip.height)
+					samples[i] = scene.GetColor(xR+rand.Float64()*dx, yR+rand.Float64()*dy)
+				}
+				pixelColor = color.Average(samples)
+			} else {
+				pixelColor = scene.GetColor(xR, yR)
 			}
-			pixelColor := color.Average(samples)
-			// pixelColor := scene.GetColor(xR, yR, t)
+
 			grid[Pixel{x, y}] = pixelColor
 		}
 	}
 	img := image.NewRGBA(
 		image.Rect(
-			0, 0, width, height,
+			0, 0, ip.width, ip.height,
 		),
 	)
 	for pixel, color := range grid {
@@ -214,46 +347,46 @@ func getUniformDelays(nFrames, delay int) []int {
 	return delays
 }
 
-func renderPNG(scene scenes.Scene, width, height int, t float64, outfile string) error {
+func renderPNG(scene scenes.Frame, im ImagePreset, outfile string) error {
 	f, err := os.OpenFile(outfile, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
-	frame := getImage(scene, width, height, t)
+	frame := getImage(scene, im)
 	return png.Encode(f, frame)
 }
 
-func renderGIF(scene scenes.Scene, width, height, nFrames int, outfile string) error {
-	start := time.Now()
-	defer func() {
-		fmt.Printf("GIF generation took %s\n", time.Since(start))
-	}()
-	f, err := os.OpenFile(outfile, os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	frames := make([]*image.Paletted, nFrames)
-	var wg sync.WaitGroup
-	for i := range nFrames {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+// func renderGIF(scene scenes.GIFScene, width, height, nFrames int, outfile string) error {
+// 	start := time.Now()
+// 	defer func() {
+// 		fmt.Printf("GIF generation took %s\n", time.Since(start))
+// 	}()
+// 	f, err := os.OpenFile(outfile, os.O_WRONLY|os.O_CREATE, 0600)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	defer f.Close()
+// 	frames := make([]*image.Paletted, nFrames)
+// 	var wg sync.WaitGroup
+// 	for i := range nFrames {
+// 		wg.Add(1)
+// 		go func() {
+// 			defer wg.Done()
 
-			fmt.Printf("frame %d\n", i)
-			t := float64(i) / float64(nFrames-1) // range [0.0, 1.0]
-			frames[i] = getGIFFrame(scene, width, height, t)
-			fmt.Printf("finished frame %d\n", i)
-		}()
-	}
-	wg.Wait()
-	delays := getUniformDelays(nFrames, frameSpacing)
-	animation := gif.GIF{
-		Image:     frames,
-		Delay:     delays, //[]int in 10ms
-		LoopCount: 0,
-	}
-	return gif.EncodeAll(f, &animation)
+// 			fmt.Printf("frame %d\n", i)
+// 			t := float64(i) / float64(nFrames-1) // range [0.0, 1.0]
+// 			frames[i] = getGIFFrame(scene, width, height, t)
+// 			fmt.Printf("finished frame %d\n", i)
+// 		}()
+// 	}
+// 	wg.Wait()
+// 	delays := getUniformDelays(nFrames, frameSpacing)
+// 	animation := gif.GIF{
+// 		Image:     frames,
+// 		Delay:     delays, //[]int in 10ms
+// 		LoopCount: 0,
+// 	}
+// 	return gif.EncodeAll(f, &animation)
 
-}
+// }
