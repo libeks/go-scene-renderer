@@ -38,11 +38,3 @@ func (d Uniform) GetColor(x, y float64) color.Color {
 func (d Uniform) GetFrame(t float64) Frame {
 	return d
 }
-
-// func (d Uniform) GetFrameColor(x, y float64, t float64) color.Color {
-// 	return d.Color
-// }
-
-// func (d Uniform) GetColorPalette(t float64) []color.Color {
-// 	return []color.Color{d.Color}
-// }

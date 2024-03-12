@@ -2,6 +2,7 @@ package scenes
 
 import (
 	"github.com/libeks/go-scene-renderer/color"
+	"github.com/libeks/go-scene-renderer/geometry"
 )
 
 // A scene that has several frames, indexed into by the t parameter, ranging from 0.0 -> 1.0
@@ -29,6 +30,14 @@ type Object interface {
 	// if there is no intersection, return nil
 	// and a z-index. The bigger the index, the farther the object
 	GetColorDepth(x, y float64) (*color.Color, float64)
+
+	// ApplyMatrix(m geometry.HomogeneusMatrix) Object
+}
+
+type TransformableObject interface {
+	Object
+
+	ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObject
 }
 
 type DynamicObject interface {

@@ -55,8 +55,11 @@ func (t Triangle) GetColorDepth(x, y float64) (*color.Color, float64) {
 	if !intersect {
 		return nil, 0
 	}
+	if c == 1 {
+		return &t.ColorB, depth
+	}
 	abGradient := color.SimpleGradient{t.ColorA, t.ColorB}
-	abColor := abGradient.Interpolate(b)
+	abColor := abGradient.Interpolate(b / (1 - c))
 	triangleGradient := color.SimpleGradient{abColor, t.ColorC}
 	cColor := triangleGradient.Interpolate(c)
 	// fmt.Printf("Depth %0.3f,%0.3f at %0.3f\n", x, y, depth)

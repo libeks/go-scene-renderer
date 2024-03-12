@@ -26,7 +26,7 @@ const (
 
 	// interpolateN = 1
 
-	cleanUpFrameCache = true
+	cleanUpFrameCache = false
 
 	GIF_FORMAT = "gif"
 	PNG_FORMAT = "png"
@@ -59,13 +59,13 @@ var (
 		ImagePreset: ImagePreset{
 			width:        1000,
 			height:       1000,
-			interpolateN: 8,
+			interpolateN: 1,
 		},
 		nFrameCount: 100,
 		frameRate:   30,
 	}
-	defaultVideoPreset = videoPresetTest
-	// defaultVideoPreset = videoPresetHiDef
+	// defaultVideoPreset = videoPresetTest
+	defaultVideoPreset = videoPresetHiDef
 	// defaultImagePreset =
 	// gradient = color.LinearGradient{
 	// 	Points: []color.Color{
@@ -101,7 +101,7 @@ var (
 	// 	// Gradient:     color.Grayscale,
 	// 	Gradient: gradient,
 	// }
-	scene = scenes.DummySpinningTriangle()
+	scene = scenes.DummySpinningCube()
 	// scene = scenes.DummyTriangle()
 
 	// scene = scenes.HorizGradient{
@@ -196,17 +196,27 @@ func renderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string) erro
 	}
 	fmt.Printf("PNG frame generation took %s\n", time.Since(start))
 	fmt.Printf("Finished rendering PNG frames\n")
-	encoder := "yuv444p"
-	format := "libx265"
+	// encoder := "yuv444p"
+	encoder := "yuv420p"
+	// format := "libx265"
+	format := "libx264"
 	cmd := exec.Command(
 		"ffmpeg", "-y",
+		// "-f", "lavfi",
 		"-framerate", fmt.Sprintf("%d", vp.frameRate),
 		"-i", outFileFormat,
 		"-c:v", format,
 		"-pix_fmt", encoder,
+		"-profile:v", "main",
+		"-level", "3.1",
+		"-preset", "medium",
+		"-crf", "23",
+		"-x264-params", "ref=4",
 		// "-preset", "slow",
 		// "-x265-params", "lossless=1",
 		"-b:v", "5000k",
+		// "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+		// "-c:a", "aac",
 		outFile)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
@@ -315,7 +325,8 @@ func getImage(scene scenes.Frame, ip ImagePreset) image.Image {
 				pixelColor = scene.GetColor(xR, yR)
 			}
 
-			grid[Pixel{x, y}] = pixelColor
+			// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
+			grid[Pixel{x, ip.height - y}] = pixelColor
 		}
 	}
 	img := image.NewRGBA(

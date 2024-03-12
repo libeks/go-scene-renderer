@@ -34,24 +34,230 @@ func SpinningTriangle(tri geometry.Triangle) DynamicTriangle {
 }
 
 func (s DynamicTriangle) GetFrame(t float64) Object {
-	matrix := geometry.RotateMatrixZ(t * (2 * math.Pi))
+	matrix := geometry.TranslationMatrix(geometry.Vector3D{
+		0, 0, -2,
+	}).MatrixMult(geometry.RotateMatrixY(t * (2 * math.Pi)))
 	// fmt.Printf("At t=%.3f the matrix is %s\n", t, matrix)
 	return s.t.ApplyMatrix(matrix)
 }
 
+type TransformedObject struct {
+	x        TransformableObject
+	matrixFn func(t float64) geometry.HomogeneusMatrix
+}
+
+func (o TransformedObject) GetFrame(t float64) Object {
+	m := o.matrixFn(t)
+	return o.x.ApplyMatrix(m)
+}
+
+type ComplexObject struct {
+	triangles []geometry.Triangle
+}
+
+func (o ComplexObject) GetColorDepth(x, y float64) (*color.Color, float64) {
+	minZ := math.MaxFloat64
+	var closestColor *color.Color
+	for _, obj := range o.triangles {
+		c, depth := obj.GetColorDepth(x, y)
+		if c != nil && depth < minZ {
+			minZ = depth
+			closestColor = c
+		}
+	}
+	if closestColor != nil {
+		return closestColor, minZ
+	}
+	return nil, 0
+}
+
+func (o ComplexObject) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObject {
+	newTriangles := make([]geometry.Triangle, len(o.triangles))
+	for i, triangle := range o.triangles {
+		newTriangles[i] = triangle.ApplyMatrix(m)
+	}
+	return ComplexObject{
+		triangles: newTriangles,
+	}
+}
+
+func UnitCube() TransformableObject {
+	return ComplexObject{
+		triangles: []geometry.Triangle{
+			geometry.Triangle{
+				geometry.Point{0, 0, 0},
+				geometry.Point{0, 1, 0},
+				geometry.Point{1, 0, 0},
+				color.Black,
+				color.Green,
+				color.Red,
+			},
+			geometry.Triangle{
+				geometry.Point{1, 1, 0},
+				geometry.Point{0, 1, 0},
+				geometry.Point{1, 0, 0},
+				color.Yellow,
+				color.Green,
+				color.Red,
+			},
+
+			geometry.Triangle{
+				geometry.Point{0, 0, 0},
+				geometry.Point{0, 0, 1},
+				geometry.Point{1, 0, 0},
+				color.Black,
+				color.Blue,
+				color.Red,
+			},
+			geometry.Triangle{
+				geometry.Point{1, 0, 1},
+				geometry.Point{0, 0, 1},
+				geometry.Point{1, 0, 0},
+				color.Magenta,
+				color.Blue,
+				color.Red,
+			},
+
+			geometry.Triangle{
+				geometry.Point{0, 0, 0},
+				geometry.Point{0, 0, 1},
+				geometry.Point{0, 1, 0},
+				color.Black,
+				color.Blue,
+				color.Green,
+			},
+			geometry.Triangle{
+				geometry.Point{0, 1, 1},
+				geometry.Point{0, 0, 1},
+				geometry.Point{0, 1, 0},
+				color.Cyan,
+				color.Blue,
+				color.Green,
+			},
+
+			// halfway
+
+			geometry.Triangle{
+				geometry.Point{0, 0, 1},
+				geometry.Point{0, 1, 1},
+				geometry.Point{1, 0, 1},
+				color.Blue,
+				color.Cyan,
+				color.Magenta,
+			},
+			geometry.Triangle{
+				geometry.Point{1, 1, 1},
+				geometry.Point{0, 1, 1},
+				geometry.Point{1, 0, 1},
+				color.White,
+				color.Cyan,
+				color.Magenta,
+			},
+
+			geometry.Triangle{
+				geometry.Point{0, 1, 0},
+				geometry.Point{0, 1, 1},
+				geometry.Point{1, 1, 0},
+				color.Green,
+				color.Cyan,
+				color.Yellow,
+			},
+			geometry.Triangle{
+				geometry.Point{1, 1, 1},
+				geometry.Point{0, 1, 1},
+				geometry.Point{1, 1, 0},
+				color.White,
+				color.Cyan,
+				color.Yellow,
+			},
+
+			geometry.Triangle{
+				geometry.Point{1, 0, 0},
+				geometry.Point{1, 0, 1},
+				geometry.Point{1, 1, 0},
+				color.Red,
+				color.Magenta,
+				color.Yellow,
+			},
+			geometry.Triangle{
+				geometry.Point{1, 1, 1},
+				geometry.Point{1, 0, 1},
+				geometry.Point{1, 1, 0},
+				color.White,
+				color.Magenta,
+				color.Yellow,
+			},
+		},
+	}.ApplyMatrix(geometry.TranslationMatrix(
+		geometry.Vector3D{
+			-0.5, -0.5, -0.5,
+		},
+	))
+}
+
+func DummySpinningCube() DynamicScene {
+	return CombinedDynamicScene{
+		Objects: []DynamicObject{
+			TransformedObject{
+				UnitCube(),
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.TranslationMatrix(geometry.Vector3D{
+						0, 0, -2,
+					}).MatrixMult(
+						geometry.RotateMatrixY(t * (2 * math.Pi)),
+					).MatrixMult(
+						// arcsin of 1/sqrt(3) (angle between short and long diagonals in a cube)
+						geometry.RotateMatrixX(-0.615).MatrixMult(
+							geometry.RotateMatrixZ(math.Pi / 4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
+						),
+					)
+				},
+			},
+		},
+		Background: Uniform{color.Black},
+	}
+}
+
+// func DummySpinningTriangle() DynamicScene {
+// 	return CombinedDynamicScene{
+// 		Objects: []DynamicObject{SpinningTriangle(
+// 			geometry.Triangle{
+// 				geometry.Point{-0.5, -0.5, -1.0},
+// 				geometry.Point{-0.5, 0.5, -1.0},
+// 				geometry.Point{0.5, -0.5, -1.0},
+// 				color.Hex("#6CB4F5"),
+// 				color.Hex("#EBF56C"),
+// 				color.Black,
+// 			},
+// 		)},
+// 		Background: Uniform{color.Black},
+// 	}
+// }
+
 func DummySpinningTriangle() DynamicScene {
 	return CombinedDynamicScene{
-		Objects: []DynamicObject{SpinningTriangle(
-			geometry.Triangle{
-				geometry.Point{-0.5, -0.5, -1.0},
-				geometry.Point{-0.5, 0.5, -1.0},
-				geometry.Point{0.5, -0.5, -1.0},
-				color.Hex("#6CB4F5"),
-				color.Hex("#EBF56C"),
-				color.Black,
+		Objects: []DynamicObject{
+			TransformedObject{
+				ComplexObject{
+					[]geometry.Triangle{
+						geometry.Triangle{
+							geometry.Point{-0.5, -0.5, -1.0},
+							geometry.Point{-0.5, 0.5, -1.0},
+							geometry.Point{0.5, -0.5, -1.0},
+							color.Hex("#6CB4F5"),
+							color.Hex("#EBF56C"),
+							color.Black,
+						},
+					},
+				},
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.TranslationMatrix(geometry.Vector3D{
+						0, 0, -2,
+					}).MatrixMult(geometry.RotateMatrixY(t * (2 * math.Pi)))
+				},
 			},
-		)},
-		Background: Uniform{color.White},
+		},
+		Background: Uniform{color.Black},
 	}
 }
 
