@@ -195,7 +195,7 @@ func UnitCube() TransformableObject {
 	))
 }
 
-func DummySpinningCube() DynamicScene {
+func DummySpinningCube(background DynamicScene) DynamicScene {
 	return CombinedDynamicScene{
 		Objects: []DynamicObject{
 			TransformedObject{
@@ -214,25 +214,9 @@ func DummySpinningCube() DynamicScene {
 				},
 			},
 		},
-		Background: Uniform{color.Black},
+		Background: background,
 	}
 }
-
-// func DummySpinningTriangle() DynamicScene {
-// 	return CombinedDynamicScene{
-// 		Objects: []DynamicObject{SpinningTriangle(
-// 			geometry.Triangle{
-// 				geometry.Point{-0.5, -0.5, -1.0},
-// 				geometry.Point{-0.5, 0.5, -1.0},
-// 				geometry.Point{0.5, -0.5, -1.0},
-// 				color.Hex("#6CB4F5"),
-// 				color.Hex("#EBF56C"),
-// 				color.Black,
-// 			},
-// 		)},
-// 		Background: Uniform{color.Black},
-// 	}
-// }
 
 func DummySpinningTriangle() DynamicScene {
 	return CombinedDynamicScene{

@@ -34,7 +34,7 @@ func (p Point) Add(q Point) Vector3D {
 }
 
 func (p Point) Vector() Vector3D {
-	return Vector3D{p.X, p.Y, p.Z}
+	return Vector3D(p)
 }
 
 func (p Point) ToHomogenous() HomogenousVector {

@@ -13,7 +13,14 @@ type SineWave struct {
 	Gradient     color.Gradient
 }
 
-func (s SineWave) GetColor(x, y, t float64) color.Color {
+func (s SineWave) GetFrame(t float64) Frame {
+	return FrameHelper{
+		t,
+		s,
+	}
+}
+
+func (s SineWave) GetFrameColor(x, y, t float64) color.Color {
 	tRatio := 1 / (2 * math.Pi * float64(s.SinCycles))
 	valMinOneToOne := math.Sin(float64(t)/tRatio + float64(x+y)/s.XYRatio)
 	valZeroOne := sigmoid(valMinOneToOne * s.SigmoidRatio)
@@ -56,9 +63,9 @@ func (f FrameHelper) GetColor(x, y float64) color.Color {
 	return f.scene.GetFrameColor(x, y, f.t)
 }
 
-func minPlusOneToZO(v float64) float64 {
-	return v/2 + 0.5
-}
+// func minPlusOneToZO(v float64) float64 {
+// 	return v/2 + 0.5
+// }
 
 func sigmoid(v float64) float64 {
 	// takes from (-inf, +int) to (0.0, 1.0), with an S-like shape centered on 0.0.
