@@ -1,10 +1,11 @@
 # go-scene-renderer
 Rendering visual scenes in golang
 
-`go run ./... gif /Users/janis.libeks/own/go-scene-renderer/gallery/sin.gif`
+`go run ./... mp4 /Users/janis.libeks/own/go-scene-renderer/gallery/sin.mp4`
 
 Example:
-![alt text](https://github.com/libeks/go-scene-renderer/blob/main/gallery/sin.gif)
+
+![alt text](https://github.com/libeks/go-scene-renderer/blob/main/gallery/cube_sine.gif)
 
 ## TODOs:
 * Flip coordinates so a scene is rendered in usual x,y plot way
