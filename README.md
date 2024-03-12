@@ -3,7 +3,7 @@ Rendering visual scenes in golang
 
 `go run ./... mp4 /Users/janis.libeks/own/go-scene-renderer/gallery/sin.mp4`
 
-Example:
+Example (converted from mp4 to gif for illustrative purposes):
 
 ![alt text](https://github.com/libeks/go-scene-renderer/blob/main/gallery/cube_sine.gif)
 
@@ -12,16 +12,6 @@ Example:
 * Add more intense gradients, like Bezier, etc
 * Find Lab color space transformation code, try that out
 * Add Perlin noise-based scenes
-* Use progress bar for rendering progress
-	* https://github.com/schollz/progressbar
-* Figure out why video files cannot be transfered to iPhone. Is it due to a missing audio track?
-	* no, empty audio is still rejected
-
-GIFs:
-* Be smarter about palette building based on how many pixels will need to change
-	* Consider the distributions of gradient values in frame
-
-
 
 ## Further Reading:
 * https://graphics.stanford.edu/courses/cs348a-09-fall/Handouts/handout15.pdf
