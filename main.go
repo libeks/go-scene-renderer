@@ -19,7 +19,8 @@ const (
 var (
 	// defaultVideoPreset = renderer.VideoPresetTest
 	defaultVideoPreset = renderer.VideoPresetHiDef
-	defaultImagePreset = renderer.ImagePresetTest
+	// defaultImagePreset = renderer.ImagePresetTest
+	defaultImagePreset = renderer.ImagePresetHiDef
 
 	// defaultImagePreset =
 	// gradient = color.LinearGradient{
