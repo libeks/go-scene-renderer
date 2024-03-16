@@ -20,6 +20,7 @@
 # vendor/
 gallery/
 .tmp/
+pprof/
 
 # Go workspace file
 go.work
