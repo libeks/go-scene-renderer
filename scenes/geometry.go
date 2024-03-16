@@ -81,58 +81,94 @@ func (o ComplexObject) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObj
 	}
 }
 
-func UnitCube() TransformableObject {
+// returns a unit square in the x-y plane, with colors arranged as indicated by x,y colors in color parameter names
+func UnitSquare(c00, c10, c11, c01 color.Color) []geometry.Triangle {
+	return []geometry.Triangle{
+		geometry.Triangle{
+			geometry.Point{0, 0, 0},
+			geometry.Point{0, 1, 0},
+			geometry.Point{1, 0, 0},
+			c00,
+			c01,
+			c10,
+		},
+		geometry.Triangle{
+			geometry.Point{1, 1, 0},
+			geometry.Point{0, 1, 0},
+			geometry.Point{1, 0, 0},
+			c11,
+			c01,
+			c10,
+		},
+	}
+}
+
+func UnitRGBCube() TransformableObject {
+	return UnitCube(
+		color.Black,
+		color.Red,
+		color.Yellow,
+		color.Green,
+		color.Blue,
+		color.Magenta,
+		color.White,
+		color.Cyan,
+	)
+}
+
+// returns a unit cube, with colors arranged as indicated by x,y,z colors in color parameter names
+func UnitCube(c000, c100, c110, c010, c001, c101, c111, c011 color.Color) TransformableObject {
 	return ComplexObject{
 		triangles: []geometry.Triangle{
 			geometry.Triangle{
 				geometry.Point{0, 0, 0},
 				geometry.Point{0, 1, 0},
 				geometry.Point{1, 0, 0},
-				color.Black,
-				color.Green,
-				color.Red,
+				c000,
+				c010,
+				c100,
 			},
 			geometry.Triangle{
 				geometry.Point{1, 1, 0},
 				geometry.Point{0, 1, 0},
 				geometry.Point{1, 0, 0},
-				color.Yellow,
-				color.Green,
-				color.Red,
+				c110,
+				c010,
+				c100,
 			},
 
 			geometry.Triangle{
 				geometry.Point{0, 0, 0},
 				geometry.Point{0, 0, 1},
 				geometry.Point{1, 0, 0},
-				color.Black,
-				color.Blue,
-				color.Red,
+				c000,
+				c001,
+				c100,
 			},
 			geometry.Triangle{
 				geometry.Point{1, 0, 1},
 				geometry.Point{0, 0, 1},
 				geometry.Point{1, 0, 0},
-				color.Magenta,
-				color.Blue,
-				color.Red,
+				c101,
+				c001,
+				c100,
 			},
 
 			geometry.Triangle{
 				geometry.Point{0, 0, 0},
 				geometry.Point{0, 0, 1},
 				geometry.Point{0, 1, 0},
-				color.Black,
-				color.Blue,
-				color.Green,
+				c000,
+				c001,
+				c010,
 			},
 			geometry.Triangle{
 				geometry.Point{0, 1, 1},
 				geometry.Point{0, 0, 1},
 				geometry.Point{0, 1, 0},
-				color.Cyan,
-				color.Blue,
-				color.Green,
+				c011,
+				c001,
+				c010,
 			},
 
 			// halfway
@@ -141,51 +177,51 @@ func UnitCube() TransformableObject {
 				geometry.Point{0, 0, 1},
 				geometry.Point{0, 1, 1},
 				geometry.Point{1, 0, 1},
-				color.Blue,
-				color.Cyan,
-				color.Magenta,
+				c001,
+				c011,
+				c101,
 			},
 			geometry.Triangle{
 				geometry.Point{1, 1, 1},
 				geometry.Point{0, 1, 1},
 				geometry.Point{1, 0, 1},
-				color.White,
-				color.Cyan,
-				color.Magenta,
+				c111,
+				c011,
+				c101,
 			},
 
 			geometry.Triangle{
 				geometry.Point{0, 1, 0},
 				geometry.Point{0, 1, 1},
 				geometry.Point{1, 1, 0},
-				color.Green,
-				color.Cyan,
-				color.Yellow,
+				c010,
+				c011,
+				c110,
 			},
 			geometry.Triangle{
 				geometry.Point{1, 1, 1},
 				geometry.Point{0, 1, 1},
 				geometry.Point{1, 1, 0},
-				color.White,
-				color.Cyan,
-				color.Yellow,
+				c111,
+				c011,
+				c110,
 			},
 
 			geometry.Triangle{
 				geometry.Point{1, 0, 0},
 				geometry.Point{1, 0, 1},
 				geometry.Point{1, 1, 0},
-				color.Red,
-				color.Magenta,
-				color.Yellow,
+				c100,
+				c101,
+				c110,
 			},
 			geometry.Triangle{
 				geometry.Point{1, 1, 1},
 				geometry.Point{1, 0, 1},
 				geometry.Point{1, 1, 0},
-				color.White,
-				color.Magenta,
-				color.Yellow,
+				c111,
+				c101,
+				c110,
 			},
 		},
 	}.ApplyMatrix(geometry.TranslationMatrix(
@@ -199,7 +235,7 @@ func DummySpinningCube(background DynamicScene) DynamicScene {
 	return CombinedDynamicScene{
 		Objects: []DynamicObject{
 			TransformedObject{
-				UnitCube(),
+				UnitRGBCube(),
 				func(t float64) geometry.HomogeneusMatrix {
 					return geometry.TranslationMatrix(geometry.Vector3D{
 						0, 0, -2,

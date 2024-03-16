@@ -14,7 +14,6 @@ Example (converted from mp4 to gif for illustrative purposes):
 * Add wireframe rendering
 * Increase anti-aliasing near object edges (adaptive anti-alias)
 * Add texture mapping
-* Generalize color application to unit cube
 
 
 ## Further Reading:
