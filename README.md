@@ -15,7 +15,6 @@ Example (converted from mp4 to gif for illustrative purposes):
 * Increase anti-aliasing near object edges (adaptive anti-alias)
 * Add texture mapping
 * Generalize color application to unit cube
-* Add render options into command parameters instead of being in code
 
 
 ## Further Reading:
