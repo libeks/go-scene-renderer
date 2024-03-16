@@ -1,7 +1,7 @@
 # go-scene-renderer
 Rendering visual scenes in golang
 
-`go run ./... mp4 /Users/janis.libeks/own/go-scene-renderer/gallery/sin.mp4`
+`go run ./... -video test mp4 out.mp4`
 
 Example (converted from mp4 to gif for illustrative purposes):
 

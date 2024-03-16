@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -19,13 +20,6 @@ const (
 )
 
 var (
-	// defaultVideoPreset = renderer.VideoPresetTest
-	defaultVideoPreset = renderer.VideoPresetHiDef
-	// defaultVideoPreset = renderer.VideoPresetIntermediate
-	// defaultImagePreset = renderer.ImagePresetTest
-	defaultImagePreset = renderer.ImagePresetHiDef
-
-	// defaultImagePreset =
 	// gradient = color.LinearGradient{
 	// 	Points: []color.Color{
 	// 		color.Hex("#6CB4F5"),
@@ -94,7 +88,14 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	argsWithoutProg := os.Args[1:]
+	var imageFlag = flag.String("image", "default", "image options, either <width>,<height>,<interpolate> or one of default/test/hidef")
+	var videoFlag = flag.String("video", "default", "video options, either <width>,<height>,<interpolate>,<nframes>,<frameRate> or one of default/test/intermediate/hidef")
+
+	flag.Parse()
+	fmt.Printf("image flag: %s\n", *imageFlag)
+	fmt.Printf("video flag: %s\n", *videoFlag)
+	argsWithoutProg := flag.Args()
+	fmt.Printf("Args: %+v\n", argsWithoutProg)
 	if len(argsWithoutProg) != 2 {
 		log.Fatal("Insufficient arguments, expect <type> <output.gif>.")
 	}
@@ -104,21 +105,31 @@ func main() {
 	if err != nil {
 		log.Fatalf("Invalid file path %s", err)
 	}
+
 	switch format {
 	case PNG_FORMAT:
 		t := 0.5
-		err := renderer.RenderPNG(scene.GetFrame(t), defaultImagePreset, outFile)
+		imagePreset, err := renderer.ParseImagePreset(*imageFlag)
+		if err != nil {
+			log.Fatalf("%s", err)
+		}
+		err = renderer.RenderPNG(scene.GetFrame(t), imagePreset, outFile)
 		if err != nil {
 			fmt.Printf("Failure %s\n", err)
 		}
 	case MP4_FORMAT:
-		err := renderer.RenderVideo(scene, defaultVideoPreset, outFile)
+		videoPreset, err := renderer.ParseVideoPreset(*videoFlag)
+		if err != nil {
+			log.Fatalf("%s", err)
+		}
+		err = renderer.RenderVideo(scene, videoPreset, outFile)
 		if err != nil {
 			fmt.Printf("Failure %s\n", err)
 		}
 	default:
 		log.Fatalf("Unknown format %s", format)
 	}
+
 	if do_pprof {
 		f1, err := os.Create("mem.pprof")
 		if err != nil {

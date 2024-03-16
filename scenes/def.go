@@ -11,18 +11,6 @@ type AnimatedScene interface {
 	GetFrameColor(x, y float64, t float64) color.Color
 }
 
-// A GIFScene is an animated scene, but also has a GetColorPalette method
-// which returns the palette of that frame
-type GIFScene interface {
-	AnimatedScene
-	// GetColorPalette returns a list of colors that the scene will contain
-	// This will help the GIF rendering, as we won't have to perform k-means algo
-	// on all colors in every frame, saving time
-	// This should ideally be no more than 256 colors
-	// An empty slice means k-means will be performed
-	GetColorPalette(t float64) []color.Color
-}
-
 type Object interface {
 	// returns the color of the object at a ray
 	// emanating from the camera at (0,0,0), pointed in the direction
