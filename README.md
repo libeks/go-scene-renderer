@@ -8,10 +8,15 @@ Example (converted from mp4 to gif for illustrative purposes):
 ![alt text](https://github.com/libeks/go-scene-renderer/blob/main/gallery/cube_sine.gif)
 
 ## TODOs:
-* Flip coordinates so a scene is rendered in usual x,y plot way
 * Add more intense gradients, like Bezier, etc
 * Find Lab color space transformation code, try that out
 * Add Perlin noise-based scenes
+* Add wireframe rendering
+* Increase anti-aliasing near object edges (adaptive anti-alias)
+* Add texture mapping
+* Generalize color application to unit cube
+* Add render options into command parameters instead of being in code
+
 
 ## Further Reading:
 * https://graphics.stanford.edu/courses/cs348a-09-fall/Handouts/handout15.pdf

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/pprof"
 
 	"github.com/libeks/go-scene-renderer/color"
 	"github.com/libeks/go-scene-renderer/renderer"
@@ -14,11 +15,13 @@ import (
 const (
 	PNG_FORMAT = "png"
 	MP4_FORMAT = "mp4"
+	do_pprof   = false
 )
 
 var (
 	// defaultVideoPreset = renderer.VideoPresetTest
 	defaultVideoPreset = renderer.VideoPresetHiDef
+	// defaultVideoPreset = renderer.VideoPresetIntermediate
 	// defaultImagePreset = renderer.ImagePresetTest
 	defaultImagePreset = renderer.ImagePresetHiDef
 
@@ -79,6 +82,18 @@ var (
 )
 
 func main() {
+	if do_pprof {
+		f, err := os.Create("cpu.pprof")
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
+
 	argsWithoutProg := os.Args[1:]
 	if len(argsWithoutProg) != 2 {
 		log.Fatal("Insufficient arguments, expect <type> <output.gif>.")
@@ -103,5 +118,15 @@ func main() {
 		}
 	default:
 		log.Fatalf("Unknown format %s", format)
+	}
+	if do_pprof {
+		f1, err := os.Create("mem.pprof")
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		defer f1.Close() // error handling omitted for example
+		if err := pprof.WriteHeapProfile(f1); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
 	}
 }

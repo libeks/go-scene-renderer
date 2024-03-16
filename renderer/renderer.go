@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"image"
-	go_color "image/color"
 	"image/png"
 	"math/rand"
 	"os"
@@ -19,17 +18,20 @@ import (
 )
 
 const (
-	frameConcurrency = 10 // should depend on video preset. Too many and you'll run out of memory.
+	frameConcurrency  = 10   // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
+	generateVideoPNGs = true // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
 )
 
 var (
 	cleanUpFrameCache = false
 )
 
+// Renderer does two things - tracks progress of per-frame goroutines, and updates
+// a progress bar based on the number of image rows that have been rendered so far
 type Renderer struct {
-	lineChannel chan int
-	fileChannel chan int
-	doneChannel chan int
+	lineChannel chan int // each line completion is sent on lineChannel
+	fileChannel chan int // each file completion is sent on fileChannel
+	doneChannel chan int // doneChannel sends a message when all frames are rendered
 }
 
 func newRenderer() Renderer {
@@ -45,56 +47,51 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string) erro
 	// clean up frames in temp directory before starting
 	tmpDirectory := ".tmp"
 	fileWildcardPattern := filepath.Join(".", tmpDirectory, "frame_*.png")
-	if err := cleanUpTempFiles(fileWildcardPattern); err != nil {
-		return err
-	}
-
 	outFileFormat := filepath.Join(tmpDirectory, "frame_%03d.png")
-	if err := createSubdirectories(outFileFormat); err != nil {
-		return err
-	}
-	fmt.Printf("Rendering frames...\n")
-	r := newRenderer()
-	var sem = semaphore.NewWeighted(int64(frameConcurrency))
-	go r.progressbar(vp.nFrameCount, vp.nFrameCount*vp.height) // block until completion
-	for i := range vp.nFrameCount {
-		if err := sem.Acquire(context.Background(), 1); err != nil {
+	if generateVideoPNGs {
+		if err := cleanUpTempFiles(fileWildcardPattern); err != nil {
 			return err
 		}
-		go func() {
-			// fmt.Printf("starting frame %d\n", i)
-			outFile := fmt.Sprintf(outFileFormat, i)
-			f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE, 0600)
-			if err != nil {
-				panic(err)
+		if err := createSubdirectories(outFileFormat); err != nil {
+			return err
+		}
+		fmt.Printf("Rendering frames...\n")
+		r := newRenderer()
+		var sem = semaphore.NewWeighted(int64(frameConcurrency))
+		go r.progressbar(vp.nFrameCount, vp.nFrameCount*vp.height) // start progressbar before launching goroutines to not deadlock
+		for i := range vp.nFrameCount {
+			if err := sem.Acquire(context.Background(), 1); err != nil {
+				return err
 			}
-			defer f.Close()
-			t := float64(i) / float64(vp.nFrameCount-1) // range [0.0, 1.0]
-			// fmt.Printf("getting frame %d\n", i)
-			frameObj := scene.GetFrame(t)
-			frame := r.getImage(frameObj, vp.ImagePreset)
-			err = png.Encode(f, frame)
-			if err != nil {
-				panic(err)
-			}
-			// fmt.Printf("ending frame %d\n", i)
-			sem.Release(1)
-			r.fileChannel <- 1
+			go func() {
+				outFile := fmt.Sprintf(outFileFormat, i)
+				f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE, 0600)
+				if err != nil {
+					panic(err)
+				}
+				defer f.Close()
+				t := float64(i) / float64(vp.nFrameCount-1) // range [0.0, 1.0]
+				frameObj := scene.GetFrame(t)
+				frame := r.getImage(frameObj, vp.ImagePreset)
+				err = png.Encode(f, frame)
+				if err != nil {
+					panic(err)
+				}
+				sem.Release(1)
+				r.fileChannel <- 1
 
-		}()
+			}()
+		}
+		r.wait() // block until completion
+
+		fmt.Printf("PNG frame generation took %s\n", time.Since(start))
 	}
-	r.wait() // block until completion
 
-	// fmt.Printf("Got %d lines, %d files \n", lineProgress, fileProgress)
-	// if err := g.Wait(); err != nil {
-	// 	return err
-	// }
-	fmt.Printf("PNG frame generation took %s\n", time.Since(start))
-	fmt.Printf("Finished rendering PNG frames\n")
+	// render video file from png frame images in .tmp/
 	// encoder := "yuv444p"
 	encoder := "yuv420p"
-	// format := "libx265"
-	format := "libx264"
+	format := "libx265"
+	// format := "libx264"
 	cmd := exec.Command(
 		"ffmpeg", "-y",
 		// "-f", "lavfi",
@@ -105,11 +102,12 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string) erro
 		"-profile:v", "main",
 		"-level", "3.1",
 		"-preset", "medium",
-		"-crf", "23",
-		"-x264-params", "ref=4",
+		"-crf", "15",
+		// "-x264-params", "ref=4",
 		// "-preset", "slow",
 		// "-x265-params", "lossless=1",
-		"-b:v", "5000k",
+		// "-b:v", "10000k",
+		"-tag:v", "hvc1",
 		// "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
 		// "-c:a", "aac",
 		outFile)
@@ -151,27 +149,25 @@ func (r Renderer) progressbar(nFiles, nLines int) {
 		case <-r.lineChannel:
 			lineProgress += 1
 			bar.Add(1)
-			// fmt.Println("received line")
 		case <-r.fileChannel:
-			// fmt.Printf("File progress %d\n", fileProgress)
 			fileProgress += 1
 			if fileProgress == nFiles {
-				// fmt.Printf("sending done signal\n")
 				r.doneChannel <- 1
-				// fmt.Printf("sent done signal\n")
 				return
 			}
 		}
 	}
 }
 func (r Renderer) wait() {
-	// fmt.Printf("waiting\n")
 	<-r.doneChannel
-	// fmt.Printf("done waiting\n")
 }
 
 func (r Renderer) getImage(scene scenes.Frame, ip ImagePreset) image.Image {
-	grid := map[Pixel]go_color.Color{}
+	img := image.NewRGBA(
+		image.Rect(
+			0, 0, ip.width, ip.height,
+		),
+	)
 	for x := 0; x < ip.width; x++ {
 		for y := 0; y < ip.height; y++ {
 			xR, yR := getImageSpace(x, ip.width), getImageSpace(y, ip.height)
@@ -189,17 +185,9 @@ func (r Renderer) getImage(scene scenes.Frame, ip ImagePreset) image.Image {
 			}
 
 			// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
-			grid[Pixel{x, ip.height - y}] = pixelColor
+			img.Set(x, ip.height-y, pixelColor)
 		}
 		r.lineChannel <- 1
-	}
-	img := image.NewRGBA(
-		image.Rect(
-			0, 0, ip.width, ip.height,
-		),
-	)
-	for pixel, color := range grid {
-		img.Set(pixel.X, pixel.Y, color)
 	}
 	return img
 }

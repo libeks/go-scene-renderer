@@ -23,15 +23,25 @@ var (
 		height:       200,
 		interpolateN: 1,
 	}
+	ImagePresetIntermediate = ImagePreset{
+		width:        500,
+		height:       500,
+		interpolateN: 1,
+	}
 	ImagePresetHiDef = ImagePreset{
 		width:        1000,
 		height:       1000,
-		interpolateN: 16,
+		interpolateN: 4,
 	}
 	VideoPresetTest = VideoPreset{
 		ImagePreset: ImagePresetTest,
 		nFrameCount: 30,
 		frameRate:   15,
+	}
+	VideoPresetIntermediate = VideoPreset{
+		ImagePreset: ImagePresetIntermediate,
+		nFrameCount: 100,
+		frameRate:   30,
 	}
 	VideoPresetHiDef = VideoPreset{
 		ImagePreset: ImagePresetHiDef,
