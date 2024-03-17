@@ -41,7 +41,7 @@ var (
 	// 	Gradient: gradient,
 	// }
 	// scene = scenes.DummySpinningCube(scenes.Uniform{color.Black})
-	scene = scenes.DummySpinningCubes2(scenes.SineWave{
+	scene = scenes.SpinningMulticube(scenes.SineWave{
 		XYRatio:      0.1,
 		SigmoidRatio: 2,
 		SinCycles:    3,

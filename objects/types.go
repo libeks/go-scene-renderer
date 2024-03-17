@@ -28,6 +28,7 @@ type DynamicObject interface {
 	GetFrame(t float64) Object
 }
 
+// TransformedObject implements DynamicObject
 type TransformedObject struct {
 	Object   TransformableObject
 	MatrixFn func(t float64) geometry.HomogeneusMatrix
@@ -38,6 +39,7 @@ func (o TransformedObject) GetFrame(t float64) Object {
 	return o.Object.ApplyMatrix(m)
 }
 
+// ComplexObject implements TransformableObject
 type ComplexObject struct {
 	Objs []TransformableObject
 }

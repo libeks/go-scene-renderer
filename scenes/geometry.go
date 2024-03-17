@@ -88,33 +88,49 @@ func DummySpinningCubes(background DynamicScene) DynamicScene {
 	}
 }
 
-func DummySpinningCubes2(background DynamicScene) DynamicScene {
+func SpinningMulticube(background DynamicScene) DynamicScene {
 	initialCube := UnitRGBCube()
-	// initialCube := UnitCube(
-	// 	color.Black,
-	// 	color.White,
-	// 	color.White,
-	// 	color.White,
-	// 	color.White,
-	// 	color.White,
-	// 	color.Black,
-	// 	color.White,
-	// )
-	// diagonalCube := initialCube.ApplyMatrix(geometry.RotateMatrixX(-0.615).MatrixMult(
-	// 	geometry.RotateMatrixZ(math.Pi / 4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
-	// )) // cube with lower point at (0,0,0), upper at (0,sqrt(3) ,0)
+	diagonalCube := initialCube.ApplyMatrix(geometry.RotateMatrixX(-0.615).MatrixMult(
+		geometry.RotateMatrixZ(math.Pi / 4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
+	)) // cube with lower point at (0,0,0), upper at (0,sqrt(3) ,0)
 
-	diagonalCube := initialCube
+	// diagonalCube := initialCube
+	// spacing := math.Sqrt(3)
+	spacing := 2.0
+
+	column := objects.ComplexObject{
+		[]objects.TransformableObject{
+			diagonalCube.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, -spacing, 0})),
+			diagonalCube.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, 0})),
+			diagonalCube.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, spacing, 0})),
+		},
+	}
+
+	slice := objects.ComplexObject{
+		Objs: []objects.TransformableObject{
+			column.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{-spacing, 0, 0})),
+			column.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, 0})),
+			column.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{spacing, 0, 0})),
+		},
+	}
+
+	multiCube := objects.ComplexObject{
+		Objs: []objects.TransformableObject{
+			slice.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, -spacing})),
+			slice.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, 0})),
+			slice.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, spacing})),
+		},
+	}
 
 	// scene :=
 
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObject{
 			objects.TransformedObject{
-				Object: diagonalCube,
+				Object: multiCube,
 				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
 					return geometry.TranslationMatrix(geometry.Vector3D{
-						0, 0, -3,
+						0, 0, -7,
 					}).MatrixMult(
 						geometry.RotateMatrixY(t * (2 * math.Pi)),
 					)
