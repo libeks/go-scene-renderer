@@ -41,13 +41,45 @@ func (p Point) ToHomogenous() HomogenousVector {
 	return HomogenousVector{p.X, p.Y, p.Z, 1}
 }
 
-type Triangle struct {
-	A      Point
-	B      Point
-	C      Point
+type TriangleGradientTexture struct {
 	ColorA color.Color
 	ColorB color.Color
 	ColorC color.Color
+}
+
+// given coordinates from the A point towards B and C (each in the range of (0,1))
+// return what color it should be
+func (t TriangleGradientTexture) GetTextureColor(b, c float64) color.Color {
+	if c == 1 {
+		return t.ColorB
+	}
+	abGradient := color.SimpleGradient{t.ColorA, t.ColorB}
+	abColor := abGradient.Interpolate(b / (1 - c))
+	triangleGradient := color.SimpleGradient{abColor, t.ColorC}
+	cColor := triangleGradient.Interpolate(c)
+	return cColor
+}
+
+func GradientTriangle(a, b, c Point, colorA, colorB, colorC color.Color) Triangle {
+	return Triangle{
+		A: a,
+		B: b,
+		C: c,
+		Colorer: TriangleGradientTexture{
+			ColorA: colorA,
+			ColorB: colorB,
+			ColorC: colorC,
+		},
+	}
+}
+
+type Triangle struct {
+	A Point
+	B Point
+	C Point
+	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but a+b<1.0
+	// it describes the coordinates on the triangle from A towards B and C, respectively
+	Colorer color.Texture
 }
 
 func (t Triangle) GetColorDepth(x, y float64) (*color.Color, float64) {
@@ -55,15 +87,8 @@ func (t Triangle) GetColorDepth(x, y float64) (*color.Color, float64) {
 	if !intersect {
 		return nil, 0
 	}
-	if c == 1 {
-		return &t.ColorB, depth
-	}
-	abGradient := color.SimpleGradient{t.ColorA, t.ColorB}
-	abColor := abGradient.Interpolate(b / (1 - c))
-	triangleGradient := color.SimpleGradient{abColor, t.ColorC}
-	cColor := triangleGradient.Interpolate(c)
-	// fmt.Printf("Depth %0.3f,%0.3f at %0.3f\n", x, y, depth)
-	return &cColor, depth
+	color := t.Colorer.GetTextureColor(b, c)
+	return &color, depth
 }
 
 func (t Triangle) ApplyMatrix(m HomogeneusMatrix) Triangle {
@@ -81,15 +106,17 @@ func (t Triangle) ApplyMatrix(m HomogeneusMatrix) Triangle {
 	}
 	return Triangle{
 		a, b, c,
-		t.ColorA, t.ColorB, t.ColorC,
+		t.Colorer,
 	}
+}
+
+func (t Triangle) String() string {
+	return fmt.Sprintf("Triangle %s %s %s", t.A, t.B, t.C)
 }
 
 func (t Triangle) plane() Plane {
 	bVector := t.bVect()
 	cVector := t.cVect()
-	// fmt.Printf("BVector %s\n", bVector)
-	// fmt.Printf("CVector %s\n", cVector)
 	nVector := bVector.CrossProduct(cVector)
 	return Plane{nVector, t.A.Vector().DotProduct(nVector)}
 }
@@ -106,27 +133,20 @@ func (t Triangle) cVect() Vector3D {
 // bool signifies whether intersection is inside the triange
 // third float is the depth, in positive values
 func (t Triangle) rayIntersectLocalCoords(r Ray) (float64, float64, float64, bool) {
-	// fmt.Printf("plane %s\n", t.Plane())
-	// fmt.Printf("ray %s\n", r)
 	intersectDot := t.plane().IntersectPoint(r)
-	// fmt.Printf("intersection dot %s\n", intersectDot)
 	if intersectDot == nil {
 		return 0, 0, 0, false
 	}
 	iVect := intersectDot.Subtract(t.A)
 	iMag := OriginPoint.Subtract(*intersectDot).Mag()
-	// fmt.Printf("intersection vector %s\n", iVect)
 
 	bVect := t.bVect()
 	cVect := t.cVect()
-	// fmt.Printf("bVect %s\n", bVect)
 	b := iVect.ScalarProject(bVect)
 	c := iVect.ScalarProject(cVect)
-	// fmt.Printf("plane coords %0.3f %0.3f\n", b, c)
 	// check if vector (b,c) is inside the triangle [(0,0), (1,0), (0,1)]
 	if b < 0.0 || b > 1.0 || c < 0.0 || c > 1.0 {
 		// outside the unit square
-		// fmt.Printf("Outside unit square\n")
 		return b, c, iMag, false
 	}
 	if b+c > 1.0 {
@@ -135,7 +155,6 @@ func (t Triangle) rayIntersectLocalCoords(r Ray) (float64, float64, float64, boo
 		return b, c, iMag, false
 	}
 	// inside unit square and inside the hypotenuse
-	// fmt.Printf("inside triangle\n")
 	return b, c, iMag, true
 }
 

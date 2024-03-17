@@ -18,6 +18,8 @@ type Object interface {
 	// if there is no intersection, return nil
 	// and a z-index. The bigger the index, the farther the object
 	GetColorDepth(x, y float64) (*color.Color, float64)
+
+	String() string
 }
 
 type TransformableObject interface {
