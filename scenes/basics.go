@@ -7,8 +7,8 @@ import (
 )
 
 // returns a unit square in the x-y plane, with colors arranged as indicated by x,y colors in color parameter names
-func UnitSquare(c00, c10, c11, c01 color.Color) []objects.Triangle {
-	return []objects.Triangle{
+func UnitSquare(c00, c10, c11, c01 color.Color) []*objects.Triangle {
+	return []*objects.Triangle{
 		objects.GradientTriangle(
 			geometry.Point{0, 0, 0},
 			geometry.Point{0, 1, 0},

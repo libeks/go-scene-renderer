@@ -51,16 +51,18 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 	fileWildcardPattern := filepath.Join(".", tmpDirectory, "frame_*.png")
 	outFileFormat := filepath.Join(tmpDirectory, "frame_%03d.png")
 	if generateVideoPNGs {
+		fmt.Printf("Preparing setup...\n")
 		if err := cleanUpTempFiles(fileWildcardPattern); err != nil {
 			return err
 		}
 		if err := createSubdirectories(outFileFormat); err != nil {
 			return err
 		}
-		fmt.Printf("Rendering frames...\n")
 		r := newRenderer()
 		var sem = semaphore.NewWeighted(int64(frameConcurrency))
 		go r.progressbar(vp.nFrameCount, vp.nFrameCount*vp.height) // start progressbar before launching goroutines to not deadlock
+
+		fmt.Printf("Rendering frames...\n")
 		for i := range vp.nFrameCount {
 			if err := sem.Acquire(context.Background(), 1); err != nil {
 				return err

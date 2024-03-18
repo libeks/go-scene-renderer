@@ -48,7 +48,3 @@ func (p PerlinNoise) GetColor(x, y float64) color.Color {
 func (p PerlinNoise) GetObjects() []objects.Object {
 	return nil
 }
-
-func toZeroOne(x float64) float64 {
-	return x/2 + 0.5
-}
