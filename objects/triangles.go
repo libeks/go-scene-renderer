@@ -82,6 +82,33 @@ func (t *Triangle) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObject 
 	}
 }
 
+func (t Triangle) Flatten() []Triangle {
+	return []Triangle{t}
+}
+
+func (t Triangle) GetBoundingBox() BoundingBox {
+	// TODO: cache the bounding box?
+	a, ad := t.A.ToPixel()
+	b, bd := t.B.ToPixel()
+	c, cd := t.C.ToPixel()
+	minx := min(a.X, b.X, c.X)
+	miny := min(a.Y, b.Y, c.Y)
+	maxx := max(a.X, b.X, c.X)
+	maxy := max(a.Y, b.Y, c.Y)
+	mindepth := min(ad, bd, cd)
+	maxdepth := max(ad, bd, cd)
+	return BoundingBox{
+		TopLeft: geometry.Pixel{
+			minx, miny,
+		},
+		BottomRight: geometry.Pixel{
+			maxx, maxy,
+		},
+		MinDepth: mindepth,
+		MaxDepth: maxdepth,
+	}
+}
+
 func (t Triangle) GetWireframe() []geometry.Line {
 	return []geometry.Line{
 		geometry.Line{t.A, t.B},

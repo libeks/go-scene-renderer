@@ -37,7 +37,7 @@ var (
 	ImagePresetHiDef = ImagePreset{
 		width:        1000,
 		height:       1000,
-		interpolateN: 4,
+		interpolateN: 1,
 	}
 	VideoPresetTest = VideoPreset{
 		ImagePreset: ImagePresetTest,

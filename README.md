@@ -25,11 +25,11 @@ Example (converted from mp4 to gif for illustrative purposes):
 
 
 ## Benchmarks:
-Rendering the SpinningMulticube scene with the `-video=intermediate` preset takes this long:
+Rendering the `SpinningMulticube` scene with the `-video=intermediate` preset takes this long:
 * 1m20s - base
 * 50s - by caching triangle intermediate results
 
-The same scene with `-video=hidef` takes:
+The same scene with `-video=hidef` (approx 64x the effort, at 4x resolution and 4x anti-aliasing, 4x more frames) takes:
 * 1hr - base
 * 45m - by caching intermediate triangle results
 

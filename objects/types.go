@@ -15,7 +15,12 @@ type Object interface {
 	// and a z-index. The bigger the index, the farther the object.
 	// If there is no intersection, return (nil, 0.0)
 	GetColorDepth(x, y float64) (*color.Color, float64)
+
+	// return all the lines that describe the object, without any fill, used to generate wireframe images
 	GetWireframe() []geometry.Line
+
+	// return all the triangles that are part of this object, to simplify computation
+	Flatten() []Triangle
 
 	String() string
 }
@@ -71,6 +76,14 @@ func (o ComplexObject) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObj
 	}
 }
 
+func (o ComplexObject) Flatten() []Triangle {
+	tris := []Triangle{}
+	for _, obj := range o.Objs {
+		tris = append(tris, obj.Flatten()...)
+	}
+	return tris
+}
+
 func (o ComplexObject) GetWireframe() []geometry.Line {
 	var lines []geometry.Line
 	for _, obj := range o.Objs {
@@ -81,4 +94,11 @@ func (o ComplexObject) GetWireframe() []geometry.Line {
 
 func (o ComplexObject) String() string {
 	return fmt.Sprintf("ComplexObject: []{%v}", o.Objs)
+}
+
+type BoundingBox struct {
+	TopLeft     geometry.Pixel
+	BottomRight geometry.Pixel
+	MinDepth    float64
+	MaxDepth    float64
 }
