@@ -19,6 +19,7 @@ type DynamicScene interface {
 
 type Frame interface {
 	GetColor(x, y float64) color.Color
+	GetObjects() []objects.Object
 }
 
 type CombinedScene struct {
@@ -40,6 +41,10 @@ func (s CombinedScene) GetColor(x, y float64) color.Color {
 		return *closestColor
 	}
 	return s.Background.GetColor(x, y)
+}
+
+func (s CombinedScene) GetObjects() []objects.Object {
+	return s.Objects
 }
 
 type CombinedDynamicScene struct {

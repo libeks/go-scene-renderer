@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/libeks/go-scene-renderer/color"
+	"github.com/libeks/go-scene-renderer/objects"
 )
 
 type SineWave struct {
@@ -63,9 +64,9 @@ func (f FrameHelper) GetColor(x, y float64) color.Color {
 	return f.scene.GetFrameColor(x, y, f.t)
 }
 
-// func minPlusOneToZO(v float64) float64 {
-// 	return v/2 + 0.5
-// }
+func (f FrameHelper) GetObjects() []objects.Object {
+	return nil
+}
 
 func sigmoid(v float64) float64 {
 	// takes from (-inf, +int) to (0.0, 1.0), with an S-like shape centered on 0.0.

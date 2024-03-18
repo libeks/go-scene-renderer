@@ -15,7 +15,7 @@ type TriangleGradientTexture struct {
 
 // given coordinates from the A point towards B and C (each in the range of (0,1))
 // return what color it should be
-func (t TriangleGradientTexture) GetTextureColor(b, c float64) color.Color {
+func (t *TriangleGradientTexture) GetTextureColor(b, c float64) color.Color {
 	if c == 1 {
 		return t.ColorB
 	}
@@ -31,7 +31,7 @@ func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC color.Color
 		A: a,
 		B: b,
 		C: c,
-		Colorer: TriangleGradientTexture{
+		Colorer: &TriangleGradientTexture{
 			ColorA: colorA,
 			ColorB: colorB,
 			ColorC: colorC,
@@ -73,6 +73,14 @@ func (t Triangle) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObject {
 	return Triangle{
 		a, b, c,
 		t.Colorer,
+	}
+}
+
+func (t Triangle) GetWireframe() []geometry.Line {
+	return []geometry.Line{
+		geometry.Line{t.A, t.B},
+		geometry.Line{t.A, t.C},
+		geometry.Line{t.B, t.C},
 	}
 }
 

@@ -36,3 +36,13 @@ func (p Point) Vector() Vector3D {
 func (p Point) ToHomogenous() HomogenousVector {
 	return HomogenousVector{p.X, p.Y, p.Z, 1}
 }
+
+func (p Point) ToPixel() (*Pixel, float64) {
+	if p.Z > 0 {
+		return nil, 0
+	}
+	return &Pixel{
+		p.X / -p.Z,
+		p.Y / -p.Z,
+	}, -p.Z
+}

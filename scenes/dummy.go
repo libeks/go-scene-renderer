@@ -2,6 +2,7 @@ package scenes
 
 import (
 	"github.com/libeks/go-scene-renderer/color"
+	"github.com/libeks/go-scene-renderer/objects"
 )
 
 type Dummy struct{}
@@ -13,6 +14,10 @@ func (d Dummy) GetFrameColor(x, y int, t float64) color.Color {
 // func (d Dummy) GetColor(x, y float64, t float64) color.Color {
 // 	return color.GrayscaleColor(t)
 // }
+
+func (d Dummy) GetObjects() []objects.Object {
+	return nil
+}
 
 type HorizGradient struct {
 	Gradient color.Gradient
@@ -37,4 +42,8 @@ func (d Uniform) GetColor(x, y float64) color.Color {
 
 func (d Uniform) GetFrame(t float64) Frame {
 	return d
+}
+
+func (d Uniform) GetObjects() []objects.Object {
+	return nil
 }

@@ -15,6 +15,7 @@ type Object interface {
 	// and a z-index. The bigger the index, the farther the object.
 	// If there is no intersection, return (nil, 0.0)
 	GetColorDepth(x, y float64) (*color.Color, float64)
+	GetWireframe() []geometry.Line
 
 	String() string
 }
@@ -68,6 +69,14 @@ func (o ComplexObject) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObj
 	return ComplexObject{
 		Objs: newTriangles,
 	}
+}
+
+func (o ComplexObject) GetWireframe() []geometry.Line {
+	var lines []geometry.Line
+	for _, obj := range o.Objs {
+		lines = append(lines, obj.GetWireframe()...)
+	}
+	return lines
 }
 
 func (o ComplexObject) String() string {

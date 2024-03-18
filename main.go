@@ -32,6 +32,7 @@ func main() {
 
 	var imageFlag = flag.String("image", "default", "image options, either <width>,<height>,<interpolate> or one of default/test/hidef")
 	var videoFlag = flag.String("video", "default", "video options, either <width>,<height>,<interpolate>,<nframes>,<frameRate> or one of default/test/intermediate/hidef")
+	var wireframe = flag.Bool("wireframe", false, "Render the scene only using triangle wireframes")
 
 	flag.Parse()
 	argsWithoutProg := flag.Args()
@@ -52,7 +53,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("%s", err)
 		}
-		err = renderer.RenderPNG(scene.GetFrame(t), imagePreset, outFile)
+		err = renderer.RenderPNG(scene.GetFrame(t), imagePreset, outFile, *wireframe)
 		if err != nil {
 			fmt.Printf("Failure %s\n", err)
 		}
@@ -61,7 +62,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("%s", err)
 		}
-		err = renderer.RenderVideo(scene, videoPreset, outFile)
+		err = renderer.RenderVideo(scene, videoPreset, outFile, *wireframe)
 		if err != nil {
 			fmt.Printf("Failure %s\n", err)
 		}

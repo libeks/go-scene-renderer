@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/png"
+	"math"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/libeks/go-scene-renderer/color"
+	"github.com/libeks/go-scene-renderer/geometry"
 	"github.com/libeks/go-scene-renderer/scenes"
 	"github.com/schollz/progressbar"
 	"golang.org/x/sync/semaphore"
@@ -42,7 +44,7 @@ func newRenderer() Renderer {
 	}
 }
 
-func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string) error {
+func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wireframe bool) error {
 	start := time.Now()
 	// clean up frames in temp directory before starting
 	tmpDirectory := ".tmp"
@@ -64,6 +66,7 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string) erro
 				return err
 			}
 			go func() {
+				// fmt.Printf("f\n")
 				outFile := fmt.Sprintf(outFileFormat, i)
 				f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE, 0600)
 				if err != nil {
@@ -72,7 +75,12 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string) erro
 				defer f.Close()
 				t := float64(i) / float64(vp.nFrameCount-1) // range [0.0, 1.0]
 				frameObj := scene.GetFrame(t)
-				frame := r.getImage(frameObj, vp.ImagePreset)
+				var frame image.Image
+				if wireframe {
+					frame = r.getWireframeImage(frameObj, vp.ImagePreset)
+				} else {
+					frame = r.getImage(frameObj, vp.ImagePreset)
+				}
 				err = png.Encode(f, frame)
 				if err != nil {
 					panic(err)
@@ -123,7 +131,7 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string) erro
 	return nil
 }
 
-func RenderPNG(scene scenes.Frame, im ImagePreset, outfile string) error {
+func RenderPNG(scene scenes.Frame, im ImagePreset, outfile string, wireframe bool) error {
 	f, err := os.OpenFile(outfile, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		panic(err)
@@ -133,11 +141,16 @@ func RenderPNG(scene scenes.Frame, im ImagePreset, outfile string) error {
 	r := newRenderer()
 	go r.progressbar(1, im.height) // block until completion
 	go func() {
-		frame = r.getImage(scene, im)
+		if wireframe {
+			frame = r.getWireframeImage(scene, im)
+		} else {
+			frame = r.getImage(scene, im)
+		}
+		png.Encode(f, frame)
 		r.fileChannel <- 1
 	}()
 	r.wait()
-	return png.Encode(f, frame)
+	return nil
 }
 
 func (r Renderer) progressbar(nFiles, nLines int) {
@@ -190,4 +203,134 @@ func (r Renderer) getImage(scene scenes.Frame, ip ImagePreset) image.Image {
 		r.lineChannel <- 1
 	}
 	return img
+}
+
+type RasterLine struct {
+	A RasterPixel
+	B RasterPixel
+}
+
+type RasterPixel struct {
+	X int
+	Y int
+}
+
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
+}
+
+// adapted from https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+func (r Renderer) renderLine(im *image.RGBA, line RasterLine, gradient color.Gradient) {
+	x0, y0, x1, y1 := line.A.X, line.A.Y, line.B.X, line.B.Y
+	dx := abs(x1 - x0)
+	sx := 1
+	if x0 >= x1 {
+		sx = -1
+	}
+	dy := -abs(y1 - y0)
+	sy := 1
+	if y0 >= y1 {
+		sy = -1
+	}
+	error := dx + dy
+
+	xprogress := float64(0)
+	for {
+		im.Set(x0, y0, gradient.Interpolate(xprogress/float64(dx)))
+		if x0 == x1 && y0 == y1 {
+			break
+		}
+		e2 := 2 * error
+		if e2 >= dy {
+			if x0 == x1 {
+				break
+			}
+			error = error + dy
+			x0 += sx
+			xprogress += 1
+		}
+		if e2 <= dx {
+			if y0 == y1 {
+				break
+			}
+			error = error + dx
+			y0 += sy
+		}
+	}
+}
+
+func toImageDimension(d float64, pixelCount int) *int {
+	if d < -1.0 || d > 1.0 {
+		return nil
+	}
+	v := int((d/2 + 0.5) * float64(pixelCount))
+	return &v
+}
+
+func toImagePixel(p geometry.Pixel, width, height int) *RasterPixel {
+	x := toImageDimension(p.X, width)
+	y := toImageDimension(p.Y, height)
+	if x == nil || y == nil {
+		return nil
+	}
+	return &RasterPixel{
+		X: *x,
+		Y: *y,
+	}
+}
+
+func (r Renderer) getWireframeImage(scene scenes.Frame, ip ImagePreset) image.Image {
+	img := image.NewRGBA(
+		image.Rect(
+			0, 0, ip.width, ip.height,
+		),
+	)
+	// set to black bakcground
+	pixelColor := color.Black
+	for x := 0; x < ip.width; x++ {
+		for y := 0; y < ip.height; y++ {
+
+			// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
+			img.Set(x, ip.height-y, pixelColor)
+		}
+		r.lineChannel <- 1
+	}
+	for _, obj := range scene.GetObjects() {
+		for _, line := range obj.GetWireframe() {
+			sceneA, aDepth := line.A.ToPixel()
+			sceneB, bDepth := line.B.ToPixel()
+			if sceneA == nil || sceneB == nil {
+				fmt.Printf("Skipping line %s since it may be behind the screen", line)
+				continue
+			}
+			pixA := toImagePixel(*sceneA, ip.width, ip.height)
+			pixB := toImagePixel(*sceneB, ip.width, ip.height)
+			if pixA == nil || pixB == nil {
+				fmt.Printf("Skipping line %s since one or both pixels are outside of screen", line)
+				continue
+			}
+			rasterLine := RasterLine{
+				*pixA,
+				*pixB,
+			}
+
+			greenBlack := color.SimpleGradient{
+				color.Green,
+				color.Black,
+			}
+			ratio := 8.0
+			colorA := greenBlack.Interpolate(2*sigmoid(aDepth/ratio) - 1)
+			colorB := greenBlack.Interpolate(2*sigmoid(bDepth/ratio) - 1)
+			r.renderLine(img, rasterLine, color.SimpleGradient{colorA, colorB})
+		}
+	}
+	return img
+}
+
+func sigmoid(v float64) float64 {
+	// takes from (-inf, +int) to (0.0, 1.0), with an S-like shape centered on 0.0.
+	return 1 / (1 + math.Exp(-v))
 }

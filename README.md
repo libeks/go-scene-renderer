@@ -11,7 +11,6 @@ Example (converted from mp4 to gif for illustrative purposes):
 * Add more intense gradients, like Bezier, etc
 * Find Lab color space transformation code, try that out
 * Add Perlin noise-based scenes
-* Add wireframe rendering
 * Increase anti-aliasing near object edges (adaptive anti-alias)
 * Add texture mapping
 
