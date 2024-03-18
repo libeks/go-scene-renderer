@@ -12,6 +12,8 @@ Example (converted from mp4 to gif for illustrative purposes):
 * Find Lab color space transformation code, try that out
 * Increase anti-aliasing near object edges (adaptive anti-alias)
 * Add texture mapping
+* Render image in rectanglular windows, recomputing all the triangles that fall within the window, for efficiency
+* Investiate if there are any optimizations using GPU/CUDA
 
 
 ## Further Reading:
@@ -20,3 +22,18 @@ Example (converted from mp4 to gif for illustrative purposes):
 * https://en.wikipedia.org/wiki/Rotation_matrix
 * https://en.wikipedia.org/wiki/Euler_angles#Conventions_by_intrinsic_rotations
 * https://www.reddit.com/r/mobilevrstation/comments/xgamsr/typical_ios_shutteringnonplayback_fixes/
+
+
+## Benchmarks:
+Rendering the SpinningMulticube scene with the `-video=intermediate` preset takes this long:
+* 1m20s - base
+* 50s - by caching triangle intermediate results
+
+The same scene with `-video=hidef` takes:
+* 1hr - base
+* 45m - by caching intermediate triangle results
+
+
+# Frequently Asked Questions
+* How do I run pprof?
+  * Set pprof=true in main, then after the run do  `go tool pprof -png . cpu.pprof`
