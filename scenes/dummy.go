@@ -1,6 +1,8 @@
 package scenes
 
 import (
+	"math/rand"
+
 	"github.com/libeks/go-scene-renderer/color"
 	"github.com/libeks/go-scene-renderer/objects"
 )
@@ -45,5 +47,22 @@ func (d Uniform) GetFrame(t float64) Frame {
 }
 
 func (d Uniform) GetObjects() []objects.Object {
+	return nil
+}
+
+type Random struct{}
+
+func (d Random) GetColor(x, y float64) color.Color {
+	if rand.Float32() > 0.5 {
+		return color.Black
+	}
+	return color.White
+}
+
+func (d Random) GetFrame(t float64) Frame {
+	return d
+}
+
+func (d Random) GetObjects() []objects.Object {
 	return nil
 }

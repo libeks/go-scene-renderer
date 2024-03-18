@@ -150,7 +150,7 @@ func DummySpinningCube(background DynamicScene) DynamicScene {
 					return geometry.TranslationMatrix(geometry.Vector3D{
 						0, 0, -2,
 					}).MatrixMult(
-						geometry.RotateMatrixY(t * (2 * math.Pi)),
+						geometry.RotateMatrixY(slowQuickSlow(t) * (4 * math.Pi)),
 					).MatrixMult(
 						// arcsin of 1/sqrt(3) (angle between short and long diagonals in a cube)
 						geometry.RotateMatrixX(-0.615).MatrixMult(
@@ -247,4 +247,9 @@ func DummyTriangle() CombinedScene {
 		// 	},
 		// },
 	}
+}
+
+func slowQuickSlow(t float64) float64 {
+	t = 12*t - 6
+	return sigmoid(t)
 }
