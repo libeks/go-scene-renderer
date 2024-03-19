@@ -48,3 +48,7 @@ func (p PerlinNoise) GetColor(x, y float64) color.Color {
 func (p PerlinNoise) GetObjects() []objects.Object {
 	return nil
 }
+
+func (d PerlinNoise) Flatten() []*objects.Triangle {
+	return nil
+}

@@ -20,7 +20,7 @@ type Object interface {
 	GetWireframe() []geometry.Line
 
 	// return all the triangles that are part of this object, to simplify computation
-	Flatten() []Triangle
+	Flatten() []*Triangle
 
 	String() string
 }
@@ -76,8 +76,8 @@ func (o ComplexObject) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObj
 	}
 }
 
-func (o ComplexObject) Flatten() []Triangle {
-	tris := []Triangle{}
+func (o ComplexObject) Flatten() []*Triangle {
+	tris := []*Triangle{}
 	for _, obj := range o.Objs {
 		tris = append(tris, obj.Flatten()...)
 	}

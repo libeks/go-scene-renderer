@@ -20,6 +20,7 @@ type DynamicScene interface {
 type Frame interface {
 	GetColor(x, y float64) color.Color
 	GetObjects() []objects.Object
+	Flatten() []*objects.Triangle
 }
 
 type CombinedScene struct {
@@ -45,6 +46,18 @@ func (s CombinedScene) GetColor(x, y float64) color.Color {
 
 func (s CombinedScene) GetObjects() []objects.Object {
 	return s.Objects
+}
+
+// func (s CombinedScene) GetBackground() Frame {
+// 	return s.Background
+// }
+
+func (s CombinedScene) Flatten() []*objects.Triangle {
+	tris := []*objects.Triangle{}
+	for _, obj := range s.Objects {
+		tris = append(tris, obj.Flatten()...)
+	}
+	return tris
 }
 
 type CombinedDynamicScene struct {

@@ -13,6 +13,7 @@ Example (converted from mp4 to gif for illustrative purposes):
 * Increase anti-aliasing near object edges (adaptive anti-alias)
 * Add texture mapping
 * Render image in rectanglular windows, recomputing all the triangles that fall within the window, for efficiency
+  * This is done, but I need to rethink the Frame abstraction, as I need to have access to CombinedScene with type assertion to make it happen, which isn't great
 * Investiate if there are any optimizations using GPU/CUDA
 
 
@@ -32,6 +33,7 @@ Rendering the `SpinningMulticube` scene with the `-video=intermediate` preset ta
 The same scene with `-video=hidef` (approx 64x the effort, at 4x resolution and 4x anti-aliasing, 4x more frames) takes:
 * 1hr - base
 * 45m - by caching intermediate triangle results
+* 30s - by using windowed triangle culling (very impressive)
 
 
 # Frequently Asked Questions

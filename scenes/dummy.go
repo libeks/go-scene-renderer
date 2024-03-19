@@ -49,6 +49,9 @@ func (d Uniform) GetFrame(t float64) Frame {
 func (d Uniform) GetObjects() []objects.Object {
 	return nil
 }
+func (d Uniform) Flatten() []*objects.Triangle {
+	return nil
+}
 
 type Random struct{}
 
@@ -64,5 +67,8 @@ func (d Random) GetFrame(t float64) Frame {
 }
 
 func (d Random) GetObjects() []objects.Object {
+	return nil
+}
+func (d Random) Flatten() []*objects.Triangle {
 	return nil
 }

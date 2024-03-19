@@ -14,6 +14,7 @@ import (
 
 	"github.com/libeks/go-scene-renderer/color"
 	"github.com/libeks/go-scene-renderer/geometry"
+	"github.com/libeks/go-scene-renderer/objects"
 	"github.com/libeks/go-scene-renderer/scenes"
 	"github.com/schollz/progressbar"
 	"golang.org/x/sync/semaphore"
@@ -22,6 +23,8 @@ import (
 const (
 	frameConcurrency  = 10   // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
 	generateVideoPNGs = true // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
+	minWindowWidth    = 5
+	minWindowCount    = 2
 )
 
 var (
@@ -68,7 +71,6 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 				return err
 			}
 			go func() {
-				// fmt.Printf("f\n")
 				outFile := fmt.Sprintf(outFileFormat, i)
 				f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE, 0600)
 				if err != nil {
@@ -79,9 +81,19 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 				frameObj := scene.GetFrame(t)
 				var frame image.Image
 				if wireframe {
-					frame = r.getWireframeImage(frameObj, vp.ImagePreset)
+					if combScene, ok := frameObj.(scenes.CombinedScene); ok {
+						frame = r.getTriangleDepthImage(combScene, vp.ImagePreset)
+					} else {
+						frame = r.getWireframeImage(frameObj, vp.ImagePreset)
+					}
+
 				} else {
-					frame = r.getImage(frameObj, vp.ImagePreset)
+					if combScene, ok := frameObj.(scenes.CombinedScene); ok {
+						frame = r.getWindowedImage(combScene, vp.ImagePreset)
+					} else {
+						frame = r.getImage(frameObj, vp.ImagePreset)
+					}
+
 				}
 				err = png.Encode(f, frame)
 				if err != nil {
@@ -94,9 +106,9 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 		}
 		r.wait() // block until completion
 
-		fmt.Printf("PNG frame generation took %s\n", time.Since(start))
+		fmt.Printf("\nPNG frame generation took %s\n", time.Since(start))
 	}
-
+	fmt.Printf("Encoding with ffmpeg...\n")
 	// render video file from png frame images in .tmp/
 	// encoder := "yuv444p"
 	encoder := "yuv420p"
@@ -144,9 +156,18 @@ func RenderPNG(scene scenes.Frame, im ImagePreset, outfile string, wireframe boo
 	go r.progressbar(1, im.height) // block until completion
 	go func() {
 		if wireframe {
-			frame = r.getWireframeImage(scene, im)
+			if combScene, ok := scene.(scenes.CombinedScene); ok {
+				frame = r.getTriangleDepthImage(combScene, im)
+			} else {
+				frame = r.getWireframeImage(scene, im)
+			}
+
 		} else {
-			frame = r.getImage(scene, im)
+			if combScene, ok := scene.(scenes.CombinedScene); ok {
+				frame = r.getWindowedImage(combScene, im)
+			} else {
+				frame = r.getImage(scene, im)
+			}
 		}
 		png.Encode(f, frame)
 		r.fileChannel <- 1
@@ -173,8 +194,119 @@ func (r Renderer) progressbar(nFiles, nLines int) {
 		}
 	}
 }
+
 func (r Renderer) wait() {
 	<-r.doneChannel
+}
+
+type Window struct {
+	xMin      int // inclusive
+	xMax      int // non-inclusive
+	yMin      int // inclusive
+	yMax      int // non-inclusive
+	triangles []*objects.Triangle
+}
+
+func (w Window) Bisect(ip ImagePreset) []Window {
+	if w.xMax-w.xMin < minWindowWidth {
+		return nil
+	}
+	if len(w.triangles) <= minWindowCount {
+		return nil
+	}
+	xMid := (w.xMax-w.xMin)/2 + w.xMin
+	yMid := (w.yMax-w.yMin)/2 + w.yMin
+	midXImg, midYImg := getImageSpace(xMid, ip.width), getImageSpace(yMid, ip.height)
+	tlW := []*objects.Triangle{}
+	trW := []*objects.Triangle{}
+	blW := []*objects.Triangle{}
+	brW := []*objects.Triangle{}
+	for _, tri := range w.triangles {
+		bbox := tri.GetBoundingBox()
+		if bbox.TopLeft.X <= midXImg && bbox.TopLeft.Y <= midYImg {
+			tlW = append(tlW, tri)
+		}
+		if bbox.BottomRight.X >= midXImg && bbox.TopLeft.Y <= midYImg {
+			trW = append(trW, tri)
+		}
+		if bbox.TopLeft.X <= midXImg && bbox.BottomRight.Y >= midYImg {
+			blW = append(blW, tri)
+		}
+		if bbox.BottomRight.X >= midXImg && bbox.BottomRight.Y >= midYImg {
+			brW = append(brW, tri)
+		}
+	}
+	return []Window{
+		{w.xMin, xMid, w.yMin, yMid, tlW},
+		{xMid, w.xMax, w.yMin, yMid, trW},
+		{w.xMin, xMid, yMid, w.yMax, blW},
+		{xMid, w.xMax, yMid, w.yMax, brW},
+	}
+}
+
+func (w Window) Subscene(scene scenes.CombinedScene) scenes.CombinedScene {
+	objects := make([]objects.Object, len(w.triangles))
+	for i, tri := range w.triangles {
+		objects[i] = tri
+	}
+	return scenes.CombinedScene{
+		Objects:    objects,
+		Background: scene.Background,
+	}
+}
+
+func subdivideSceneIntoWindows(scene scenes.Frame, ip ImagePreset) []Window {
+	windows := []Window{
+		{0, ip.width, 0, ip.height, scene.Flatten()},
+	}
+	finalWindows := []Window{}
+	for len(windows) > 0 {
+		unprocessedWindows := append([]Window{}, windows...)
+		windows = []Window{}
+		for _, window := range unprocessedWindows {
+			newOnes := window.Bisect(ip)
+			if len(newOnes) == 0 {
+				finalWindows = append(finalWindows, window)
+			} else {
+				windows = append(windows, newOnes...)
+			}
+		}
+	}
+	fmt.Printf("Processing %d windows\n", len(finalWindows))
+	return finalWindows
+}
+
+func (r Renderer) getWindowedImage(scene scenes.CombinedScene, ip ImagePreset) image.Image {
+	img := image.NewRGBA(
+		image.Rect(
+			0, 0, ip.width, ip.height,
+		),
+	)
+	windows := subdivideSceneIntoWindows(scene, ip)
+	for _, window := range windows {
+		wScene := window.Subscene(scene)
+		for x := window.xMin; x < window.xMax; x++ {
+			for y := window.yMin; y < window.yMax; y++ {
+				xR, yR := getImageSpace(x, ip.width), getImageSpace(y, ip.height)
+				var pixelColor color.Color
+				if len(window.triangles) > 0 && ip.interpolateN > 1 {
+
+					samples := make([]color.Color, ip.interpolateN)
+					for i := range ip.interpolateN {
+						dx, dy := getPixelWiggle(ip.width), getPixelWiggle(ip.height)
+						samples[i] = wScene.GetColor(xR+rand.Float64()*dx, yR+rand.Float64()*dy)
+					}
+					pixelColor = color.Average(samples)
+				} else {
+					pixelColor = wScene.GetColor(xR, yR)
+				}
+
+				// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
+				img.Set(x, ip.height-y, pixelColor)
+			}
+		}
+	}
+	return img
 }
 
 func (r Renderer) getImage(scene scenes.Frame, ip ImagePreset) image.Image {
@@ -241,7 +373,14 @@ func (r Renderer) renderLine(im *image.RGBA, line RasterLine, gradient color.Gra
 
 	xprogress := float64(0)
 	for {
-		im.Set(x0, y0, gradient.Interpolate(xprogress/float64(dx)))
+		var c color.Color
+		if dx == 0 {
+			c = gradient.Interpolate(0.0)
+		} else {
+			c = gradient.Interpolate(xprogress / float64(dx))
+		}
+
+		im.Set(x0, y0, c)
 		if x0 == x1 && y0 == y1 {
 			break
 		}
@@ -290,18 +429,8 @@ func (r Renderer) getWireframeImage(scene scenes.Frame, ip ImagePreset) image.Im
 			0, 0, ip.width, ip.height,
 		),
 	)
-	// set to black bakcground
-	pixelColor := color.Black
-	for x := 0; x < ip.width; x++ {
-		for y := 0; y < ip.height; y++ {
-
-			// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
-			img.Set(x, ip.height-y, pixelColor)
-		}
-		r.lineChannel <- 1
-	}
-	for _, obj := range scene.GetObjects() {
-		for _, line := range obj.GetWireframe() {
+	for _, tri := range scene.Flatten() {
+		for _, line := range tri.GetWireframe() {
 			sceneA, aDepth := line.A.ToPixel()
 			sceneB, bDepth := line.B.ToPixel()
 			if sceneA == nil || sceneB == nil {
@@ -327,6 +456,48 @@ func (r Renderer) getWireframeImage(scene scenes.Frame, ip ImagePreset) image.Im
 			colorA := greenBlack.Interpolate(2*sigmoid(aDepth/ratio) - 1)
 			colorB := greenBlack.Interpolate(2*sigmoid(bDepth/ratio) - 1)
 			r.renderLine(img, rasterLine, color.SimpleGradient{colorA, colorB})
+		}
+		bbox := tri.GetBoundingBox()
+		pixA := toImagePixel(bbox.TopLeft, ip.width, ip.height)
+		pixB := toImagePixel(bbox.BottomRight, ip.width, ip.height)
+		if pixA == nil || pixB == nil {
+			continue
+		}
+		r.renderLine(img, RasterLine{*pixA, RasterPixel{pixA.X, pixB.Y}}, color.SimpleGradient{color.Red, color.Red})
+		r.renderLine(img, RasterLine{*pixA, RasterPixel{pixB.X, pixA.Y}}, color.SimpleGradient{color.Red, color.Red})
+		r.renderLine(img, RasterLine{*pixB, RasterPixel{pixA.X, pixB.Y}}, color.SimpleGradient{color.Red, color.Red})
+		r.renderLine(img, RasterLine{*pixB, RasterPixel{pixB.X, pixA.Y}}, color.SimpleGradient{color.Red, color.Red})
+	}
+	return img
+}
+
+func (r Renderer) getTriangleDepthImage(scene scenes.Frame, ip ImagePreset) image.Image {
+	img := image.NewRGBA(
+		image.Rect(
+			0, 0, ip.width, ip.height,
+		),
+	)
+	// set to black bakcground
+	pixelColor := color.Black
+	for x := 0; x < ip.width; x++ {
+		for y := 0; y < ip.height; y++ {
+
+			// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
+			img.Set(x, ip.height-y, pixelColor)
+		}
+		r.lineChannel <- 1
+	}
+	windows := subdivideSceneIntoWindows(scene, ip)
+	gradient := color.SimpleGradient{color.Black, color.Red}
+	for _, window := range windows {
+		for x := window.xMin; x < window.xMax; x++ {
+			for y := window.yMin; y < window.yMax; y++ {
+				nTriangles := len(window.triangles)
+				pixelColor = gradient.Interpolate(float64(nTriangles) / 20.0)
+
+				// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
+				img.Set(x, ip.height-y, pixelColor)
+			}
 		}
 	}
 	return img

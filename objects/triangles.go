@@ -82,8 +82,8 @@ func (t *Triangle) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObject 
 	}
 }
 
-func (t Triangle) Flatten() []Triangle {
-	return []Triangle{t}
+func (t Triangle) Flatten() []*Triangle {
+	return []*Triangle{&t}
 }
 
 func (t Triangle) GetBoundingBox() BoundingBox {
