@@ -6,6 +6,7 @@ import (
 
 	"github.com/libeks/go-scene-renderer/color"
 	"github.com/libeks/go-scene-renderer/geometry"
+	"github.com/libeks/go-scene-renderer/maths"
 	"github.com/libeks/go-scene-renderer/objects"
 )
 
@@ -100,25 +101,31 @@ func SpinningMulticube(background DynamicScene) DynamicScene {
 
 	column := objects.ComplexObject{
 		[]objects.TransformableObject{
+			diagonalCube.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, -2 * spacing, 0})),
 			diagonalCube.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, -spacing, 0})),
 			diagonalCube.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, 0})),
 			diagonalCube.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, spacing, 0})),
+			diagonalCube.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 2 * spacing, 0})),
 		},
 	}
 
 	slice := objects.ComplexObject{
 		Objs: []objects.TransformableObject{
+			column.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{-2 * spacing, 0, 0})),
 			column.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{-spacing, 0, 0})),
 			column.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, 0})),
 			column.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{spacing, 0, 0})),
+			column.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{2 * spacing, 0, 0})),
 		},
 	}
 
 	multiCube := objects.ComplexObject{
 		Objs: []objects.TransformableObject{
+			slice.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, -2 * spacing})),
 			slice.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, -spacing})),
 			slice.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, 0})),
 			slice.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, spacing})),
+			slice.ApplyMatrix(geometry.TranslationMatrix(geometry.Vector3D{0, 0, 2 * spacing})),
 		},
 	}
 
@@ -130,9 +137,12 @@ func SpinningMulticube(background DynamicScene) DynamicScene {
 				Object: multiCube,
 				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
 					return geometry.TranslationMatrix(geometry.Vector3D{
-						0, 0, -7,
+						0, 0, -10,
 					}).MatrixMult(
-						geometry.RotateMatrixY(t * (2 * math.Pi)),
+						// }).MatrixMult(
+						// geometry.RotateMatrixY(slowQuickSlow(t)*(4*math.Pi)),
+						geometry.RotateMatrixY(maths.SigmoidSlowFastSlow(t) * (2 * math.Pi)),
+						// geometry.RotateMatrixY(t * (2 * math.Pi)),
 					)
 				},
 			},
@@ -150,7 +160,7 @@ func DummySpinningCube(background DynamicScene) DynamicScene {
 					return geometry.TranslationMatrix(geometry.Vector3D{
 						0, 0, -2,
 					}).MatrixMult(
-						geometry.RotateMatrixY(slowQuickSlow(t) * (4 * math.Pi)),
+						geometry.RotateMatrixY(maths.SigmoidSlowFastSlow(t) * (4 * math.Pi)),
 					).MatrixMult(
 						// arcsin of 1/sqrt(3) (angle between short and long diagonals in a cube)
 						geometry.RotateMatrixX(-0.615).MatrixMult(
@@ -247,9 +257,4 @@ func DummyTriangle() CombinedScene {
 		// 	},
 		// },
 	}
-}
-
-func slowQuickSlow(t float64) float64 {
-	t = 12*t - 6
-	return sigmoid(t)
 }

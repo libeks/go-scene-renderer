@@ -13,14 +13,6 @@ func (d Dummy) GetFrameColor(x, y int, t float64) color.Color {
 	return color.GrayscaleColor(t)
 }
 
-// func (d Dummy) GetColor(x, y float64, t float64) color.Color {
-// 	return color.GrayscaleColor(t)
-// }
-
-func (d Dummy) GetObjects() []objects.Object {
-	return nil
-}
-
 type HorizGradient struct {
 	Gradient color.Gradient
 }
@@ -46,9 +38,6 @@ func (d Uniform) GetFrame(t float64) Frame {
 	return d
 }
 
-func (d Uniform) GetObjects() []objects.Object {
-	return nil
-}
 func (d Uniform) Flatten() []*objects.Triangle {
 	return nil
 }
@@ -66,9 +55,6 @@ func (d Random) GetFrame(t float64) Frame {
 	return d
 }
 
-func (d Random) GetObjects() []objects.Object {
-	return nil
-}
 func (d Random) Flatten() []*objects.Triangle {
 	return nil
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image"
 	"image/png"
-	"math"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/libeks/go-scene-renderer/color"
 	"github.com/libeks/go-scene-renderer/geometry"
+	"github.com/libeks/go-scene-renderer/maths"
 	"github.com/libeks/go-scene-renderer/objects"
 	"github.com/libeks/go-scene-renderer/scenes"
 	"github.com/schollz/progressbar"
@@ -23,8 +23,8 @@ import (
 const (
 	frameConcurrency  = 10   // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
 	generateVideoPNGs = true // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
-	minWindowWidth    = 5
-	minWindowCount    = 2
+	minWindowWidth    = 4
+	minWindowCount    = 1
 )
 
 var (
@@ -153,7 +153,7 @@ func RenderPNG(scene scenes.Frame, im ImagePreset, outfile string, wireframe boo
 	defer f.Close()
 	var frame image.Image
 	r := newRenderer()
-	go r.progressbar(1, im.height) // block until completion
+	go r.progressbar(1, im.width) // block until completion
 	go func() {
 		if wireframe {
 			if combScene, ok := scene.(scenes.CombinedScene); ok {
@@ -182,11 +182,12 @@ func (r Renderer) progressbar(nFiles, nLines int) {
 	bar := progressbar.New(nLines)
 	for {
 		select {
-		case <-r.lineChannel:
-			lineProgress += 1
-			bar.Add(1)
-		case <-r.fileChannel:
-			fileProgress += 1
+		case prog := <-r.lineChannel:
+			// fmt.Printf("Got %d on line channel\n", prog)
+			lineProgress += prog
+			bar.Add(prog)
+		case prog := <-r.fileChannel:
+			fileProgress += prog
 			if fileProgress == nFiles {
 				r.doneChannel <- 1
 				return
@@ -199,18 +200,30 @@ func (r Renderer) wait() {
 	<-r.doneChannel
 }
 
+// Window specifies a renderable area along with the triangles within in
 type Window struct {
-	xMin      int // inclusive
-	xMax      int // non-inclusive
-	yMin      int // inclusive
-	yMax      int // non-inclusive
-	triangles []*objects.Triangle
+	// coordinates are in image pixel space
+	xMin      int                 // inclusive
+	xMax      int                 // non-inclusive
+	yMin      int                 // inclusive
+	yMax      int                 // non-inclusive
+	triangles []*objects.Triangle // list of triangles whose bounding box intersects the window
+}
+
+func (w Window) Width() int {
+	return w.xMax - w.xMin
+}
+
+func (w Window) Height() int {
+	return w.yMax - w.yMin
 }
 
 func (w Window) Bisect(ip ImagePreset) []Window {
+	// window is too small to be divided any further
 	if w.xMax-w.xMin < minWindowWidth {
 		return nil
 	}
+	// window doesn't have enough triangles to be divided further
 	if len(w.triangles) <= minWindowCount {
 		return nil
 	}
@@ -256,9 +269,12 @@ func (w Window) Subscene(scene scenes.CombinedScene) scenes.CombinedScene {
 }
 
 func subdivideSceneIntoWindows(scene scenes.Frame, ip ImagePreset) []Window {
+	// start with one window for the whole image. Assume that all objects fall within the image
 	windows := []Window{
 		{0, ip.width, 0, ip.height, scene.Flatten()},
 	}
+	maxTriangles := 0
+	totalWork := 0
 	finalWindows := []Window{}
 	for len(windows) > 0 {
 		unprocessedWindows := append([]Window{}, windows...)
@@ -266,13 +282,21 @@ func subdivideSceneIntoWindows(scene scenes.Frame, ip ImagePreset) []Window {
 		for _, window := range unprocessedWindows {
 			newOnes := window.Bisect(ip)
 			if len(newOnes) == 0 {
+				nTriangles := len(window.triangles)
+				if nTriangles > maxTriangles {
+					maxTriangles = nTriangles
+				}
+				totalWork += nTriangles * window.Width() * window.Height()
 				finalWindows = append(finalWindows, window)
 			} else {
 				windows = append(windows, newOnes...)
 			}
 		}
 	}
-	fmt.Printf("Processing %d windows\n", len(finalWindows))
+	// fmt.Printf(
+	// 	"Image has %d windows, max # of triangles is %d, total work (pixels * triangles) is %d\n",
+	// 	len(finalWindows), maxTriangles, totalWork,
+	// )
 	return finalWindows
 }
 
@@ -283,6 +307,7 @@ func (r Renderer) getWindowedImage(scene scenes.CombinedScene, ip ImagePreset) i
 		),
 	)
 	windows := subdivideSceneIntoWindows(scene, ip)
+	pixelCount := 0
 	for _, window := range windows {
 		wScene := window.Subscene(scene)
 		for x := window.xMin; x < window.xMax; x++ {
@@ -302,7 +327,11 @@ func (r Renderer) getWindowedImage(scene scenes.CombinedScene, ip ImagePreset) i
 				}
 
 				// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
-				img.Set(x, ip.height-y, pixelColor)
+				img.Set(x, ip.height-y-1, pixelColor)
+				pixelCount += 1
+				if pixelCount%ip.height == 0 {
+					r.lineChannel <- 1
+				}
 			}
 		}
 	}
@@ -332,7 +361,7 @@ func (r Renderer) getImage(scene scenes.Frame, ip ImagePreset) image.Image {
 			}
 
 			// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
-			img.Set(x, ip.height-y, pixelColor)
+			img.Set(x, ip.height-y-1, pixelColor)
 		}
 		r.lineChannel <- 1
 	}
@@ -453,8 +482,8 @@ func (r Renderer) getWireframeImage(scene scenes.Frame, ip ImagePreset) image.Im
 				color.Black,
 			}
 			ratio := 8.0
-			colorA := greenBlack.Interpolate(2*sigmoid(aDepth/ratio) - 1)
-			colorB := greenBlack.Interpolate(2*sigmoid(bDepth/ratio) - 1)
+			colorA := greenBlack.Interpolate(2*maths.Sigmoid(aDepth/ratio) - 1)
+			colorB := greenBlack.Interpolate(2*maths.Sigmoid(bDepth/ratio) - 1)
 			r.renderLine(img, rasterLine, color.SimpleGradient{colorA, colorB})
 		}
 		bbox := tri.GetBoundingBox()
@@ -483,7 +512,7 @@ func (r Renderer) getTriangleDepthImage(scene scenes.Frame, ip ImagePreset) imag
 		for y := 0; y < ip.height; y++ {
 
 			// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
-			img.Set(x, ip.height-y, pixelColor)
+			img.Set(x, ip.height-y-1, pixelColor)
 		}
 		r.lineChannel <- 1
 	}
@@ -493,17 +522,16 @@ func (r Renderer) getTriangleDepthImage(scene scenes.Frame, ip ImagePreset) imag
 		for x := window.xMin; x < window.xMax; x++ {
 			for y := window.yMin; y < window.yMax; y++ {
 				nTriangles := len(window.triangles)
-				pixelColor = gradient.Interpolate(float64(nTriangles) / 20.0)
+				if x == window.xMin || y == window.yMin {
+					pixelColor = color.Green
+				} else {
+					pixelColor = gradient.Interpolate(float64(nTriangles) / 20.0)
+				}
 
 				// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
-				img.Set(x, ip.height-y, pixelColor)
+				img.Set(x, ip.height-y-1, pixelColor)
 			}
 		}
 	}
 	return img
-}
-
-func sigmoid(v float64) float64 {
-	// takes from (-inf, +int) to (0.0, 1.0), with an S-like shape centered on 0.0.
-	return 1 / (1 + math.Exp(-v))
 }

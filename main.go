@@ -36,15 +36,20 @@ func main() {
 
 	flag.Parse()
 	argsWithoutProg := flag.Args()
-	if len(argsWithoutProg) != 2 {
-		log.Fatal("Insufficient arguments, expect <type> <output.gif>.")
+	if len(argsWithoutProg) != 1 {
+		log.Fatal("Insufficient arguments, expect <outputfile>.")
 	}
 
-	format := argsWithoutProg[0]
-	outFile, err := filepath.Abs(argsWithoutProg[1])
+	// format := argsWithoutProg[0]
+	outFile, err := filepath.Abs(argsWithoutProg[0])
 	if err != nil {
 		log.Fatalf("Invalid file path %s", err)
 	}
+	format := filepath.Ext(outFile)
+	if format == "" {
+		log.Fatalf("Please provide an output file with a correct extension")
+	}
+	format = format[1:]
 
 	switch format {
 	case PNG_FORMAT:

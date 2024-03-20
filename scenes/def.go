@@ -19,7 +19,6 @@ type DynamicScene interface {
 
 type Frame interface {
 	GetColor(x, y float64) color.Color
-	GetObjects() []objects.Object
 	Flatten() []*objects.Triangle
 }
 
@@ -43,14 +42,6 @@ func (s CombinedScene) GetColor(x, y float64) color.Color {
 	}
 	return s.Background.GetColor(x, y)
 }
-
-func (s CombinedScene) GetObjects() []objects.Object {
-	return s.Objects
-}
-
-// func (s CombinedScene) GetBackground() Frame {
-// 	return s.Background
-// }
 
 func (s CombinedScene) Flatten() []*objects.Triangle {
 	tris := []*objects.Triangle{}

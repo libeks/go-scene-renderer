@@ -5,6 +5,7 @@ import (
 
 	"github.com/aquilax/go-perlin"
 	"github.com/libeks/go-scene-renderer/color"
+	"github.com/libeks/go-scene-renderer/maths"
 	"github.com/libeks/go-scene-renderer/objects"
 )
 
@@ -29,7 +30,7 @@ type PerlinNoise struct {
 }
 
 func (p PerlinNoise) GetFrameColor(x, y float64, t float64) color.Color {
-	valZeroOne := sigmoid(p.noise.Noise2D(x, y) * 10)
+	valZeroOne := maths.Sigmoid(p.noise.Noise2D(x, y) * 10)
 	return p.gradient.Interpolate(valZeroOne)
 }
 
@@ -41,12 +42,8 @@ func (p PerlinNoise) GetFrame(t float64) Frame {
 }
 
 func (p PerlinNoise) GetColor(x, y float64) color.Color {
-	valZeroOne := sigmoid(p.noise.Noise2D(x, y) * 10)
+	valZeroOne := maths.Sigmoid(p.noise.Noise2D(x, y) * 10)
 	return p.gradient.Interpolate(valZeroOne)
-}
-
-func (p PerlinNoise) GetObjects() []objects.Object {
-	return nil
 }
 
 func (d PerlinNoise) Flatten() []*objects.Triangle {

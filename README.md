@@ -1,7 +1,7 @@
 # go-scene-renderer
 Rendering visual scenes in golang
 
-`go run ./... -video test mp4 out.mp4`
+`go run ./... -video test out.mp4`
 
 Example (converted from mp4 to gif for illustrative purposes):
 
@@ -38,4 +38,4 @@ The same scene with `-video=hidef` (approx 64x the effort, at 4x resolution and 
 
 # Frequently Asked Questions
 * How do I run pprof?
-  * Set pprof=true in main, then after the run do  `go tool pprof -png . cpu.pprof`
+  * Set pprof=true in main, then after the run do  `go tool pprof -png . cpu.pprof` or `go tool pprof -png . mem.pprof`
