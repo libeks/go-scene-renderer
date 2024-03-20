@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	// maxUInt32 = 4294967295
 	maxUInt32 = 0xffff
 )
 
@@ -37,7 +36,6 @@ type Color struct {
 func (c Color) RGBA() (r, g, b, a uint32) {
 	// only apply gamma correction when rendered values are requested,
 	// keep raw values otherwise
-	// fmt.Printf("Color %f %f %f, %d, %d, %d\n", c.R, c.G, c.B, uint32(maxUInt32*math.Pow(c.R, 1.8)), uint32(maxUInt32*math.Pow(c.G, 1.8)), uint32(maxUInt32*math.Pow(c.B, 1.8)))
 	return uint32(maxUInt32 * math.Pow(c.R, 1.8)),
 		uint32(maxUInt32 * math.Pow(c.G, 1.8)),
 		uint32(maxUInt32 * math.Pow(c.B, 1.8)),

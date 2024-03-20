@@ -53,6 +53,7 @@ func (l Linear) ScalarMultiply(a float64) Linear {
 }
 
 // TODO generalize this to 2d, 3d points, colors
+// taken from https://stackoverflow.com/a/73851453
 type Pointlike interface {
 	Vec3 | Linear
 }

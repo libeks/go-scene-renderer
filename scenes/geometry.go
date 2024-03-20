@@ -39,7 +39,7 @@ func SpinningTriangle(tri objects.Triangle) DynamicTriangle {
 func (s DynamicTriangle) GetFrame(t float64) objects.Object {
 	matrix := geometry.TranslationMatrix(geometry.Vector3D{
 		0, 0, -2,
-	}).MatrixMult(geometry.RotateMatrixY(t * (2 * math.Pi)))
+	}).MatrixMult(geometry.RotateMatrixY(t * maths.Rotation))
 	// fmt.Printf("At t=%.3f the matrix is %s\n", t, matrix)
 	return s.t.ApplyMatrix(matrix)
 }
@@ -67,20 +67,18 @@ func DummySpinningCubes(background DynamicScene) DynamicScene {
 			objects.TransformedObject{
 				Object: diagonalCube,
 				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
-					return geometry.TranslationMatrix(geometry.Vector3D{
-						0, math.Sqrt(3) / 2, -3,
-					}).MatrixMult(
-						geometry.RotateMatrixY(t * (2 * math.Pi)),
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, math.Sqrt(3) / 2, -3}),
+						geometry.RotateMatrixY(t*maths.Rotation),
 					)
 				},
 			},
 			objects.TransformedObject{
 				Object: diagonalCube,
 				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
-					return geometry.TranslationMatrix(geometry.Vector3D{
-						0, -math.Sqrt(3) / 2, -3,
-					}).MatrixMult(
-						geometry.RotateMatrixY(-t * (2 * math.Pi)),
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, -math.Sqrt(3) / 2, -3}),
+						geometry.RotateMatrixY(-t*maths.Rotation),
 					)
 				},
 			},
@@ -136,13 +134,57 @@ func SpinningMulticube(background DynamicScene) DynamicScene {
 			objects.TransformedObject{
 				Object: multiCube,
 				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
-					return geometry.TranslationMatrix(geometry.Vector3D{
-						0, 0, -10,
-					}).MatrixMult(
-						// }).MatrixMult(
-						// geometry.RotateMatrixY(slowQuickSlow(t)*(4*math.Pi)),
-						geometry.RotateMatrixY(maths.SigmoidSlowFastSlow(t) * (2 * math.Pi)),
-						// geometry.RotateMatrixY(t * (2 * math.Pi)),
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, 0, -10}),
+						geometry.RotateMatrixY(maths.SigmoidSlowFastSlow(t)*maths.Rotation),
+					)
+				},
+			},
+		},
+		Background: background,
+	}
+}
+
+func SpinningIndividualMulticube(background DynamicScene) DynamicScene {
+	initialCube := UnitRGBCube()
+	diagonalCube := initialCube.ApplyMatrix(geometry.RotateMatrixX(-0.615).MatrixMult(
+		geometry.RotateMatrixZ(math.Pi / 4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
+	)) // cube with lower point at (0,0,0), upper at (0,sqrt(3) ,0)
+
+	spacing := 2.0
+
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObject{
+			objects.TransformedObject{
+				Object: diagonalCube,
+				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, 0, -4}),       // position within the scene
+						geometry.RotateMatrixY(t*maths.Rotation),                      // rotation around common center
+						geometry.TranslationMatrix(geometry.Vector3D{-spacing, 0, 0}), // position within the group
+						geometry.RotateMatrixX(-2*t*maths.Rotation),                   // rotation around own axis
+					)
+				},
+			},
+			objects.TransformedObject{
+				Object: diagonalCube,
+				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, 0, -4}),
+						geometry.RotateMatrixY(t*maths.Rotation),
+						geometry.TranslationMatrix(geometry.Vector3D{0, 0, 0}),
+						geometry.RotateMatrixY(-2*t*maths.Rotation),
+					)
+				},
+			},
+			objects.TransformedObject{
+				Object: diagonalCube,
+				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, 0, -4}),
+						geometry.RotateMatrixY(t*maths.Rotation),
+						geometry.TranslationMatrix(geometry.Vector3D{spacing, 0, 0}),
+						geometry.RotateMatrixZ(-2*t*maths.Rotation),
 					)
 				},
 			},
@@ -157,15 +199,11 @@ func DummySpinningCube(background DynamicScene) DynamicScene {
 			objects.TransformedObject{
 				Object: UnitRGBCube(),
 				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
-					return geometry.TranslationMatrix(geometry.Vector3D{
-						0, 0, -2,
-					}).MatrixMult(
-						geometry.RotateMatrixY(maths.SigmoidSlowFastSlow(t) * (2 * math.Pi)),
-					).MatrixMult(
-						// arcsin of 1/sqrt(3) (angle between short and long diagonals in a cube)
-						geometry.RotateMatrixX(-0.615).MatrixMult(
-							geometry.RotateMatrixZ(math.Pi / 4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
-						),
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, 0, -2}),
+						geometry.RotateMatrixY(maths.SigmoidSlowFastSlow(t)*maths.Rotation),
+						geometry.RotateMatrixX(-0.615),    // arcsin of 1/sqrt(3) (angle between short and long diagonals in a cube)
+						geometry.RotateMatrixZ(math.Pi/4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
 					)
 				},
 			},
@@ -187,9 +225,10 @@ func DummySpinningTriangle() DynamicScene {
 					color.Black,
 				),
 				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
-					return geometry.TranslationMatrix(geometry.Vector3D{
-						0, 0, -2,
-					}).MatrixMult(geometry.RotateMatrixY(t * (2 * math.Pi)))
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, 0, -2}),
+						geometry.RotateMatrixY(t*maths.Rotation),
+					)
 				},
 			},
 		},

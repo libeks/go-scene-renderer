@@ -20,7 +20,7 @@ type Triangle struct {
 	A geometry.Point
 	B geometry.Point
 	C geometry.Point
-	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but a+b<1.0
+	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but b+c<1.0
 	// it describes the coordinates on the triangle from A towards B and C, respectively
 	Colorer color.Texture
 
@@ -65,9 +65,20 @@ func (t Triangle) Flatten() []*Triangle {
 
 func (t Triangle) GetBoundingBox() BoundingBox {
 	// TODO: cache the bounding box?
+	// fmt.Printf("%s\n", t)
 	a, ad := t.A.ToPixel()
 	b, bd := t.B.ToPixel()
 	c, cd := t.C.ToPixel()
+	if a == nil || b == nil || c == nil {
+		return BoundingBox{
+			TopLeft: geometry.Pixel{
+				-2, -2,
+			},
+			BottomRight: geometry.Pixel{
+				-1.5, -1.5,
+			},
+		}
+	}
 	minx := min(a.X, b.X, c.X)
 	miny := min(a.Y, b.Y, c.Y)
 	maxx := max(a.X, b.X, c.X)
@@ -141,7 +152,6 @@ func (t *Triangle) rayIntersectLocalCoords(r Ray) (float64, float64, float64, bo
 		return b, c, iMag, false
 	}
 	if b+c > 1.0 {
-		// fmt.Printf("Outside unit hypotenuse\n")
 		// inside unit square, but on far side of hypotenuse
 		return b, c, iMag, false
 	}

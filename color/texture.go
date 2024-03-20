@@ -48,10 +48,6 @@ func SquareGradientTexture(A, B, C, D Color) Texture {
 type squareGradientTexture struct {
 	lower triangleGradientTexture
 	upper triangleGradientTexture
-	// A Color
-	// B Color
-	// C Color
-	// D Color
 }
 
 func (g squareGradientTexture) GetTextureColor(b, c float64) Color {

@@ -2,6 +2,15 @@ package geometry
 
 import "fmt"
 
+var (
+	HomogeneusIdentity = HomogeneusMatrix{
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1,
+	}
+)
+
 type Matrix3D struct {
 	A1 float64
 	A2 float64
@@ -316,4 +325,14 @@ func (m HomogeneusMatrix) MultVect(v HomogenousVector) HomogenousVector {
 		m.C1*v.X + m.C2*v.Y + m.C3*v.Z + m.C4*v.T,
 		m.D1*v.X + m.D2*v.Y + m.D3*v.Z + m.D4*v.T,
 	}
+}
+
+// matrices are multiplied, from right to left, the -1 is the first one, then -2, up to 0.
+func MatrixProduct(in ...HomogeneusMatrix) HomogeneusMatrix {
+	result := HomogeneusIdentity
+	for i := len(in) - 1; i >= 0; i-- {
+		result = in[i].MatrixMult(result)
+	}
+	return result
+
 }
