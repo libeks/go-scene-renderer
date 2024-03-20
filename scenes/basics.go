@@ -47,108 +47,53 @@ func UnitRGBCube() objects.TransformableObject {
 func UnitCube(c000, c100, c110, c010, c001, c101, c111, c011 color.Color) objects.TransformableObject {
 	return objects.ComplexObject{
 		Objs: []objects.TransformableObject{
-			objects.GradientTriangle(
+			objects.GradientParallelogram(
 				geometry.Point{0, 0, 0},
 				geometry.Point{0, 1, 0},
 				geometry.Point{1, 0, 0},
-				c000,
-				c010,
-				c100,
+				c000, c010, c100, c110,
 			),
-			objects.GradientTriangle(
-				geometry.Point{1, 1, 0},
-				geometry.Point{0, 1, 0},
-				geometry.Point{1, 0, 0},
-				c110,
-				c010,
-				c100,
-			),
-
-			objects.GradientTriangle(
+			objects.GradientParallelogram(
 				geometry.Point{0, 0, 0},
 				geometry.Point{0, 0, 1},
 				geometry.Point{1, 0, 0},
-				c000,
-				c001,
-				c100,
+				c000, c001, c100, c101,
 			),
-			objects.GradientTriangle(
-				geometry.Point{1, 0, 1},
-				geometry.Point{0, 0, 1},
-				geometry.Point{1, 0, 0},
-				c101,
-				c001,
-				c100,
-			),
-
-			objects.GradientTriangle(
+			objects.GradientParallelogram(
 				geometry.Point{0, 0, 0},
 				geometry.Point{0, 0, 1},
 				geometry.Point{0, 1, 0},
-				c000,
-				c001,
-				c010,
-			),
-			objects.GradientTriangle(
-				geometry.Point{0, 1, 1},
-				geometry.Point{0, 0, 1},
-				geometry.Point{0, 1, 0},
-				c011,
-				c001,
-				c010,
+				c000, c001, c010, c011,
 			),
 
 			// halfway
 
-			objects.GradientTriangle(
+			objects.GradientParallelogram(
 				geometry.Point{0, 0, 1},
 				geometry.Point{0, 1, 1},
 				geometry.Point{1, 0, 1},
 				c001,
 				c011,
 				c101,
-			),
-			objects.GradientTriangle(
-				geometry.Point{1, 1, 1},
-				geometry.Point{0, 1, 1},
-				geometry.Point{1, 0, 1},
 				c111,
-				c011,
-				c101,
 			),
-
-			objects.GradientTriangle(
+			objects.GradientParallelogram(
 				geometry.Point{0, 1, 0},
 				geometry.Point{0, 1, 1},
 				geometry.Point{1, 1, 0},
 				c010,
 				c011,
 				c110,
-			),
-			objects.GradientTriangle(
-				geometry.Point{1, 1, 1},
-				geometry.Point{0, 1, 1},
-				geometry.Point{1, 1, 0},
 				c111,
-				c011,
-				c110,
 			),
-
-			objects.GradientTriangle(
+			objects.GradientParallelogram(
 				geometry.Point{1, 0, 0},
 				geometry.Point{1, 0, 1},
 				geometry.Point{1, 1, 0},
 				c100,
 				c101,
 				c110,
-			),
-			objects.GradientTriangle(
-				geometry.Point{1, 1, 1},
-				geometry.Point{1, 0, 1},
-				geometry.Point{1, 1, 0},
 				c111,
-				c101,
-				c110,
 			),
 		},
 	}.ApplyMatrix(geometry.TranslationMatrix(

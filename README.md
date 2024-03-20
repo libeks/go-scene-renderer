@@ -14,6 +14,7 @@ Example (converted from mp4 to gif for illustrative purposes):
 * Add texture mapping
 * Render image in rectanglular windows, recomputing all the triangles that fall within the window, for efficiency
   * This is done, but I need to rethink the Frame abstraction, as I need to have access to CombinedScene with type assertion to make it happen, which isn't great
+  * Is there some way to create a mapping from pixel space to Window index? If all Windows were uniform, this would be trivial, but they're of various sizes. Maybe storing them as a tree could help? But lookup would be O(log(n))
 * Investiate if there are any optimizations using GPU/CUDA
 
 

@@ -1,7 +1,7 @@
 package maths
 
 func SigmoidSlowFastSlow(t float64) float64 {
-	const k = 7
+	const k = 10
 	t = 2*t*k - k
 	return Sigmoid(t)
 }

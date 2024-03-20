@@ -40,7 +40,7 @@ var (
 	// 	// Gradient:     color.Grayscale,
 	// 	Gradient: gradient,
 	// }
-	// scene = scenes.DummySpinningCube(scenes.Random{})
+	// scene = scenes.DummySpinningCube(scenes.Uniform{color.Black})
 	scene = scenes.SpinningMulticube(scenes.SineWave{
 		XYRatio:      0.1,
 		SigmoidRatio: 2,

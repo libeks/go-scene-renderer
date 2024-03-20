@@ -7,35 +7,12 @@ import (
 	"github.com/libeks/go-scene-renderer/geometry"
 )
 
-type TriangleGradientTexture struct {
-	ColorA color.Color
-	ColorB color.Color
-	ColorC color.Color
-}
-
-// given coordinates from the A point towards B and C (each in the range of (0,1))
-// return what color it should be
-func (t *TriangleGradientTexture) GetTextureColor(b, c float64) color.Color {
-	if c == 1 {
-		return t.ColorB
-	}
-	abGradient := color.SimpleGradient{t.ColorA, t.ColorB}
-	abColor := abGradient.Interpolate(b / (1 - c))
-	triangleGradient := color.SimpleGradient{abColor, t.ColorC}
-	cColor := triangleGradient.Interpolate(c)
-	return cColor
-}
-
 func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC color.Color) *Triangle {
 	return &Triangle{
-		A: a,
-		B: b,
-		C: c,
-		Colorer: &TriangleGradientTexture{
-			ColorA: colorA,
-			ColorB: colorB,
-			ColorC: colorC,
-		},
+		A:       a,
+		B:       b,
+		C:       c,
+		Colorer: color.TriangleGradientTexture(colorA, colorB, colorC),
 	}
 }
 
