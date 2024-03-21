@@ -10,8 +10,6 @@ Example (converted from mp4 to gif for illustrative purposes):
 ## TODOs:
 * Add more intense gradients, like Bezier, etc
 * Find Lab color space transformation code, try that out
-* Increase anti-aliasing near object edges (adaptive anti-alias)
-* Add texture mapping
 * Render image in rectanglular windows, recomputing all the triangles that fall within the window, for efficiency
   * This is done, but I need to rethink the Frame abstraction, as I need to have access to CombinedScene with type assertion to make it happen, which isn't great
   * Is there some way to create a mapping from pixel space to Window index? If all Windows were uniform, this would be trivial, but they're of various sizes. Maybe storing them as a tree could help? But lookup would be O(log(n))
@@ -20,6 +18,8 @@ Example (converted from mp4 to gif for illustrative purposes):
   * See https://www.desmos.com/calculator/k01p40v0ct
   * `y=P0*e^{\alpha x}\cos\left(\beta x\right)+C6e^{\alpha x}\sin\left(\beta x\right)\left\{0<x<t\right\}`
     * P0 is initial position, C6 is the velocity component (?), b is friction component, k is spring constant, etc
+* Need to refactor how textures and scenes have very similar signatures, but operate on different ranges (0;1) and (-1;1), could one be reused for the other? Do we need to retain the distinction?
+
 
 ## Further Reading:
 * https://graphics.stanford.edu/courses/cs348a-09-fall/Handouts/handout15.pdf

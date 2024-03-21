@@ -13,6 +13,7 @@ const (
 var (
 	Black   = GrayscaleColor(0)
 	White   = GrayscaleColor(1)
+	Gray    = GrayscaleColor(0.5)
 	Red     = Color{R: 1, G: 0, B: 0}
 	Blue    = Color{R: 0, G: 0, B: 1}
 	Green   = Color{R: 0, G: 1, B: 0}

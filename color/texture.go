@@ -56,7 +56,7 @@ func (g squareGradientTexture) GetTextureColor(b, c float64) Color {
 	}
 
 	// besure to flip coordinates from the other end
-	return g.upper.GetTextureColor(1-c, 1-b)
+	return g.upper.GetTextureColor(1-b, 1-c)
 }
 
 type RotatedTexture struct {
@@ -64,7 +64,7 @@ type RotatedTexture struct {
 }
 
 func (t RotatedTexture) GetTextureColor(b, c float64) Color {
-	return t.t.GetTextureColor(1-c, 1-b)
+	return t.t.GetTextureColor(1-b, 1-c)
 }
 
 func RotateTexture180(texture Texture) Texture {

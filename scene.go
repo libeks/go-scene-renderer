@@ -47,6 +47,7 @@ var (
 		SinCycles:    3,
 		Gradient:     color.Grayscale,
 	})
+	// scene = scenes.NoiseTest()
 	// scene = scenes.NewPerlinNoise(color.Grayscale)
 	// scene = scenes.DummyTriangle()
 
