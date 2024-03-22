@@ -1,9 +1,25 @@
-package color
+package colors
 
 type Texture interface {
 	// a,b range from (0,1), when used for triangles, only the lower triangluar values will be called
-	// TODO: Texture is surprisingly similar to Frame, maybe there's some generalizations?
 	GetTextureColor(b, c float64) Color
+}
+
+type DynamicTexture interface {
+	GetFrame(t float64) Texture
+}
+
+// a helper for when a static texture is needed as a dynamic texture
+type staticTexture struct {
+	t Texture
+}
+
+func (t staticTexture) GetFrame(f float64) Texture {
+	return t.t
+}
+
+func StaticTexture(t Texture) DynamicTexture {
+	return staticTexture{t}
 }
 
 func TriangleGradientTexture(A, B, C Color) Texture {

@@ -3,16 +3,16 @@ package objects
 import (
 	"fmt"
 
-	"github.com/libeks/go-scene-renderer/color"
+	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 )
 
-func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC color.Color) *Triangle {
+func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC colors.Color) *Triangle {
 	return &Triangle{
 		A:       a,
 		B:       b,
 		C:       c,
-		Colorer: color.TriangleGradientTexture(colorA, colorB, colorC),
+		Colorer: colors.TriangleGradientTexture(colorA, colorB, colorC),
 	}
 }
 
@@ -22,7 +22,7 @@ type Triangle struct {
 	C geometry.Point
 	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but b+c<1.0
 	// it describes the coordinates on the triangle from A towards B and C, respectively
-	Colorer color.Texture
+	Colorer colors.Texture
 
 	// the below are cached values for efficiency. They are created at the top of rayIntersectLocalCoords
 	cached bool
@@ -31,7 +31,11 @@ type Triangle struct {
 	cVect  geometry.Vector3D
 }
 
-func (t *Triangle) GetColorDepth(x, y float64) (*color.Color, float64) {
+// returns the color of the triangle at a ray
+// emanating from the camera at (0,0,0), pointed in the direction
+// (x,y, -1), with perspective
+// and a z-index. The bigger the index, the farther the object.
+func (t *Triangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
 	b, c, depth, intersect := t.rayIntersectLocalCoords(Ray{geometry.OriginPoint, geometry.Vector3D{x, y, -1.0}})
 	if !intersect {
 		return nil, 0
@@ -97,6 +101,7 @@ func (t Triangle) GetBoundingBox() BoundingBox {
 	}
 }
 
+// return all the lines that describe the triangle, without any fill, used to generate wireframe images
 func (t Triangle) GetWireframe() []geometry.Line {
 	return []geometry.Line{
 		geometry.Line{t.A, t.B},

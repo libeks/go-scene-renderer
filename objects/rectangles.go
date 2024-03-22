@@ -1,12 +1,12 @@
 package objects
 
 import (
-	"github.com/libeks/go-scene-renderer/color"
+	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 )
 
 // fourth coordinate is inferred from the first three
-func GradientParallelogram(a, b, c geometry.Point, colorA, colorB, colorC, colorD color.Color) ComplexObject {
+func GradientParallelogram(a, b, c geometry.Point, colorA, colorB, colorC, colorD colors.Color) ComplexObject {
 	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
 
 	return ComplexObject{
@@ -15,19 +15,19 @@ func GradientParallelogram(a, b, c geometry.Point, colorA, colorB, colorC, color
 				A:       a,
 				B:       b,
 				C:       c,
-				Colorer: color.TriangleGradientTexture(colorA, colorB, colorC),
+				Colorer: colors.TriangleGradientTexture(colorA, colorB, colorC),
 			},
 			&Triangle{
 				A:       d,
 				B:       c,
 				C:       b,
-				Colorer: color.TriangleGradientTexture(colorD, colorC, colorB),
+				Colorer: colors.TriangleGradientTexture(colorD, colorC, colorB),
 			},
 		},
 	}
 }
 
-func Parallelogram(a, b, c geometry.Point, texture color.Texture) ComplexObject {
+func Parallelogram(a, b, c geometry.Point, texture colors.Texture) ComplexObject {
 	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
 
 	return ComplexObject{
@@ -42,7 +42,7 @@ func Parallelogram(a, b, c geometry.Point, texture color.Texture) ComplexObject 
 				A:       d,
 				B:       c,
 				C:       b,
-				Colorer: color.RotateTexture180(texture),
+				Colorer: colors.RotateTexture180(texture),
 			},
 		},
 	}

@@ -1,8 +1,8 @@
-package color
+package colors
 
 import (
 	"fmt"
-	go_color "image/color"
+	"image/color"
 	"math"
 )
 
@@ -95,8 +95,8 @@ func uInt32ToFloat(r uint32) float64 {
 	return float64(r) / float64(0xff)
 }
 
-func ToInterfaceSlice(colors []Color) []go_color.Color {
-	out := make([]go_color.Color, len(colors))
+func ToInterfaceSlice(colors []Color) []color.Color {
+	out := make([]color.Color, len(colors))
 	for i := range colors {
 		out[i] = colors[i]
 	}

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/libeks/go-scene-renderer/color"
+	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/scenes"
 )
 
@@ -41,12 +41,15 @@ var (
 	// 	Gradient: gradient,
 	// }
 	// scene = scenes.DummySpinningCube(scenes.Uniform{color.Black})
-	scene = scenes.SpinningIndividualMulticube(scenes.SineWave{
-		XYRatio:      0.1,
-		SigmoidRatio: 2,
-		SinCycles:    3,
-		Gradient:     color.Grayscale,
-	})
+	scene = scenes.SpinningIndividualMulticube(scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
+		colors.SineWaveAnimation{
+			XYRatio:      0.1,
+			SigmoidRatio: 2,
+			SinCycles:    3,
+			Gradient:     colors.Grayscale,
+		}),
+	),
+	)
 	// scene = scenes.NoiseTest()
 	// scene = scenes.NewPerlinNoise(color.Grayscale)
 	// scene = scenes.DummyTriangle()

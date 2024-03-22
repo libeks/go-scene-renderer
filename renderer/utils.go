@@ -11,7 +11,6 @@ func cleanUpTempFiles(pattern string) error {
 		return err
 	}
 	for _, f := range files {
-		// fmt.Printf("About to remove %s\n", f)
 		if err := os.Remove(f); err != nil {
 			return err
 		}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/libeks/go-scene-renderer/color"
+	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 	"github.com/libeks/go-scene-renderer/maths"
 	"github.com/libeks/go-scene-renderer/objects"
@@ -14,16 +14,16 @@ type TriangleScene struct {
 	t objects.Triangle
 }
 
-func (s TriangleScene) GetFrameColor(x, y, t float64) color.Color {
+func (s TriangleScene) GetFrameColor(x, y, t float64) colors.Color {
 	triangleColor, _ := s.t.GetColorDepth(x, y)
 	if triangleColor != nil {
 		return *triangleColor
 	}
-	return color.White
+	return colors.White
 }
 
-func (s TriangleScene) GetColorPalette(t float64) []color.Color {
-	return []color.Color{color.White, color.Black}
+func (s TriangleScene) GetColorPalette(t float64) []colors.Color {
+	return []colors.Color{colors.White, colors.Black}
 }
 
 type DynamicTriangle struct {
@@ -44,7 +44,7 @@ func (s DynamicTriangle) GetFrame(t float64) objects.Object {
 	return s.t.ApplyMatrix(matrix)
 }
 
-func DummySpinningCubes(background DynamicScene) DynamicScene {
+func DummySpinningCubes(background DynamicBackground) DynamicScene {
 	initialCube := UnitRGBCube()
 	// initialCube := UnitCube(
 	// 	color.Black,
@@ -87,7 +87,7 @@ func DummySpinningCubes(background DynamicScene) DynamicScene {
 	}
 }
 
-func SpinningMulticube(background DynamicScene) DynamicScene {
+func SpinningMulticube(background DynamicBackground) DynamicScene {
 	initialCube := UnitRGBCube()
 	diagonalCube := initialCube.ApplyMatrix(geometry.RotateMatrixX(-0.615).MatrixMult(
 		geometry.RotateMatrixZ(math.Pi / 4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
@@ -146,7 +146,7 @@ func SpinningMulticube(background DynamicScene) DynamicScene {
 }
 
 func NoiseTest() DynamicScene {
-	texture := NewPerlinNoise(color.Grayscale)
+	texture := colors.NewPerlinNoise(colors.Grayscale)
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObject{
 			objects.TransformedObject{
@@ -156,14 +156,14 @@ func NoiseTest() DynamicScene {
 				},
 			},
 		},
-		Background: texture,
+		Background: BackgroundFromTexture(colors.StaticTexture(texture)),
 	}
 }
 
-func SpinningIndividualMulticube(background DynamicScene) DynamicScene {
+func SpinningIndividualMulticube(background DynamicBackground) DynamicScene {
 	// initialCube := UnitRGBCube()
 	// texture := color.SquareGradientTexture(color.White, color.Red, color.Black, color.Blue)
-	texture := NewPerlinNoise(color.Grayscale)
+	texture := colors.NewPerlinNoise(colors.Grayscale)
 	initialCube := UnitTextureCube(
 		texture,
 		texture,
@@ -220,7 +220,7 @@ func SpinningIndividualMulticube(background DynamicScene) DynamicScene {
 	}
 }
 
-func DummySpinningCube(background DynamicScene) DynamicScene {
+func DummySpinningCube(background DynamicBackground) DynamicScene {
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObject{
 			objects.TransformedObject{
@@ -247,9 +247,9 @@ func DummySpinningTriangle() DynamicScene {
 					geometry.Point{-0.5, -0.5, -1.0},
 					geometry.Point{-0.5, 0.5, -1.0},
 					geometry.Point{0.5, -0.5, -1.0},
-					color.Hex("#6CB4F5"),
-					color.Hex("#EBF56C"),
-					color.Black,
+					colors.Hex("#6CB4F5"),
+					colors.Hex("#EBF56C"),
+					colors.Black,
 				),
 				MatrixFn: func(t float64) geometry.HomogeneusMatrix {
 					return geometry.MatrixProduct(
@@ -259,68 +259,6 @@ func DummySpinningTriangle() DynamicScene {
 				},
 			},
 		},
-		Background: Uniform{color.Black},
-	}
-}
-
-func DummyTriangle() CombinedScene {
-	return CombinedScene{
-		Objects: []objects.Object{
-			objects.GradientTriangle(
-				geometry.Point{-0.5, -0.5, -1.0},
-				geometry.Point{-0.5, 0.5, -1.0},
-				geometry.Point{0.5, -0.5, -1.0},
-				color.Hex("#6CB4F5"),
-				color.Hex("#EBF56C"),
-				color.Black,
-			),
-			objects.GradientTriangle(
-				geometry.Point{-1.0, -1.0, -1.2},
-				geometry.Point{-1.0, 1.0, -1.2},
-				geometry.Point{1.0, -1.0, -1.2},
-				color.Red,
-				color.Hex("#EBF56C"),
-				color.White,
-			),
-			objects.GradientTriangle(
-				geometry.Point{1.0, 1.0, -0.9},
-				geometry.Point{-1.0, 1.0, -1.1},
-				geometry.Point{1.0, -1.0, -1.1},
-				color.Hex("#90E8F5"),
-				color.Hex("#EBF56C"),
-				color.Hex("#F590C1"),
-			),
-			objects.GradientTriangle(
-				geometry.Point{0.75, 0.75, -1.0},
-				geometry.Point{-0.75, 0.75, -1.0},
-				geometry.Point{0.75, -0.75, -1.0},
-				color.Hex("#0F0"),
-				color.Hex("#F00"),
-				color.Hex("#00F"),
-			),
-			objects.GradientTriangle(
-				geometry.Point{0.5, 0.5, -0.5},
-				geometry.Point{-0.5, 0.5, -2.0},
-				geometry.Point{0.5, -0.5, -2.0},
-				color.Hex("#0Ff"),
-				color.Hex("#F00"),
-				color.Hex("#00F"),
-			),
-		},
-		Background: Uniform{color.White},
-		// Background: SineWaveWCross{
-		// 	XYRatio:      0.0001,
-		// 	SigmoidRatio: 2.0,
-		// 	SinCycles:    3,
-		// 	TScale:       0.3,
-		// 	Gradient: color.LinearGradient{
-		// 		Points: []color.Color{
-		// 			color.Hex("#FFF"), // black
-		// 			color.Hex("#DDF522"),
-		// 			color.Hex("#A0514C"),
-		// 			color.Hex("#000"), // white
-		// 		},
-		// 	},
-		// },
+		Background: BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})),
 	}
 }

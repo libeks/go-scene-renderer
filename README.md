@@ -9,20 +9,22 @@ Example (converted from mp4 to gif for illustrative purposes):
 
 ## Organization
 Rendering accepts these types/interfaces:
-* `Frame`, which specifies the color at each x,y coordinate, each in the range of (-1,1). A frame is not intended to contain objects, as no optimizations will not be performed in their rendering. 
-* `Scene`, a set of objects with a background (`Frame`), intended to be displayed in a single frame. When rendering,
+* `Background`, which specifies the color at each x,y coordinate, each in the range of (-1,1). A background is not intended to contain objects, as no optimizations will not be performed in their rendering. 
+* `Scene`, a set of objects with a `Background`, intended to be displayed in a single frame. When rendering,
   the `Flatten` method will be called, which returns a set of `Triangle`s and a `Frame` for the background.
   * When rendering, these triangles are organized into a set of render `Window`s, each describing the sub-Scene of the square part of the image. This is done to make scene rendering much more efficient.
-* `DynamicFrame`, a entity that returns a Frame for each timestamp (0,1), not intended to contain any objects
+* `DynamicBackground`, a entity that returns a Frame for each timestamp (0,1), not intended to contain any objects
 * `DynamicScene`, an entity that returns a Scene for each timestamp(0,1)
 
 For help, here are other types of interfaces/objects which may come in handy:
-* `Texture` and Dynamic texture, each specifying the color at each pixel from (0,1) in two dimensions. The domain of a Texture (0,1) is different from Frame (-1,1), but a Texture can be used as a Frame using the TextureToFrame helper.
+* `Texture` and `DynamicTexture`, each specifying the color at each pixel from (0,1) in two dimensions. The domain of a Texture (0,1) is different from Frame (-1,1), but a Texture can be used as a Frame using the TextureToFrame helper.
+  * A `DynamicTexture` can be converted into `DynamicBackground` using `BackgroundFromTexture()`
+  * A static `Texture` can be converted into `DynamicTexture` using `StaticTexture()`
 * `Gradient`, specifying a color from a gradient, in the range (0,1)
 * `Object` is an object in a scene, which has to provide a `Flatten` method, returning a list of `Triangle`s, and a `GetWireframe` method, allowing for wireframe rendering.
   * `TransformableObject` is intended for objects that are transformed using a Homogeneous matrix
 
-* `Triangle` is the basic entity of object rendering. Triangles are bidirectional, and can be skinned using a texture.
+* `Triangle` is the basic entity of object rendering. Triangles are bidirectional, and can be skinned using a `Texture`.
 * `Parallelogram` is a helper that contains two adjoining triangles in a plane, it contains a helper for mapping textures correctly onto the two contained triangles.
 
 * `HomogeneousMatrix` contains the logic for doing three types of homogeneous transformations, which are:
