@@ -124,37 +124,3 @@ func RotateMatrixZ(t float64) HomogeneusMatrix {
 		1,
 	}
 }
-
-// func RollPitchYawMatrix(r, p, y float64) HomogeneusMatrix {
-// 	// `\cos\alpha\cos\beta &
-// 	//       \cos\alpha\sin\beta\sin\gamma - \sin\alpha\cos\gamma &
-// 	//       \cos\alpha\sin\beta\cos\gamma + \sin\alpha\sin\gamma \\
-
-// 	//     \sin\alpha\cos\beta &
-// 	//       \sin\alpha\sin\beta\sin\gamma + \cos\alpha\cos\gamma &
-// 	//       \sin\alpha\sin\beta\cos\gamma - \cos\alpha\sin\gamma \\
-
-// 	//    -\sin\beta & \cos\beta\sin\gamma & \cos\beta\cos\gamma \\
-// 	//    `
-// 	return HomogeneusMatrix{
-// 		math.Cos(r) * math.Cos(p),
-// 		math.Cos(r)*math.Sin(p)*math.Sin(y) - math.Sin(r)*math.Cos(y),
-// 		math.Sin(r) * math.Cos(p),
-// 		0.0,
-
-// 		math.Cos(r) * math.Cos(p),
-// 		math.Sin(r)*math.Sin(p)*math.Sin(y) + math.Cos(r)*math.Cos(y),
-// 		math.Sin(r)*math.Sin(p)*math.Cos(y) - math.Cos(r)*math.Sin(y),
-// 		0.0,
-
-// 		-math.Sin(p),
-// 		math.Cos(p) * math.Sin(y),
-// 		math.Cos(p) * math.Cos(y),
-// 		0.0,
-
-// 		0.0,
-// 		0.0,
-// 		0.0,
-// 		1.0,
-// 	}
-// }
