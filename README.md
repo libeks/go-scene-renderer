@@ -22,9 +22,8 @@ For help, here are other types of interfaces/objects which may come in handy:
   * A `DynamicTexture` can be converted into `DynamicBackground` using `BackgroundFromTexture()`
   * A static `Texture` can be converted into `DynamicTexture` using `StaticTexture()`
 * `Gradient`, specifying a color from a gradient, in the range (0,1)
-* `Object` is an object in a scene, which has to provide a `Flatten` method, returning a list of `Triangle`s, and a `GetWireframe` method, allowing for wireframe rendering.
-  * `TransformableObject` is intended for objects that are transformed using a Homogeneous matrix
-* `Triangle` is the basic entity of object rendering. Triangles are bidirectional, and can be skinned using a `Texture`.
+* `DynamicObject` is an object in a scene, which has a `Frame(float64)` method, returning a `StaticObject` (a collection of `StaticTriangles`), and a `GetWireframe` method, allowing for wireframe rendering.
+* `Triangle` is the basic entity of object rendering. Triangles are bidirectional, with `DynamicTriangle` and `StaticTriangle` versions, skinned with the respective types of `Texture`.
 * `Parallelogram` is a helper that contains two adjoining triangles in a plane, it contains a helper for mapping textures correctly onto the two contained triangles.
 * `HomogeneousMatrix` contains the logic for doing three types of homogeneous transformations, which are:
 	* Translation by an arbitrary 3D vector (`TranslationMatrix`), 
@@ -46,8 +45,6 @@ Consider a new type:
   * See https://www.desmos.com/calculator/k01p40v0ct
   * `y=P0*e^{\alpha x}\cos\left(\beta x\right)+C6e^{\alpha x}\sin\left(\beta x\right)\left\{0<x<t\right\}`
     * P0 is initial position, C6 is the velocity component (?), b is friction component, k is spring constant, etc
-* Add dynamic texture support for `Triangle`
-
 
 ## Further Reading:
 * https://graphics.stanford.edu/courses/cs348a-09-fall/Handouts/handout15.pdf
