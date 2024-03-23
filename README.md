@@ -13,8 +13,9 @@ Rendering accepts these types/interfaces:
 * `Scene`, a set of objects with a `Background`, intended to be displayed in a single frame. When rendering,
   the `Flatten` method will be called, which returns a set of `Triangle`s and a `Frame` for the background.
   * When rendering, these triangles are organized into a set of render `Window`s, each describing the sub-Scene of the square part of the image. This is done to make scene rendering much more efficient.
-* `DynamicBackground`, a entity that returns a Frame for each timestamp (0,1), not intended to contain any objects
-* `DynamicScene`, an entity that returns a Scene for each timestamp(0,1)
+* `DynamicBackground`, a entity that returns a `Background` for each timestamp in (0,1), not intended to contain any objects
+* `DynamicScene`, an entity that returns a Scene for each timestamp in (0,1)
+
 
 For help, here are other types of interfaces/objects which may come in handy:
 * `Texture` and `DynamicTexture`, each specifying the color at each pixel from (0,1) in two dimensions. The domain of a Texture (0,1) is different from Frame (-1,1), but a Texture can be used as a Frame using the TextureToFrame helper.
@@ -23,28 +24,29 @@ For help, here are other types of interfaces/objects which may come in handy:
 * `Gradient`, specifying a color from a gradient, in the range (0,1)
 * `Object` is an object in a scene, which has to provide a `Flatten` method, returning a list of `Triangle`s, and a `GetWireframe` method, allowing for wireframe rendering.
   * `TransformableObject` is intended for objects that are transformed using a Homogeneous matrix
-
 * `Triangle` is the basic entity of object rendering. Triangles are bidirectional, and can be skinned using a `Texture`.
 * `Parallelogram` is a helper that contains two adjoining triangles in a plane, it contains a helper for mapping textures correctly onto the two contained triangles.
-
 * `HomogeneousMatrix` contains the logic for doing three types of homogeneous transformations, which are:
 	* Translation by an arbitrary 3D vector (`TranslationMatrix`), 
 	* Rotation by a radian angle around one of the three axes (`RotateMatrixX`, `RotateMatrixY`,`RotateMatrixZ`), and
 	* Scaling of all axes (`ScaleMatrix`). 
 * These matrices can be combined using `MatrixProduct`, applied right to left.
 
+
+Consider a new type:
+* `DynamicObject`, which is a collection of `DynamicTriangles` along with some transformations, applied with either `.WithTransform(matrix)` or `.WithDynamicTransform(func(float64) HomogeneousMatrix)`
+* A `DynamicObject` can be evaluated at `.Frame(float64)` to get `StaticObject`, which consists of `StaticTriangles`
+
 ## TODOs:
 * Add more intense gradients, like Bezier, etc
 * Find Lab color space transformation code, try that out
-* Render image in rectanglular windows, recomputing all the triangles that fall within the window, for efficiency
-  * This is done, but I need to rethink the Frame abstraction, as I need to have access to CombinedScene with type assertion to make it happen, which isn't great
-  * Is there some way to create a mapping from pixel space to Window index? If all Windows were uniform, this would be trivial, but they're of various sizes. Maybe storing them as a tree could help? But lookup would be O(log(n))
+* Is there some way to create a mapping from pixel space to Window index? If all Windows were uniform, this would be trivial, but they're of various sizes. Maybe storing them as a tree could help? But lookup would be O(log(n))
 * Investiate if there are any optimizations using GPU/CUDA
 * Add spring-loaded-mass interactions
   * See https://www.desmos.com/calculator/k01p40v0ct
   * `y=P0*e^{\alpha x}\cos\left(\beta x\right)+C6e^{\alpha x}\sin\left(\beta x\right)\left\{0<x<t\right\}`
     * P0 is initial position, C6 is the velocity component (?), b is friction component, k is spring constant, etc
-* Need to refactor how textures and scenes have very similar signatures, but operate on different ranges (0;1) and (-1;1), could one be reused for the other? Do we need to retain the distinction?
+* Add dynamic texture support for `Triangle`
 
 
 ## Further Reading:

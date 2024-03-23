@@ -7,36 +7,64 @@ import (
 	"github.com/libeks/go-scene-renderer/geometry"
 )
 
-func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC colors.Color) *Triangle {
-	return &Triangle{
-		A:       a,
-		B:       b,
-		C:       c,
-		Colorer: colors.TriangleGradientTexture(colorA, colorB, colorC),
+func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC colors.Color) DynamicTriangle {
+	return DynamicTriangle{
+		Triangle: Triangle{
+			A: a,
+			B: b,
+			C: c,
+		},
+		Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC)),
 	}
 }
 
-type Triangle struct {
-	A geometry.Point
-	B geometry.Point
-	C geometry.Point
+// DynamicTriangle is a Triangle with a DynamicTexture, which can be evaluated for a specific frame
+type DynamicTriangle struct {
+	Triangle
+	Colorer colors.DynamicTexture
+}
+
+func (t DynamicTriangle) Frame(f float64) StaticTriangle {
+	return StaticTriangle{
+		t.Triangle,
+		t.Colorer.GetFrame(f),
+	}
+}
+
+func (t DynamicTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) *DynamicTriangle {
+	newTriangle := t.Triangle.ApplyMatrix(m)
+	if newTriangle == nil {
+		return nil
+	}
+	return &DynamicTriangle{
+		Triangle: *newTriangle,
+		Colorer:  t.Colorer,
+	}
+}
+
+func (t DynamicTriangle) GetBoundingBox() BoundingBox {
+	return t.Triangle.GetBoundingBox()
+}
+
+// return all the lines that describe the triangle, without any fill, used to generate wireframe images
+func (t DynamicTriangle) GetWireframe() []geometry.Line {
+	return t.Triangle.GetWireframe()
+}
+
+// StaticTriangle is a Triangle with a Texture applied to it
+type StaticTriangle struct {
+	Triangle
 	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but b+c<1.0
 	// it describes the coordinates on the triangle from A towards B and C, respectively
 	Colorer colors.Texture
-
-	// the below are cached values for efficiency. They are created at the top of rayIntersectLocalCoords
-	cached bool
-	plane  Plane
-	bVect  geometry.Vector3D
-	cVect  geometry.Vector3D
 }
 
 // returns the color of the triangle at a ray
 // emanating from the camera at (0,0,0), pointed in the direction
 // (x,y, -1), with perspective
 // and a z-index. The bigger the index, the farther the object.
-func (t *Triangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
-	b, c, depth, intersect := t.rayIntersectLocalCoords(Ray{geometry.OriginPoint, geometry.Vector3D{x, y, -1.0}})
+func (t *StaticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
+	b, c, depth, intersect := t.rayIntersectLocalCoords(ray{geometry.OriginPoint, geometry.Vector3D{x, y, -1.0}})
 	if !intersect {
 		return nil, 0
 	}
@@ -44,7 +72,29 @@ func (t *Triangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
 	return &color, depth
 }
 
-func (t *Triangle) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObject {
+func (t StaticTriangle) GetBoundingBox() BoundingBox {
+	return t.Triangle.GetBoundingBox()
+}
+
+// return all the lines that describe the triangle, without any fill, used to generate wireframe images
+func (t StaticTriangle) GetWireframe() []geometry.Line {
+	return t.Triangle.GetWireframe()
+}
+
+// A Triangle describes an uncolored object in the space
+type Triangle struct {
+	A geometry.Point
+	B geometry.Point
+	C geometry.Point
+
+	// the below are cached values for efficiency. They are created at the top of rayIntersectLocalCoords
+	cached bool
+	plane  plane
+	bVect  geometry.Vector3D
+	cVect  geometry.Vector3D
+}
+
+func (t Triangle) ApplyMatrix(m geometry.HomogeneusMatrix) *Triangle {
 	a, ok := m.MultVect(t.A.ToHomogenous()).ToPoint()
 	if !ok {
 		return nil
@@ -59,7 +109,6 @@ func (t *Triangle) ApplyMatrix(m geometry.HomogeneusMatrix) TransformableObject 
 	}
 	return &Triangle{
 		A: a, B: b, C: c,
-		Colorer: t.Colorer,
 	}
 }
 
@@ -114,11 +163,11 @@ func (t Triangle) String() string {
 	return fmt.Sprintf("Triangle %s %s %s", t.A, t.B, t.C)
 }
 
-func (t Triangle) getPlane() Plane {
+func (t Triangle) getPlane() plane {
 	bVector := t.bVect
 	cVector := t.cVect
 	nVector := bVector.CrossProduct(cVector)
-	return Plane{nVector, t.A.Vector().DotProduct(nVector)}
+	return plane{nVector, t.A.Vector().DotProduct(nVector)}
 }
 
 func (t Triangle) getBVect() geometry.Vector3D {
@@ -132,7 +181,7 @@ func (t Triangle) getCVect() geometry.Vector3D {
 // return the intersection in triangle-local coordinates, in direction of A->B and A->C
 // bool signifies whether intersection is inside the triange
 // third float is the depth, in positive values
-func (t *Triangle) rayIntersectLocalCoords(r Ray) (float64, float64, float64, bool) {
+func (t *Triangle) rayIntersectLocalCoords(r ray) (float64, float64, float64, bool) {
 	// cache the vectors AB and AC, as well as the plane, this is 37% more efficient
 	if !t.cached {
 		t.bVect = t.getBVect()
@@ -162,33 +211,4 @@ func (t *Triangle) rayIntersectLocalCoords(r Ray) (float64, float64, float64, bo
 	}
 	// inside unit square and inside the hypotenuse
 	return b, c, iMag, true
-}
-
-type Ray struct {
-	P geometry.Point    // origin point
-	D geometry.Vector3D // direction vector describing the ray
-}
-
-type Plane struct {
-	N geometry.Vector3D // normal vector
-	D float64           // d parameter, describing plane
-}
-
-func (p Plane) String() string {
-	return fmt.Sprintf("Plane(->%s, at %f)", p.N, p.D)
-}
-
-func (p Plane) IntersectPoint(r Ray) *geometry.Point {
-	denominator := p.N.DotProduct(r.D)
-	// fmt.Printf("denominator %0.3f\n", denominator)
-	if denominator == 0.0 {
-		return nil // ray is parallel to plane, no intersection
-	}
-	t := (p.D - p.N.DotProduct(r.P.Vector())) / denominator
-	if t < 0.0 {
-		// fmt.Printf("object behind camera %0.3f\n", t)
-		return nil // ray intersects plane before ray's starting point
-	}
-	point := geometry.Point(r.P.Vector().AddVector(r.D.ScalarMultiply(t)))
-	return &point
 }

@@ -75,14 +75,26 @@ func (g squareGradientTexture) GetTextureColor(b, c float64) Color {
 	return g.upper.GetTextureColor(1-b, 1-c)
 }
 
-type RotatedTexture struct {
+type rotatedTexture struct {
 	t Texture
 }
 
-func (t RotatedTexture) GetTextureColor(b, c float64) Color {
+func (t rotatedTexture) GetTextureColor(b, c float64) Color {
 	return t.t.GetTextureColor(1-b, 1-c)
 }
 
 func RotateTexture180(texture Texture) Texture {
-	return RotatedTexture{texture}
+	return rotatedTexture{texture}
+}
+
+type rotatedDynamicTexture struct {
+	t DynamicTexture
+}
+
+func (r rotatedDynamicTexture) GetFrame(t float64) Texture {
+	return RotateTexture180(r.t.GetFrame(t))
+}
+
+func RotateDynamicTexture180(texture DynamicTexture) DynamicTexture {
+	return rotatedDynamicTexture{texture}
 }

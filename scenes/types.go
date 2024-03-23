@@ -10,7 +10,7 @@ type DynamicScene interface {
 }
 
 type StaticScene interface {
-	Flatten() ([]*objects.Triangle, Background)
+	Flatten() ([]*objects.StaticTriangle, Background)
 }
 
 type Background interface {
@@ -22,12 +22,12 @@ type DynamicBackground interface {
 }
 
 type ObjectScene struct {
-	Objects []objects.Object
+	Objects []objects.StaticObject
 	Background
 }
 
-func (s ObjectScene) Flatten() ([]*objects.Triangle, Background) {
-	tris := []*objects.Triangle{}
+func (s ObjectScene) Flatten() ([]*objects.StaticTriangle, Background) {
+	tris := []*objects.StaticTriangle{}
 	for _, obj := range s.Objects {
 		tris = append(tris, obj.Flatten()...)
 	}
@@ -40,9 +40,9 @@ type CombinedDynamicScene struct {
 }
 
 func (s CombinedDynamicScene) GetFrame(t float64) StaticScene {
-	frameObjects := make([]objects.Object, len(s.Objects))
+	frameObjects := make([]objects.StaticObject, len(s.Objects))
 	for i, object := range s.Objects {
-		frameObjects[i] = object.GetFrame(t)
+		frameObjects[i] = object.Frame(t)
 	}
 	return ObjectScene{
 		Objects:    frameObjects,

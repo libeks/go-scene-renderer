@@ -174,7 +174,6 @@ func (r Renderer) progressbar(nFiles, nLines int) {
 	for {
 		select {
 		case prog := <-r.lineChannel:
-			// fmt.Printf("Got %d on line channel\n", prog)
 			lineProgress += prog
 			bar.Add(prog)
 		case prog := <-r.fileChannel:
@@ -227,16 +226,6 @@ func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) ima
 		}
 	}
 	return img
-}
-
-type RasterLine struct {
-	A RasterPixel
-	B RasterPixel
-}
-
-type RasterPixel struct {
-	X int
-	Y int
 }
 
 func abs(a int) int {

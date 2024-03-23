@@ -11,11 +11,11 @@ import (
 // Window specifies a renderable area along with the triangles within in
 type Window struct {
 	// coordinates are in image pixel space
-	xMin       int                 // inclusive
-	xMax       int                 // non-inclusive
-	yMin       int                 // inclusive
-	yMax       int                 // non-inclusive
-	triangles  []*objects.Triangle // list of triangles whose bounding box intersects the window
+	xMin       int                       // inclusive
+	xMax       int                       // non-inclusive
+	yMin       int                       // inclusive
+	yMax       int                       // non-inclusive
+	triangles  []*objects.StaticTriangle // list of triangles whose bounding box intersects the window
 	background scenes.Background
 }
 
@@ -56,10 +56,10 @@ func (w Window) Bisect(ip ImagePreset) []Window {
 	xMid := (w.xMax-w.xMin)/2 + w.xMin
 	yMid := (w.yMax-w.yMin)/2 + w.yMin
 	midXImg, midYImg := getImageSpace(xMid, ip.width), getImageSpace(yMid, ip.height)
-	tlW := []*objects.Triangle{}
-	trW := []*objects.Triangle{}
-	blW := []*objects.Triangle{}
-	brW := []*objects.Triangle{}
+	tlW := []*objects.StaticTriangle{}
+	trW := []*objects.StaticTriangle{}
+	blW := []*objects.StaticTriangle{}
+	brW := []*objects.StaticTriangle{}
 	for _, tri := range w.triangles {
 		bbox := tri.GetBoundingBox()
 		if bbox.TopLeft.X <= midXImg && bbox.TopLeft.Y <= midYImg {
