@@ -29,3 +29,7 @@ func DynamicFromAnimatedTexture(ani AnimatedTexture) DynamicTexture {
 		ani: ani,
 	}
 }
+
+type Sampler interface {
+	GetFrameValue(x, y, t float64) float64
+}

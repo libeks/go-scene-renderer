@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	frameConcurrency       = 10   // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
-	generateVideoPNGs      = true // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
+	frameConcurrency       = 10    // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
+	generateVideoPNGs      = false // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
 	minWindowWidth         = 10
 	minWindowCount         = 1
 	wireframeTriangleDepth = false
@@ -119,6 +119,8 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 		"-profile:v", "main",
 		"-level", "3.1",
 		"-preset", "medium",
+		// "-vf", "lutyuv=u=128:v=128",
+		// "-b:v", "2600k",
 		"-crf", "15",
 		// "-x265-params", "lossless=1",
 		"-tag:v", "hvc1",
@@ -193,12 +195,12 @@ func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) *Im
 	windows := subdivideSceneIntoWindows(scene, ip)
 	pixelCount := 0
 	for _, window := range windows {
-		// wScene := window.Subscene(scene)
 		for x := window.xMin; x < window.xMax; x++ {
 			for y := window.yMin; y < window.yMax; y++ {
 				xR, yR := getImageSpace(x, ip.width), getImageSpace(y, ip.height)
 				var pixelColor colors.Color
-				if len(window.triangles) > 0 && ip.interpolateN > 1 {
+				if ip.interpolateN > 1 {
+					// if len(window.triangles) > 0 && ip.interpolateN > 1 {
 
 					samples := make([]colors.Color, ip.interpolateN)
 					for i := range ip.interpolateN {

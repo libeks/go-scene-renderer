@@ -10,7 +10,7 @@ import (
 var (
 	perlinAlpha = 2.0
 	perlinBeta  = 2.0
-	perlinN     = int32(5)
+	perlinN     = int32(10)
 	perlinSeed  = int64(109)
 )
 
@@ -31,4 +31,14 @@ type perlinNoise struct {
 func (p perlinNoise) GetTextureColor(x, y float64) Color {
 	valZeroOne := maths.Sigmoid(p.noise.Noise2D(x, y) * 10)
 	return p.gradient.Interpolate(valZeroOne)
+}
+
+func (p perlinNoise) GetFrameColor(x, y, t float64) Color {
+	valZeroOne := maths.Sigmoid(p.noise.Noise3D(x, y, t) * 10)
+	return p.gradient.Interpolate(valZeroOne)
+}
+
+func (p perlinNoise) GetFrameValue(x, y, t float64) float64 {
+	valZeroOne := maths.Sigmoid(p.noise.Noise3D(x, y, t) * 10)
+	return valZeroOne
 }
