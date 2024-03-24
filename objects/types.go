@@ -108,6 +108,10 @@ type BoundingBox struct {
 	MaxDepth    float64
 }
 
+func (bb BoundingBox) String() string {
+	return fmt.Sprintf("BB(%s %s)", bb.TopLeft, bb.BottomRight)
+}
+
 type ray struct {
 	P geometry.Point    // origin point
 	D geometry.Vector3D // direction vector describing the ray

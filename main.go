@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	PNG_FORMAT = "png"
-	MP4_FORMAT = "mp4"
-	do_pprof   = false
+	PNG_FORMAT      = "png"
+	MP4_FORMAT      = "mp4"
+	do_pprof        = false
+	image_timestamp = 0.0
 )
 
 func main() {
@@ -53,12 +54,12 @@ func main() {
 
 	switch format {
 	case PNG_FORMAT:
-		t := 0.5
+		// t := 0.5
 		imagePreset, err := renderer.ParseImagePreset(*imageFlag)
 		if err != nil {
 			log.Fatalf("%s", err)
 		}
-		err = renderer.RenderPNG(scene.GetFrame(t), imagePreset, outFile, *wireframe)
+		err = renderer.RenderPNG(scene.GetFrame(image_timestamp), imagePreset, outFile, *wireframe)
 		if err != nil {
 			fmt.Printf("Failure %s\n", err)
 		}

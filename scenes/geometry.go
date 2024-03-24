@@ -160,12 +160,88 @@ func DummySpinningCube(background DynamicBackground) DynamicScene {
 		Objects: []objects.DynamicObject{
 			UnitRGBCube().WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(
-					geometry.TranslationMatrix(geometry.Vector3D{0, 0, -2}),
+					geometry.TranslationMatrix(geometry.Vector3D{0, 1, -2}),
 					geometry.RotateMatrixY(maths.SigmoidSlowFastSlow(t)*maths.Rotation),
 					geometry.RotateMatrixX(-0.615),    // arcsin of 1/sqrt(3) (angle between short and long diagonals in a cube)
 					geometry.RotateMatrixZ(math.Pi/4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
 				)
 			}),
+		},
+		Background: background,
+	}
+}
+
+func CheckerboardSquare(background DynamicBackground) DynamicScene {
+	texture := colors.StaticTexture(colors.Checkerboard{8})
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObject{
+			// objects.DynamicObjectFromTriangles(
+			// 	objects.DynamicTriangle{
+			// 		Triangle: objects.Triangle{
+			// 			A: geometry.Point{0, 0, 0},
+			// 			B: geometry.Point{1, 0, 0},
+			// 			C: geometry.Point{0, 1, 0},
+			// 		},
+			// 		Colorer: texture,
+			// 	},
+			// ).WithDynamicTransform(
+			// 	func(t float64) geometry.HomogeneusMatrix {
+			// 		return geometry.MatrixProduct(
+			// 			geometry.TranslationMatrix(geometry.Vector3D{0, 0, -5}),
+			// 			geometry.RotateMatrixX(t*maths.Rotation),
+			// 			// geometry.TranslationMatrix(geometry.Vector3D{0, 0, 5}),
+			// 		)
+			// 	},
+			// ),
+			// objects.DynamicObjectFromTriangles(
+			// 	objects.DynamicTriangle{
+			// 		Triangle: objects.Triangle{
+			// 			A: geometry.Point{0, 0, 0},
+			// 			B: geometry.Point{1, 0, 0},
+			// 			C: geometry.Point{1, 1, 0},
+			// 		},
+			// 		Colorer: texture,
+			// 	},
+			// ).WithDynamicTransform(
+			// 	func(t float64) geometry.HomogeneusMatrix {
+			// 		return geometry.MatrixProduct(
+			// 			geometry.TranslationMatrix(geometry.Vector3D{2, 0, -5}),
+			// 			geometry.RotateMatrixX(t*maths.Rotation),
+			// 			// geometry.TranslationMatrix(geometry.Vector3D{0, 0, 5}),
+			// 		)
+			// 	},
+			// ),
+			// objects.DynamicObjectFromTriangles(
+			// 	objects.DynamicTriangle{
+			// 		Triangle: objects.Triangle{
+			// 			A: geometry.Point{0, 0, 0},
+			// 			B: geometry.Point{1, 0, 0},
+			// 			C: geometry.Point{-1, 1, 0},
+			// 		},
+			// 		Colorer: texture,
+			// 	},
+			// ).WithDynamicTransform(
+			// 	func(t float64) geometry.HomogeneusMatrix {
+			// 		return geometry.MatrixProduct(
+			// 			geometry.TranslationMatrix(geometry.Vector3D{-2, 0, -5}),
+			// 			geometry.RotateMatrixX(t*maths.Rotation),
+			// 			// geometry.TranslationMatrix(geometry.Vector3D{0, 0, 5}),
+			// 		)
+			// 	},
+			// ),
+			objects.Parallelogram(
+				geometry.Point{0, 0, 0},
+				geometry.Point{2, 0, 0},
+				geometry.Point{-2, 2, 0},
+				texture).WithDynamicTransform(
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, 0, -5}),
+						geometry.RotateMatrixX(t*maths.Rotation),
+						// geometry.TranslationMatrix(geometry.Vector3D{0, 0, 5}),
+					)
+				},
+			),
 		},
 		Background: background,
 	}

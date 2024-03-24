@@ -6,27 +6,27 @@ import (
 	"github.com/libeks/go-scene-renderer/objects"
 )
 
-// returns a unit square in the x-y plane, with colors arranged as indicated by x,y colors in color parameter names
-func UnitSquare(c00, c10, c11, c01 colors.Color) objects.DynamicObject {
-	return objects.DynamicObjectFromTriangles(
-		objects.GradientTriangle(
-			geometry.Point{0, 0, 0},
-			geometry.Point{0, 1, 0},
-			geometry.Point{1, 0, 0},
-			c00,
-			c01,
-			c10,
-		),
-		objects.GradientTriangle(
-			geometry.Point{1, 1, 0},
-			geometry.Point{0, 1, 0},
-			geometry.Point{1, 0, 0},
-			c11,
-			c01,
-			c10,
-		),
-	)
-}
+// // returns a unit square in the x-y plane, with colors arranged as indicated by x,y colors in color parameter names
+// func UnitSquare(c00, c10, c11, c01 colors.Color) objects.DynamicObject {
+// 	return objects.DynamicObjectFromTriangles(
+// 		objects.GradientTriangle(
+// 			geometry.Point{0, 0, 0},
+// 			geometry.Point{0, 1, 0},
+// 			geometry.Point{1, 0, 0},
+// 			c00,
+// 			c01,
+// 			c10,
+// 		),
+// 		objects.GradientTriangle(
+// 			geometry.Point{1, 1, 0},
+// 			geometry.Point{0, 1, 0},
+// 			geometry.Point{1, 0, 0},
+// 			c11,
+// 			c01,
+// 			c10,
+// 		),
+// 	)
+// }
 
 func UnitRGBCube() objects.DynamicObject {
 	return UnitGradientCube(

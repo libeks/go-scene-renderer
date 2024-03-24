@@ -3,7 +3,6 @@ package renderer
 import (
 	"context"
 	"fmt"
-	"image"
 	"image/png"
 	"math/rand"
 	"os"
@@ -22,9 +21,10 @@ import (
 const (
 	frameConcurrency       = 10   // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
 	generateVideoPNGs      = true // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
-	minWindowWidth         = 4
+	minWindowWidth         = 10
 	minWindowCount         = 1
-	wireframeTriangleDepth = true
+	wireframeTriangleDepth = false
+	applyWireframe         = false // draw wireframes on top of rendered objects
 )
 
 var (
@@ -79,7 +79,7 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 				defer f.Close()
 				t := float64(i) / float64(vp.nFrameCount-1) // range [0.0, 1.0]
 				frameObj := scene.GetFrame(t)
-				var frame image.Image
+				var frame *Image
 				if wireframe {
 					if wireframeTriangleDepth {
 						frame = r.getTriangleDepthImage(frameObj, vp.ImagePreset)
@@ -89,8 +89,11 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 
 				} else {
 					frame = r.getWindowedImage(frameObj, vp.ImagePreset)
+					if applyWireframe {
+						frame = r.applyWireframeToImage(frame, frameObj, vp.ImagePreset)
+					}
 				}
-				err = png.Encode(f, frame)
+				err = png.Encode(f, frame.GetImage())
 				if err != nil {
 					panic(err)
 				}
@@ -146,7 +149,7 @@ func RenderPNG(scene scenes.StaticScene, im ImagePreset, outfile string, wirefra
 		panic(err)
 	}
 	defer f.Close()
-	var frame image.Image
+	var frame *Image
 	r := newRenderer()
 	go r.progressbar(1, im.width) // block until completion
 	go func() {
@@ -159,8 +162,11 @@ func RenderPNG(scene scenes.StaticScene, im ImagePreset, outfile string, wirefra
 
 		} else {
 			frame = r.getWindowedImage(scene, im)
+			if applyWireframe {
+				frame = r.applyWireframeToImage(frame, scene, im)
+			}
 		}
-		png.Encode(f, frame)
+		png.Encode(f, frame.GetImage())
 		r.fileChannel <- 1
 	}()
 	r.wait()
@@ -190,12 +196,8 @@ func (r Renderer) wait() {
 	<-r.doneChannel
 }
 
-func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) image.Image {
-	img := image.NewRGBA(
-		image.Rect(
-			0, 0, ip.width, ip.height,
-		),
-	)
+func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) *Image {
+	img := NewImage(ip)
 	windows := subdivideSceneIntoWindows(scene, ip)
 	pixelCount := 0
 	for _, window := range windows {
@@ -216,8 +218,7 @@ func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) ima
 					pixelColor = window.GetColor(xR, yR)
 				}
 
-				// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
-				img.Set(x, ip.height-y-1, pixelColor)
+				img.Set(x, y, pixelColor)
 				pixelCount += 1
 				if pixelCount%ip.height == 0 {
 					r.lineChannel <- 1
@@ -235,57 +236,10 @@ func abs(a int) int {
 	return a
 }
 
-// adapted from https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-func (r Renderer) renderLine(im *image.RGBA, line RasterLine, gradient colors.Gradient) {
-	x0, y0, x1, y1 := line.A.X, line.A.Y, line.B.X, line.B.Y
-	dx := abs(x1 - x0)
-	sx := 1
-	if x0 >= x1 {
-		sx = -1
-	}
-	dy := -abs(y1 - y0)
-	sy := 1
-	if y0 >= y1 {
-		sy = -1
-	}
-	error := dx + dy
-
-	xprogress := float64(0)
-	for {
-		var c colors.Color
-		if dx == 0 {
-			c = gradient.Interpolate(0.0)
-		} else {
-			c = gradient.Interpolate(xprogress / float64(dx))
-		}
-
-		im.Set(x0, y0, c)
-		if x0 == x1 && y0 == y1 {
-			break
-		}
-		e2 := 2 * error
-		if e2 >= dy {
-			if x0 == x1 {
-				break
-			}
-			error = error + dy
-			x0 += sx
-			xprogress += 1
-		}
-		if e2 <= dx {
-			if y0 == y1 {
-				break
-			}
-			error = error + dx
-			y0 += sy
-		}
-	}
-}
-
 func toImageDimension(d float64, pixelCount int) *int {
-	if d < -1.0 || d > 1.0 {
-		return nil
-	}
+	// if d < -1.0 || d > 1.0 {
+	// 	return nil
+	// }
 	v := int((d/2 + 0.5) * float64(pixelCount))
 	return &v
 }
@@ -293,41 +247,31 @@ func toImageDimension(d float64, pixelCount int) *int {
 func toImagePixel(p geometry.Pixel, width, height int) *RasterPixel {
 	x := toImageDimension(p.X, width)
 	y := toImageDimension(p.Y, height)
-	if x == nil || y == nil {
-		return nil
-	}
+	// if x == nil || y == nil {
+	// 	return nil
+	// }
 	return &RasterPixel{
 		X: *x,
 		Y: *y,
 	}
 }
 
-func (r Renderer) getWireframeImage(scene scenes.StaticScene, ip ImagePreset) image.Image {
-	img := image.NewRGBA(
-		image.Rect(
-			0, 0, ip.width, ip.height,
-		),
-	)
+func (r Renderer) applyWireframeToImage(img *Image, scene scenes.StaticScene, ip ImagePreset) *Image {
 	triangles, _ := scene.Flatten()
 	for _, tri := range triangles {
 		for _, line := range tri.GetWireframe() {
 			sceneA, aDepth := line.A.ToPixel()
 			sceneB, bDepth := line.B.ToPixel()
 			if sceneA == nil || sceneB == nil {
-				fmt.Printf("Skipping line %s since it may be behind the screen", line)
+				fmt.Printf("Skipping line %s since it may be behind the screen\n", line)
 				continue
 			}
 			pixA := toImagePixel(*sceneA, ip.width, ip.height)
 			pixB := toImagePixel(*sceneB, ip.width, ip.height)
 			if pixA == nil || pixB == nil {
-				fmt.Printf("Skipping line %s since one or both pixels are outside of screen", line)
+				fmt.Printf("Skipping line %s since one or both pixels are outside of screen\n", line)
 				continue
 			}
-			rasterLine := RasterLine{
-				*pixA,
-				*pixB,
-			}
-
 			greenBlack := colors.SimpleGradient{
 				colors.Green,
 				colors.Black,
@@ -335,7 +279,10 @@ func (r Renderer) getWireframeImage(scene scenes.StaticScene, ip ImagePreset) im
 			ratio := 8.0
 			colorA := greenBlack.Interpolate(2*maths.Sigmoid(aDepth/ratio) - 1)
 			colorB := greenBlack.Interpolate(2*maths.Sigmoid(bDepth/ratio) - 1)
-			r.renderLine(img, rasterLine, colors.SimpleGradient{colorA, colorB})
+			img.RenderLine(NewRasterLine(
+				*pixA,
+				*pixB,
+			), colors.SimpleGradient{colorA, colorB})
 		}
 		bbox := tri.GetBoundingBox()
 		pixA := toImagePixel(bbox.TopLeft, ip.width, ip.height)
@@ -343,27 +290,32 @@ func (r Renderer) getWireframeImage(scene scenes.StaticScene, ip ImagePreset) im
 		if pixA == nil || pixB == nil {
 			continue
 		}
-		r.renderLine(img, RasterLine{*pixA, RasterPixel{pixA.X, pixB.Y}}, colors.SimpleGradient{colors.Red, colors.Red})
-		r.renderLine(img, RasterLine{*pixA, RasterPixel{pixB.X, pixA.Y}}, colors.SimpleGradient{colors.Red, colors.Red})
-		r.renderLine(img, RasterLine{*pixB, RasterPixel{pixA.X, pixB.Y}}, colors.SimpleGradient{colors.Red, colors.Red})
-		r.renderLine(img, RasterLine{*pixB, RasterPixel{pixB.X, pixA.Y}}, colors.SimpleGradient{colors.Red, colors.Red})
+		img.RenderLine(NewRasterLine(*pixA, RasterPixel{pixA.X, pixB.Y}), colors.SimpleGradient{colors.Red, colors.Red})
+		img.RenderLine(NewRasterLine(*pixA, RasterPixel{pixB.X, pixA.Y}), colors.SimpleGradient{colors.Red, colors.Red})
+		img.RenderLine(NewRasterLine(*pixB, RasterPixel{pixA.X, pixB.Y}), colors.SimpleGradient{colors.Red, colors.Red})
+		img.RenderLine(NewRasterLine(*pixB, RasterPixel{pixB.X, pixA.Y}), colors.SimpleGradient{colors.Red, colors.Red})
 	}
 	return img
 }
 
-func (r Renderer) getTriangleDepthImage(scene scenes.StaticScene, ip ImagePreset) image.Image {
-	img := image.NewRGBA(
-		image.Rect(
-			0, 0, ip.width, ip.height,
-		),
-	)
+func (r Renderer) getWireframeImage(scene scenes.StaticScene, ip ImagePreset) *Image {
+	img := NewImage(ip)
+	// set to black bakcground
+	img.Fill(colors.Black)
+	r.applyWireframeToImage(img, scene, ip)
+	r.lineChannel <- ip.height
+	return img
+}
+
+func (r Renderer) getTriangleDepthImage(scene scenes.StaticScene, ip ImagePreset) *Image {
+	img := NewImage(ip)
 	// set to black bakcground
 	pixelColor := colors.Black
 	for x := 0; x < ip.width; x++ {
 		for y := 0; y < ip.height; y++ {
 
 			// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
-			img.Set(x, ip.height-y-1, pixelColor)
+			img.Set(x, y, pixelColor)
 		}
 		r.lineChannel <- 1
 	}
@@ -376,11 +328,11 @@ func (r Renderer) getTriangleDepthImage(scene scenes.StaticScene, ip ImagePreset
 				if x == window.xMin || y == window.yMin {
 					pixelColor = colors.Green
 				} else {
-					pixelColor = gradient.Interpolate(float64(nTriangles) / 20.0)
+					pixelColor = gradient.Interpolate(float64(nTriangles) / 1.0)
 				}
 
 				// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
-				img.Set(x, ip.height-y-1, pixelColor)
+				img.Set(x, y, pixelColor)
 			}
 		}
 	}

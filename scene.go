@@ -15,17 +15,21 @@ var (
 	//		// Gradient:     color.Grayscale,
 	//		Gradient: gradient,
 	//	}
-	// scene = scenes.DummySpinningCube(scenes.Uniform{color.Black})
+	// scene = scenes.DummySpinningCube(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})))
 
-	scene = scenes.SpinningMulticube(scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
-		colors.SineWaveAnimation{
-			XYRatio:      0.1,
-			SigmoidRatio: 2,
-			SinCycles:    3,
-			Gradient:     colors.Grayscale,
-		}),
-	),
+	scene = scenes.SpinningMulticube(
+		scenes.BackgroundFromTexture(
+			colors.DynamicFromAnimatedTexture(
+				colors.SineWaveAnimation{
+					XYRatio:      0.1,
+					SigmoidRatio: 2,
+					SinCycles:    3,
+					Gradient:     colors.Grayscale,
+				}),
+		),
 	)
+	// scene = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
+)
 
 // scene = scenes.NoiseTest()
 // scene = scenes.NewPerlinNoise(color.Grayscale)
@@ -37,4 +41,3 @@ var (
 //		SinCycles:    3,
 //		Gradient:     color.Grayscale,
 //	}
-)

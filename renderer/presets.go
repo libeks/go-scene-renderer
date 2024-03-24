@@ -85,6 +85,8 @@ func ParseImagePreset(flagVal string) (ImagePreset, error) {
 		return defaultImagePreset, nil
 	case "test":
 		return ImagePresetTest, nil
+	case "intermediate":
+		return ImagePresetIntermediate, nil
 	case "hidef":
 		return ImagePresetHiDef, nil
 	default:

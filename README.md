@@ -16,6 +16,7 @@ Rendering accepts these types/interfaces:
 * `DynamicBackground`, a entity that returns a `Background` for each timestamp in (0,1), not intended to contain any objects
 * `DynamicScene`, an entity that returns a Scene for each timestamp in (0,1)
 
+As with other places, `Dynamic` refers to being renderable on a range of frames, whereas `Static` describes a snapshot in a single frame.
 
 For help, here are other types of interfaces/objects which may come in handy:
 * `Texture` and `DynamicTexture`, each specifying the color at each pixel from (0,1) in two dimensions. The domain of a Texture (0,1) is different from Frame (-1,1), but a Texture can be used as a Frame using the TextureToFrame helper.
@@ -45,6 +46,8 @@ Consider a new type:
   * See https://www.desmos.com/calculator/k01p40v0ct
   * `y=P0*e^{\alpha x}\cos\left(\beta x\right)+C6e^{\alpha x}\sin\left(\beta x\right)\left\{0<x<t\right\}`
     * P0 is initial position, C6 is the velocity component (?), b is friction component, k is spring constant, etc
+* Add Phong lighting model
+* Improve bounding box computation when one vertex of triangles goes behind the camera
 
 ## Further Reading:
 * https://graphics.stanford.edu/courses/cs348a-09-fall/Handouts/handout15.pdf
@@ -52,6 +55,8 @@ Consider a new type:
 * https://en.wikipedia.org/wiki/Rotation_matrix
 * https://en.wikipedia.org/wiki/Euler_angles#Conventions_by_intrinsic_rotations
 * https://www.reddit.com/r/mobilevrstation/comments/xgamsr/typical_ios_shutteringnonplayback_fixes/
+* https://users.csc.calpoly.edu/~zwood/teaching/csc471/2017F/barycentric.pdf
+* https://en.wikipedia.org/wiki/Barycentric_coordinate_system
 
 
 ## Benchmarks:
