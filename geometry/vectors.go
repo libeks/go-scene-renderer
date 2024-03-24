@@ -20,7 +20,7 @@ func (v Vector3D) String() string {
 
 func (v Vector3D) ToHomogenous() HomogenousVector {
 	return HomogenousVector{
-		v.X, v.Y, v.Z, 1.0,
+		v.X, v.Y, v.Z, 1,
 	}
 }
 
@@ -77,7 +77,7 @@ func (v HomogenousVector) String() string {
 }
 
 func (v HomogenousVector) To3D() (Vector3D, bool) {
-	if v.T == 0.0 {
+	if v.T == 0 {
 		return Vector3D{}, false
 	}
 	return Vector3D{

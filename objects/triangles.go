@@ -64,7 +64,7 @@ type StaticTriangle struct {
 // (x,y, -1), with perspective
 // and a z-index. The bigger the index, the farther the object.
 func (t *StaticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
-	b, c, depth, intersect := t.rayIntersectLocalCoords(ray{geometry.OriginPoint, geometry.Vector3D{x, y, -1.0}})
+	b, c, depth, intersect := t.rayIntersectLocalCoords(ray{geometry.OriginPoint, geometry.Vector3D{x, y, -1}})
 	if !intersect {
 		return nil, 0
 	}
@@ -215,11 +215,11 @@ func (t *Triangle) rayIntersectLocalCoords(r ray) (float64, float64, float64, bo
 	b := iVect.CrossProduct(cVect).DotProduct(normal) / normalMagSq
 	c := bVect.CrossProduct(iVect).DotProduct(normal) / normalMagSq
 	// check if vector (b,c) is inside the triangle [(0,0), (1,0), (0,1)]
-	if b < 0.0 || b > 1.0 || c < 0.0 || c > 1.0 {
+	if b < 0 || b > 1 || c < 0 || c > 1 {
 		// outside the unit square
 		return b, c, iMag, false
 	}
-	if b+c > 1.0 {
+	if b+c > 1 {
 		// inside unit square, but on far side of hypotenuse
 		return b, c, iMag, false
 	}

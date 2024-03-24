@@ -4,52 +4,52 @@ import "math"
 
 func TranslationMatrix(v Vector3D) HomogeneusMatrix {
 	return HomogeneusMatrix{
-		1.0,
-		0.0,
-		0.0,
+		1,
+		0,
+		0,
 		v.X,
 
-		0.0,
-		1.0,
-		0.0,
+		0,
+		1,
+		0,
 		v.Y,
 
-		0.0,
-		0.0,
-		1.0,
+		0,
+		0,
+		1,
 		v.Z,
 
-		0.0,
-		0.0,
-		0.0,
-		1.0,
+		0,
+		0,
+		0,
+		1,
 	}
 }
 
 func ScaleMatrix(t float64) HomogeneusMatrix {
-	if t == 0.0 {
+	if t == 0 {
 		panic("Cannot scale by 0.0")
 	}
 	return HomogeneusMatrix{
-		1.0,
-		0.0,
-		0.0,
-		0.0,
+		1,
+		0,
+		0,
+		0,
 
-		0.0,
-		1.0,
-		0.0,
-		0.0,
+		0,
+		1,
+		0,
+		0,
 
-		0.0,
-		0.0,
-		1.0,
-		0.0,
+		0,
+		0,
+		1,
+		0,
 
-		0.0,
-		0.0,
-		0.0,
-		1.0 / t,
+		0,
+		0,
+		0,
+		1 / t,
 	}
 }
 

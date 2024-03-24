@@ -3,7 +3,7 @@ package geometry
 import "fmt"
 
 var (
-	OriginPoint = Point{0.0, 0.0, 0.0}
+	OriginPoint = Point{}
 )
 
 // A point is a vector, but I don't want to get confused

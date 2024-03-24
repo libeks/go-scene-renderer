@@ -125,22 +125,22 @@ func (m Matrix3D) toHomogenous() HomogeneusMatrix {
 		m.A1,
 		m.A2,
 		m.A3,
-		0.0,
+		0,
 
 		m.B1,
 		m.B2,
 		m.B3,
-		0.0,
+		0,
 
 		m.C1,
 		m.C2,
 		m.C3,
-		0.0,
+		0,
 
-		0.0,
-		0.0,
-		0.0,
-		1.0,
+		0,
+		0,
+		0,
+		1,
 	}
 }
 
