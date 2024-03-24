@@ -54,7 +54,6 @@ func main() {
 
 	switch format {
 	case PNG_FORMAT:
-		// t := 0.5
 		imagePreset, err := renderer.ParseImagePreset(*imageFlag)
 		if err != nil {
 			log.Fatalf("%s", err)

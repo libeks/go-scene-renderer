@@ -7,7 +7,8 @@ type textureBackground struct {
 }
 
 func (b textureBackground) GetColor(x, y float64) colors.Color {
-	return b.t.GetTextureColor(2*x-1, 2*y-1)
+	// convert from (-1,1) to (0,1)
+	return b.t.GetTextureColor(x/2+0.5, y/2+0.5)
 }
 
 type dynamicTextureBackground struct {

@@ -108,13 +108,10 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 	}
 	fmt.Printf("Encoding with ffmpeg...\n")
 	// render video file from png frame images in .tmp/
-	// encoder := "yuv444p"
 	encoder := "yuv420p"
 	format := "libx265"
-	// format := "libx264"
 	cmd := exec.Command(
 		"ffmpeg", "-y",
-		// "-f", "lavfi",
 		"-framerate", fmt.Sprintf("%d", vp.frameRate),
 		"-i", outFileFormat,
 		"-c:v", format,
@@ -123,13 +120,8 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 		"-level", "3.1",
 		"-preset", "medium",
 		"-crf", "15",
-		// "-x264-params", "ref=4",
-		// "-preset", "slow",
 		// "-x265-params", "lossless=1",
-		// "-b:v", "10000k",
 		"-tag:v", "hvc1",
-		// "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
-		// "-c:a", "aac",
 		outFile)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
@@ -313,8 +305,6 @@ func (r Renderer) getTriangleDepthImage(scene scenes.StaticScene, ip ImagePreset
 	pixelColor := colors.Black
 	for x := 0; x < ip.width; x++ {
 		for y := 0; y < ip.height; y++ {
-
-			// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
 			img.Set(x, y, pixelColor)
 		}
 		r.lineChannel <- 1
@@ -330,8 +320,6 @@ func (r Renderer) getTriangleDepthImage(scene scenes.StaticScene, ip ImagePreset
 				} else {
 					pixelColor = gradient.Interpolate(float64(nTriangles) / 1.0)
 				}
-
-				// insert pixels with flipped y- coord, so y would be -1 at the bottom, +1 at the top of the image
 				img.Set(x, y, pixelColor)
 			}
 		}

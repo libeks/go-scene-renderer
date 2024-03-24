@@ -48,6 +48,7 @@ Consider a new type:
     * P0 is initial position, C6 is the velocity component (?), b is friction component, k is spring constant, etc
 * Add Phong lighting model
 * Improve bounding box computation when one vertex of triangles goes behind the camera
+* Add textures from images
 
 ## Further Reading:
 * https://graphics.stanford.edu/courses/cs348a-09-fall/Handouts/handout15.pdf

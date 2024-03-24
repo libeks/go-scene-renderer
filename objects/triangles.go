@@ -88,11 +88,12 @@ type Triangle struct {
 	C geometry.Point
 
 	// the below are cached values for efficiency. They are created at the top of rayIntersectLocalCoords
-	cached bool
-	plane  plane
-	bVect  geometry.Vector3D
-	cVect  geometry.Vector3D
-	normal geometry.Vector3D
+	cached      bool
+	plane       plane
+	bVect       geometry.Vector3D
+	cVect       geometry.Vector3D
+	normal      geometry.Vector3D
+	normalMagSq float64
 
 	cachedBoundingBox bool
 	bbox              BoundingBox
@@ -121,15 +122,12 @@ func (t Triangle) Flatten() []*Triangle {
 }
 
 func (t *Triangle) GetBoundingBox() BoundingBox {
-	// TODO: cache the bounding box?
-	// fmt.Printf("%s\n", t)
 	if t.cachedBoundingBox {
 		return t.bbox
 	}
 	a, ad := t.A.ToPixel()
 	b, bd := t.B.ToPixel()
 	c, cd := t.C.ToPixel()
-	// fmt.Printf("pixels %s %s %s\n", a, b, c)
 	if a == nil || b == nil || c == nil {
 		return BoundingBox{
 			TopLeft: geometry.Pixel{
@@ -157,7 +155,7 @@ func (t *Triangle) GetBoundingBox() BoundingBox {
 		MaxDepth: maxdepth,
 	}
 	t.bbox = bb
-	// t.cachedBoundingBox = true
+	t.cachedBoundingBox = true
 	// fmt.Printf("bounding box %s\n", bb)
 	return bb
 }
@@ -183,12 +181,10 @@ func (t Triangle) getPlane() plane {
 }
 
 func (t Triangle) getBVect() geometry.Vector3D {
-	// fmt.Printf("BVect %s\n", t.B.Subtract(t.A))
 	return t.B.Subtract(t.A)
 }
 
 func (t Triangle) getCVect() geometry.Vector3D {
-	// fmt.Printf("CVect %s\n", t.C.Subtract(t.A))
 	return t.C.Subtract(t.A)
 }
 
@@ -202,6 +198,7 @@ func (t *Triangle) rayIntersectLocalCoords(r ray) (float64, float64, float64, bo
 		t.cVect = t.getCVect()
 		t.plane = t.getPlane()
 		t.normal = t.plane.N
+		t.normalMagSq = t.normal.Mag() * t.normal.Mag()
 		t.cached = true
 	}
 	intersectDot := t.plane.IntersectPoint(r)
@@ -214,9 +211,9 @@ func (t *Triangle) rayIntersectLocalCoords(r ray) (float64, float64, float64, bo
 	bVect := t.bVect
 	cVect := t.cVect
 	normal := t.normal
-	normalMag := normal.Mag()
-	b := iVect.CrossProduct(cVect).DotProduct(normal) / (normalMag * normalMag)
-	c := bVect.CrossProduct(iVect).DotProduct(normal) / (normalMag * normalMag)
+	normalMagSq := t.normalMagSq
+	b := iVect.CrossProduct(cVect).DotProduct(normal) / normalMagSq
+	c := bVect.CrossProduct(iVect).DotProduct(normal) / normalMagSq
 	// check if vector (b,c) is inside the triangle [(0,0), (1,0), (0,1)]
 	if b < 0.0 || b > 1.0 || c < 0.0 || c > 1.0 {
 		// outside the unit square
