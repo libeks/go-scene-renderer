@@ -57,17 +57,30 @@ var (
 	// 	// Gradient:     color.Grayscale,
 	// 	Gradient: gradient,
 	// }
-	scene = scenes.DummyTextureSpinningCube(
-		colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
-			colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
-			8,
-			colors.NewRandomPerlinNoise(),
-		}),
-		scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
-			colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
-			32,
-			colors.NewRandomPerlinNoise(),
-		})),
+	// scene = scenes.DummyTextureSpinningCube(
+	// 	colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
+	// 		colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+	// 		8,
+	// 		colors.NewRandomPerlinNoise(),
+	// 	}),
+	// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
+	// 		colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+	// 		32,
+	// 		colors.NewRandomPerlinNoise(),
+	// 	})),
+	// )
+
+	scene = scenes.MulticubeDance(
+		// scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})),
+		scenes.BackgroundFromTexture(
+			colors.DynamicFromAnimatedTexture(
+				colors.SineWaveAnimation{
+					XYRatio:      0.1,
+					SigmoidRatio: 2,
+					SinCycles:    3,
+					Gradient:     colors.Grayscale.Subsample(0.4, 0.6),
+				}),
+		),
 	)
 
 	// scene = scenes.SpinningMulticube(

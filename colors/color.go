@@ -61,6 +61,15 @@ func Average(colors []Color) Color {
 	return retCol
 }
 
+func (c Color) Add(d Color) Color {
+	// add the color components of the two colors, maxing out at 255
+	return Color{
+		min(1, c.R+d.R),
+		min(1, c.G+d.G),
+		min(1, c.B+d.B),
+	}
+}
+
 func GrayscaleColor(v float64) Color {
 	return Color{
 		R: v,

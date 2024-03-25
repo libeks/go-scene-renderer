@@ -7,7 +7,7 @@ Example (converted from mp4 to gif for illustrative purposes):
 
 ![alt text](https://github.com/libeks/go-scene-renderer/blob/main/gallery/cube_sine.gif)
 
-See more examples on [instagram](https://www.instagram.com/cube.gif/).
+See more examples on [Insta](https://www.instagram.com/cube.gif/).
 
 ## Organization
 Rendering accepts these types/interfaces:

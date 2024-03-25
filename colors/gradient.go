@@ -31,6 +31,14 @@ func (g SimpleGradient) Interpolate(v float64) Color {
 	}
 }
 
+// Subsample the original gradient to produce a new one
+func (g SimpleGradient) Subsample(a, b float64) Gradient {
+	return SimpleGradient{
+		g.Interpolate(a),
+		g.Interpolate(b),
+	}
+}
+
 type LinearGradient struct {
 	Points []Color
 }

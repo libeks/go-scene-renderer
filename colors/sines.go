@@ -17,7 +17,7 @@ func (s SineWaveAnimation) GetFrameColor(x, y, t float64) Color {
 	tRatio := 1 / (2 * math.Pi * float64(s.SinCycles))
 	valMinOneToOne := math.Sin(float64(t)/tRatio + float64(x+y)/s.XYRatio)
 	valZeroOne := maths.Sigmoid(valMinOneToOne * s.SigmoidRatio)
-	return GrayscaleColor(valZeroOne)
+	return s.Gradient.Interpolate(valZeroOne)
 }
 
 type SineWaveWCrossAnimation struct {
