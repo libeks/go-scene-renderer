@@ -7,6 +7,8 @@ Example (converted from mp4 to gif for illustrative purposes):
 
 ![alt text](https://github.com/libeks/go-scene-renderer/blob/main/gallery/cube_sine.gif)
 
+See more examples on [instagram](https://www.instagram.com/cube.gif/).
+
 ## Organization
 Rendering accepts these types/interfaces:
 * `Background`, which specifies the color at each x,y coordinate, each in the range of (-1,1). A background is not intended to contain objects, as no optimizations will not be performed in their rendering. 
