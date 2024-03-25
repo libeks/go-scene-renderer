@@ -8,37 +8,144 @@ import (
 )
 
 type RotatingLine struct {
-	Gradient
+	On        Color
+	Off       Color
 	Thickness float64 // in texture coordinates
 }
 
 func (t RotatingLine) GetFrameColor(x, y, f float64) Color {
 	v := geometry.Vector2D{x*2 - 1, y*2 - 1} // do math in the square -1 to 1
 	orth := geometry.Vector2D{1, 0}          // orthogonal vector is rotated 90 degrees from vertical
+	direct := geometry.Vector2D{0, 1}
 	m := geometry.RotateMatrix2D(f * maths.Rotation)
-	orth = m.MultVect(orth)
-	distance := math.Abs(v.DotProduct(orth))
-	if distance < t.Thickness && v.Mag() < 1.0 {
-		return t.Gradient.Interpolate(0)
+	orth, direct = m.MultVect(orth), m.MultVect(direct)
+	xdistance := math.Abs(v.DotProduct(orth))
+	ydistance := math.Abs(v.DotProduct(direct))
+	if xdistance < t.Thickness && ydistance < 1.0 {
+		return t.On
 	}
-	return t.Gradient.Interpolate(1)
+	return t.Off
 }
 
-type DynamicSubtexturer struct {
-	Subtexture   AnimatedTexture
-	N            int // number of squares to tile
-	PointSampler Sampler
+type RotatingCross struct {
+	On        Color
+	Off       Color
+	Thickness float64 // in texture coordinates
 }
 
-// returns x/d
-func bucketRemainder(x, d float64) (float64, float64) {
-	return float64(int(x/d)) * d, math.Mod(x, d) * 1 / d
+func (t RotatingCross) GetFrameColor(x, y, f float64) Color {
+	v := geometry.Vector2D{x*2 - 1, y*2 - 1} // do math in the square -1 to 1
+	v1 := geometry.Vector2D{0, 1}            // orthogonal vector is rotated 90 degrees from vertical
+	v2 := geometry.Vector2D{1, 0}            // orthogonal vector is rotated 90 degrees from vertical
+	m := geometry.RotateMatrix2D(f * maths.Rotation)
+	v1, v2 = m.MultVect(v1), m.MultVect(v2)
+	d1, d2 := math.Abs(v.DotProduct(v1)), math.Abs(v.DotProduct(v2))
+	// distance := min(math.Abs(v.DotProduct(v1)), math.Abs(v.DotProduct(v2)))
+	if (d1 < t.Thickness && d2 < 1.0) || (d2 < t.Thickness && d1 < 1.0) {
+		return t.On
+	}
+	if v.Mag() < 2*t.Thickness {
+		return t.On
+	}
+	return t.Off
 }
 
-func (s DynamicSubtexturer) GetFrameColor(x, y, t float64) Color {
-	d := 1 / float64(s.N)
-	xMeta, xValue := bucketRemainder(x, d)
-	yMeta, yValue := bucketRemainder(y, d)
-	tHere := s.PointSampler.GetFrameValue(xMeta, yMeta, t)
-	return s.Subtexture.GetFrameColor(xValue, yValue, tHere)
+type PulsingSquare struct {
+	On  Color
+	Off Color
+}
+
+func (t PulsingSquare) GetFrameColor(x, y, f float64) Color {
+	x, y = x*2-1, y*2-1 // do math in the square -1 to 1
+	if math.Abs(x) < f && math.Abs(y) < f {
+		return t.On
+	}
+	return t.Off
+}
+
+type VerticalLine struct {
+	On        Color
+	Off       Color
+	Thickness float64
+}
+
+func (t VerticalLine) GetTextureColor(x, y float64) Color {
+	return RotatingLine{t.On, t.Off, t.Thickness}.GetFrameColor(x, y, 0)
+}
+
+type HorizontalLine struct {
+	On        Color
+	Off       Color
+	Thickness float64
+}
+
+func (t HorizontalLine) GetTextureColor(x, y float64) Color {
+	return RotatingLine{t.On, t.Off, t.Thickness}.GetFrameColor(x, y, .25)
+}
+
+type Cross struct {
+	On        Color
+	Off       Color
+	Thickness float64
+}
+
+func (t Cross) GetTextureColor(x, y float64) Color {
+	return RotatingCross{t.On, t.Off, t.Thickness}.GetFrameColor(x, y, 0)
+}
+
+type Square struct {
+	On        Color
+	Off       Color
+	Thickness float64
+}
+
+func (t Square) GetTextureColor(x, y float64) Color {
+	return PulsingSquare{t.On, t.Off}.GetFrameColor(x, y, t.Thickness)
+}
+
+type Circle struct {
+	On        Color
+	Off       Color
+	Thickness float64 // in texture coordinates
+}
+
+func (t Circle) GetTextureColor(x, y float64) Color {
+	v := geometry.Vector2D{x*2 - 1, y*2 - 1} // do math in the square -1 to 1
+	if v.Mag() < 2*t.Thickness {
+		return t.On
+	}
+	return t.Off
+}
+
+type TextureValueMapping struct {
+	Above float64
+	Texture
+}
+
+// StaticMapper displays the static Texture in the list, the first one whose Above value is below t
+type StaticMapper struct {
+	Mapping []TextureValueMapping // ordered in decreasing order of Above
+}
+
+func (m StaticMapper) GetFrameColor(x, y, t float64) Color {
+	for _, mapping := range m.Mapping {
+		if t >= mapping.Above {
+			return mapping.Texture.GetTextureColor(x, y)
+		}
+	}
+	return Red // shouldn't ever happen if the last Mapping starts at 0.0
+}
+
+func GetSpecialMapper(on, off Color, thickness float64) StaticMapper {
+	return StaticMapper{
+		Mapping: []TextureValueMapping{
+			{0.9, Square{on, off, 1.0}},
+			{0.8, Square{on, off, max(0.7, 2*thickness)}},
+			{0.7, Cross{on, off, thickness}},
+			{0.5, HorizontalLine{on, off, thickness}},
+			{0.4, VerticalLine{on, off, thickness}},
+			{0.1, Circle{on, off, thickness}},
+			{0.0, Uniform{off}},
+		},
+	}
 }

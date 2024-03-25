@@ -33,20 +33,20 @@ var (
 	// )
 	// scene = scenes.BackgroundScene(
 	// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
-	// 		colors.NewPerlinNoise(colors.SimpleGradient{colors.White, colors.Black}),
+	// 		colors.NewPerlinNoiseTexture(colors.SimpleGradient{colors.White, colors.Black}),
 	// 	),
 	// 	),
 	// )
-	scene = scenes.BackgroundScene(
-		scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
-			colors.DynamicSubtexturer{
-				colors.RotatingLine{colors.SimpleGradient{colors.White, colors.Black}, 0.2},
-				40,
-				colors.NewPerlinNoise(colors.SimpleGradient{colors.White, colors.Black}),
-			},
-		),
-		),
-	)
+	// scene = scenes.BackgroundScene(
+	// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
+	// 		colors.DynamicSubtexturer{
+	// 			colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+	// 			100,
+	// 			colors.NewPerlinNoise(),
+	// 		},
+	// 	),
+	// 	),
+	// )
 	// RotatingLine
 	// scene = scenes.SineWaveWCross{
 	// 	XYRatio:      0.0001,
@@ -57,7 +57,14 @@ var (
 	// 	// Gradient:     color.Grayscale,
 	// 	Gradient: gradient,
 	// }
-	// scene = scenes.DummySpinningCube(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})))
+	scene = scenes.DummyTextureSpinningCube(
+		colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
+			colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+			8,
+			colors.NewPerlinNoise(),
+		}),
+		scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Red})),
+	)
 
 	// scene = scenes.SpinningMulticube(
 	// 	scenes.BackgroundFromTexture(

@@ -14,31 +14,39 @@ var (
 	perlinSeed  = int64(109)
 )
 
-func NewPerlinNoise(gradient Gradient) perlinNoise {
+func NewPerlinNoiseTexture(gradient Gradient) perlinNoiseTexture {
 	p := perlin.NewPerlinRandSource(perlinAlpha, perlinBeta, perlinN, rand.NewSource(perlinSeed))
-	return perlinNoise{
+	return perlinNoiseTexture{
 		noise:    p,
 		gradient: gradient,
 	}
 }
 
-type perlinNoise struct {
+type perlinNoiseTexture struct {
 	noise    *perlin.Perlin
 	gradient Gradient
 }
 
 // x,y range from -1 to 1
-func (p perlinNoise) GetTextureColor(x, y float64) Color {
+func (p perlinNoiseTexture) GetTextureColor(x, y float64) Color {
 	valZeroOne := maths.Sigmoid(p.noise.Noise2D(x, y) * 10)
 	return p.gradient.Interpolate(valZeroOne)
 }
 
-func (p perlinNoise) GetFrameColor(x, y, t float64) Color {
+func (p perlinNoiseTexture) GetFrameColor(x, y, t float64) Color {
 	valZeroOne := maths.Sigmoid(p.noise.Noise3D(x, y, t) * 10)
 	return p.gradient.Interpolate(valZeroOne)
 }
 
+type perlinNoise struct {
+	noise *perlin.Perlin
+}
+
+func NewPerlinNoise() perlinNoise {
+	return perlinNoise{perlin.NewPerlinRandSource(perlinAlpha, perlinBeta, perlinN, rand.NewSource(perlinSeed))}
+}
+
 func (p perlinNoise) GetFrameValue(x, y, t float64) float64 {
-	valZeroOne := maths.Sigmoid(p.noise.Noise3D(x, y, t) * 10)
+	valZeroOne := maths.Sigmoid(p.noise.Noise3D(x, y, t) * 5)
 	return valZeroOne
 }

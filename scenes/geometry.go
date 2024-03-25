@@ -80,7 +80,7 @@ func SpinningMulticube(background DynamicBackground) DynamicScene {
 }
 
 func NoiseTest() DynamicScene {
-	texture := colors.StaticTexture(colors.NewPerlinNoise(colors.Grayscale))
+	texture := colors.StaticTexture(colors.NewPerlinNoiseTexture(colors.Grayscale))
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObject{
 			objects.Parallelogram(geometry.Point{0, 0, -5}, geometry.Point{2, 0, -5}, geometry.Point{0, 2, -5}, texture),
@@ -92,7 +92,7 @@ func NoiseTest() DynamicScene {
 func SpinningIndividualMulticube(background DynamicBackground) DynamicScene {
 	// initialCube := UnitRGBCube()
 	// texture := color.SquareGradientTexture(color.White, color.Red, color.Black, color.Blue)
-	texture := colors.StaticTexture(colors.NewPerlinNoise(colors.Grayscale))
+	texture := colors.StaticTexture(colors.NewPerlinNoiseTexture(colors.Grayscale))
 	initialCube := UnitTextureCube(
 		texture,
 		texture,
@@ -146,6 +146,22 @@ func DummySpinningCube(background DynamicBackground) DynamicScene {
 			UnitRGBCube().WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(
 					geometry.TranslationMatrix(geometry.Vector3D{0, 0, -2}),
+					geometry.RotateMatrixY(maths.SigmoidSlowFastSlow(t)*maths.Rotation),
+					geometry.RotateMatrixX(-0.615),    // arcsin of 1/sqrt(3) (angle between short and long diagonals in a cube)
+					geometry.RotateMatrixZ(math.Pi/4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
+				)
+			}),
+		},
+		Background: background,
+	}
+}
+
+func DummyTextureSpinningCube(t colors.DynamicTexture, background DynamicBackground) DynamicScene {
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObject{
+			UnitTextureCube(t, t, t, t, t, t).WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.Vector3D{0, 0, -1.5}),
 					geometry.RotateMatrixY(maths.SigmoidSlowFastSlow(t)*maths.Rotation),
 					geometry.RotateMatrixX(-0.615),    // arcsin of 1/sqrt(3) (angle between short and long diagonals in a cube)
 					geometry.RotateMatrixZ(math.Pi/4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
