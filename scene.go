@@ -72,6 +72,9 @@ var (
 
 	scene = scenes.MulticubeDance(
 		// scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})),
+		colors.SimpleGradient{colors.Black, colors.Red},
+		colors.SimpleGradient{colors.Black, colors.Green},
+		colors.SimpleGradient{colors.Black, colors.Blue},
 		scenes.BackgroundFromTexture(
 			colors.DynamicFromAnimatedTexture(
 				colors.SineWaveAnimation{
