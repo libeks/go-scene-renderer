@@ -61,9 +61,13 @@ var (
 		colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
 			colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
 			8,
-			colors.NewPerlinNoise(),
+			colors.NewRandomPerlinNoise(),
 		}),
-		scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Red})),
+		scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
+			colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+			32,
+			colors.NewRandomPerlinNoise(),
+		})),
 	)
 
 	// scene = scenes.SpinningMulticube(

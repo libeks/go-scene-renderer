@@ -54,3 +54,36 @@ func (s DynamicSubtexturer) GetFrameColor(x, y, t float64) Color {
 	tHere := s.PointSampler.GetFrameValue(xMeta, yMeta, t)
 	return s.Subtexture.GetFrameColor(xValue, yValue, tHere)
 }
+
+type TextureValueMapping struct {
+	Above float64
+	Texture
+}
+
+// StaticMapper displays the static Texture in the list, the first one whose Above value is below t
+type StaticMapper struct {
+	Mapping []TextureValueMapping // ordered in decreasing order of Above
+}
+
+func (m StaticMapper) GetFrameColor(x, y, t float64) Color {
+	for _, mapping := range m.Mapping {
+		if t >= mapping.Above {
+			return mapping.Texture.GetTextureColor(x, y)
+		}
+	}
+	return Red // shouldn't ever happen if the last Mapping starts at 0.0
+}
+
+func GetSpecialMapper(on, off Color, thickness float64) StaticMapper {
+	return StaticMapper{
+		Mapping: []TextureValueMapping{
+			{0.9, Square{on, off, 1.0}},
+			{0.8, Square{on, off, max(0.7, 2*thickness)}},
+			{0.7, Cross{on, off, thickness}},
+			{0.5, HorizontalLine{on, off, thickness}},
+			{0.4, VerticalLine{on, off, thickness}},
+			{0.1, Circle{on, off, thickness}},
+			{0.0, Uniform{off}},
+		},
+	}
+}

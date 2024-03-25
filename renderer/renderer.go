@@ -304,15 +304,11 @@ func (r Renderer) getWireframeImage(scene scenes.StaticScene, ip ImagePreset) *I
 func (r Renderer) getTriangleDepthImage(scene scenes.StaticScene, ip ImagePreset) *Image {
 	img := NewImage(ip)
 	// set to black bakcground
-	pixelColor := colors.Black
-	for x := 0; x < ip.width; x++ {
-		for y := 0; y < ip.height; y++ {
-			img.Set(x, y, pixelColor)
-		}
-		r.lineChannel <- 1
-	}
+	img.Fill(colors.Black)
+	r.lineChannel <- ip.height
 	windows := subdivideSceneIntoWindows(scene, ip)
 	gradient := colors.SimpleGradient{colors.Black, colors.Red}
+	var pixelColor colors.Color
 	for _, window := range windows {
 		for x := window.xMin; x < window.xMax; x++ {
 			for y := window.yMin; y < window.yMax; y++ {
