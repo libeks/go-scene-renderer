@@ -106,6 +106,11 @@ type BoundingBox struct {
 	BottomRight geometry.Pixel
 	MinDepth    float64
 	MaxDepth    float64
+	empty       bool
+}
+
+func (bb BoundingBox) IsEmpty() bool {
+	return bb.empty
 }
 
 func (bb BoundingBox) String() string {

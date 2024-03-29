@@ -2,6 +2,7 @@ package objects
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
@@ -47,7 +48,7 @@ func (t DynamicTriangle) GetBoundingBox() BoundingBox {
 }
 
 // return all the lines that describe the triangle, without any fill, used to generate wireframe images
-func (t DynamicTriangle) GetWireframe() []geometry.Line {
+func (t DynamicTriangle) GetWireframe() []geometry.RasterLine {
 	return t.Triangle.GetWireframe()
 }
 
@@ -77,7 +78,7 @@ func (t StaticTriangle) GetBoundingBox() BoundingBox {
 }
 
 // return all the lines that describe the triangle, without any fill, used to generate wireframe images
-func (t StaticTriangle) GetWireframe() []geometry.Line {
+func (t StaticTriangle) GetWireframe() []geometry.RasterLine {
 	return t.Triangle.GetWireframe()
 }
 
@@ -125,48 +126,112 @@ func (t *Triangle) GetBoundingBox() BoundingBox {
 	if t.cachedBoundingBox {
 		return t.bbox
 	}
-	a, ad := t.A.ToPixel()
-	b, bd := t.B.ToPixel()
-	c, cd := t.C.ToPixel()
-	if a == nil || b == nil || c == nil {
+	wireframe := t.getSceneWireframe()
+	points := []geometry.Pixel{}
+	pointsX := []float64{}
+	pointsY := []float64{}
+	depths := []float64{}
+	for _, line := range wireframe {
+		pointA, depthA := line.A.ToPixel()
+		pointB, depthB := line.B.ToPixel()
+		if pointA == nil || pointB == nil {
+			panic(fmt.Errorf("Line should already be in front of camera %s", line))
+		}
+		points = append(points, *pointA)
+		pointsX = append(pointsX, pointA.X)
+		pointsY = append(pointsY, pointA.Y)
+		points = append(points, *pointB)
+		pointsX = append(pointsX, pointB.X)
+		pointsY = append(pointsY, pointB.Y)
+		depths = append(depths, depthA, depthB)
+	}
+
+	if len(points) == 0 {
 		return BoundingBox{
-			TopLeft: geometry.Pixel{
-				-2, -2,
-			},
-			BottomRight: geometry.Pixel{
-				2, 2,
-			},
+			empty: true,
 		}
 	}
-	minx := min(a.X, b.X, c.X)
-	miny := min(a.Y, b.Y, c.Y)
-	maxx := max(a.X, b.X, c.X)
-	maxy := max(a.Y, b.Y, c.Y)
-	mindepth := min(ad, bd, cd)
-	maxdepth := max(ad, bd, cd)
+
 	bb := BoundingBox{
 		TopLeft: geometry.Pixel{
-			minx, miny,
+			X: max(slices.Min(pointsX), -1.0),
+			Y: max(slices.Min(pointsY), -1.0),
 		},
 		BottomRight: geometry.Pixel{
-			maxx, maxy,
+			X: min(slices.Max(pointsX), 1.0),
+			Y: min(slices.Max(pointsY), 1.0),
 		},
-		MinDepth: mindepth,
-		MaxDepth: maxdepth,
 	}
 	t.bbox = bb
 	t.cachedBoundingBox = true
-	// fmt.Printf("bounding box %s\n", bb)
+	fmt.Printf("bounding box %s\n", bb)
 	return bb
 }
 
 // return all the lines that describe the triangle, without any fill, used to generate wireframe images
-func (t Triangle) GetWireframe() []geometry.Line {
-	return []geometry.Line{
-		geometry.Line{t.A, t.B},
-		geometry.Line{t.A, t.C},
-		geometry.Line{t.B, t.C},
+// note that the resulting lines may not exactly match the triangle, as they are cropped to what is
+// in front of the camera
+func (t Triangle) getSceneWireframe() []geometry.Line {
+	minDepth := -0.01 // minimum z-coordinate to keep on screen
+	lineAB := geometry.Line{t.A, t.B}.CropToFrontOfCamera(minDepth)
+	lineAC := geometry.Line{t.A, t.C}.CropToFrontOfCamera(minDepth)
+	lineBC := geometry.Line{t.B, t.C}.CropToFrontOfCamera(minDepth)
+	if lineAB != nil && lineAC != nil && lineBC != nil {
+		// all lines are in front of the camera
+		return []geometry.Line{
+			*lineAB, *lineAC, *lineBC,
+		}
 	}
+	// all lines are behind camera
+	if lineAB == nil && lineAC == nil && lineBC == nil {
+		// all points are behind camera
+		return []geometry.Line{}
+	}
+	// if one line is missing, replace with the endpoints of the other lines
+	if !t.A.IsInFrontOfCamera(minDepth) && !t.B.IsInFrontOfCamera(minDepth) {
+		// only C is in front of the screen
+		return []geometry.Line{
+			*lineAC,
+			*lineBC,
+			geometry.Line{
+				lineAC.A, lineBC.A,
+			},
+		}
+	} else if !t.A.IsInFrontOfCamera(minDepth) && !t.C.IsInFrontOfCamera(minDepth) {
+		// only B is in front of the screen
+		return []geometry.Line{
+			*lineAB,
+			*lineBC,
+			geometry.Line{
+				lineBC.B, lineAB.A,
+			},
+		}
+	} else if !t.B.IsInFrontOfCamera(minDepth) && !t.C.IsInFrontOfCamera(minDepth) {
+		// only A is in front of the screen
+		return []geometry.Line{
+			*lineAB,
+			*lineAC,
+			geometry.Line{
+				lineAB.B, lineAC.B,
+			},
+		}
+	}
+
+	// if two lines are missing, not sure what that means
+	panic(fmt.Errorf("two lines are missing, not sure what to do \n%s \n%s \n%s \n%v \n%v \n%v", t.A, t.B, t.C, lineAB, lineAC, lineBC))
+	return []geometry.Line{}
+}
+
+func (t Triangle) GetWireframe() []geometry.RasterLine {
+	sceneLines := t.getSceneWireframe()
+	ret := []geometry.RasterLine{}
+	for _, l := range sceneLines {
+		rasterLine := l.CropToScreenView()
+		if rasterLine != nil {
+			ret = append(ret, *rasterLine)
+		}
+	}
+	return ret
 }
 
 func (t Triangle) String() string {

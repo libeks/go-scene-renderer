@@ -229,10 +229,12 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						B: geometry.Point{5, 0, 0},
 						C: geometry.Point{5, 0, 5},
 					},
-					Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colors.Red, colors.Blue, colors.Green)),
+					// Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colors.Red, colors.Blue, colors.Green)),
+					Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colors.Blue, colors.Blue, colors.Blue)),
 				}).WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(
 					geometry.TranslationMatrix(geometry.Vector3D{0, -0.5, -2}),
+					geometry.RotateMatrixZ(0.2),
 					geometry.RotateMatrixY(t*maths.Rotation),
 				)
 			}),

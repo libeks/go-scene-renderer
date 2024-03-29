@@ -70,21 +70,21 @@ var (
 	// 	})),
 	// )
 
-	scene = scenes.MulticubeDance(
-		// scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})),
-		colors.SimpleGradient{colors.Black, colors.Red},
-		colors.SimpleGradient{colors.Black, colors.Green},
-		colors.SimpleGradient{colors.Black, colors.Blue},
-		scenes.BackgroundFromTexture(
-			colors.DynamicFromAnimatedTexture(
-				colors.SineWaveAnimation{
-					XYRatio:      0.1,
-					SigmoidRatio: 2,
-					SinCycles:    3,
-					Gradient:     colors.Grayscale.Subsample(0.4, 0.6),
-				}),
-		),
-	)
+	// scene = scenes.MulticubeDance(
+	// 	// scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})),
+	// 	colors.SimpleGradient{colors.Black, colors.Red},
+	// 	colors.SimpleGradient{colors.Black, colors.Green},
+	// 	colors.SimpleGradient{colors.Black, colors.Blue},
+	// 	scenes.BackgroundFromTexture(
+	// 		colors.DynamicFromAnimatedTexture(
+	// 			colors.SineWaveAnimation{
+	// 				XYRatio:      0.1,
+	// 				SigmoidRatio: 2,
+	// 				SinCycles:    3,
+	// 				Gradient:     colors.Grayscale.Subsample(0.4, 0.6),
+	// 			}),
+	// 	),
+	// )
 
 	// scene = scenes.SpinningMulticube(
 	// 	scenes.BackgroundFromTexture(
@@ -98,7 +98,7 @@ var (
 	// 	),
 	// )
 	// scene = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
-	// scene = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
+	scene = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
 )
 
 // scene = scenes.NoiseTest()

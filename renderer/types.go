@@ -10,56 +10,6 @@ import (
 
 // }
 
-// func NewRasterLine(a, b RasterPixel) *RasterLine {
-// 	if a.X == b.X && a.Y == b.Y {
-// 		return nil
-// 	}
-// 	var txmin, txmax, tymin, tymax float64
-// 	if a.X == b.X {
-// 		if a.X > 1 || a.X < -1 {
-// 			return nil
-// 		}
-// 		txmin, txmax = 0, 1
-// 	} else {
-// 		txleft := (-1.0 - a.X) / (b.X - a.X)
-// 		txright := (1.0 - a.X) / (b.X - a.X)
-// 		txmin, txmax = min(txleft, txright), max(txleft, txright)
-// 	}
-// 	if a.Y == b.Y {
-// 		if a.Y > 1 || a.Y < -1 {
-// 			return nil
-// 		}
-// 		txmin, txmax = 0, 1
-// 	} else {
-// 		txleft := (-1 - a.X) / (b.X - a.X)
-// 		txright := (1 - a.X) / (b.X - a.X)
-// 		txmin, txmax = min(txleft, txright), max(txleft, txright)
-// 	}
-
-// 	// clip pixels to window
-// 	tmin := max(0, txmin, tymin)
-// 	tmax := min(1, txmax, tymax)
-// 	if tmin == 0 && tmax == 1 {
-// 		return &RasterLine{
-// 			a, b,
-// 		}
-// 	}
-// 	// no part of line is inside the screen
-// 	if tmin > tmax {
-// 		return nil
-// 	}
-// 	return &RasterLine{
-// 		A: RasterPixel{
-// 			a.X + (b.X-a.X)*tmin,
-// 			a.Y + (b.Y-a.Y)*tmin,
-// 		},
-// 		B: RasterPixel{
-// 			a.X + (b.X-a.X)*tmax,
-// 			a.Y + (b.Y-a.Y)*tmax,
-// 		},
-// 	}
-// }
-
 func NewRasterLine(a, b RasterPixel) *RasterLine {
 	return &RasterLine{
 		a, b,

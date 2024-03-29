@@ -37,6 +37,10 @@ func (p Point) ToHomogenous() HomogenousVector {
 	return HomogenousVector{p.X, p.Y, p.Z, 1}
 }
 
+func (p Point) IsInFrontOfCamera(minDepth float64) bool {
+	return p.Z < minDepth
+}
+
 func (p Point) ToPixel() (*Pixel, float64) {
 	if p.Z > 0 {
 		return nil, 0

@@ -254,14 +254,8 @@ func (r Renderer) applyWireframeToImage(img *Image, scene scenes.StaticScene, ip
 	triangles, _ := scene.Flatten()
 	for _, tri := range triangles {
 		for _, line := range tri.GetWireframe() {
-			sceneA, aDepth := line.A.ToPixel()
-			sceneB, bDepth := line.B.ToPixel()
-			if sceneA == nil || sceneB == nil {
-				fmt.Printf("Skipping line %s since it may be behind the screen\n", line)
-				continue
-			}
-			pixA := toImagePixel(*sceneA, ip.width, ip.height)
-			pixB := toImagePixel(*sceneB, ip.width, ip.height)
+			pixA := toImagePixel(line.A, ip.width, ip.height)
+			pixB := toImagePixel(line.B, ip.width, ip.height)
 			if pixA == nil || pixB == nil {
 				fmt.Printf("Skipping line %s since one or both pixels are outside of screen\n", line)
 				continue
@@ -271,8 +265,8 @@ func (r Renderer) applyWireframeToImage(img *Image, scene scenes.StaticScene, ip
 				colors.Black,
 			}
 			ratio := 8.0
-			colorA := greenBlack.Interpolate(2*maths.Sigmoid(aDepth/ratio) - 1)
-			colorB := greenBlack.Interpolate(2*maths.Sigmoid(bDepth/ratio) - 1)
+			colorA := greenBlack.Interpolate(2*maths.Sigmoid(line.ADepth/ratio) - 1)
+			colorB := greenBlack.Interpolate(2*maths.Sigmoid(line.BDepth/ratio) - 1)
 			img.RenderLine(NewRasterLine(
 				*pixA,
 				*pixB,
