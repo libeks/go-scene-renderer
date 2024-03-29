@@ -24,7 +24,7 @@ const (
 	minWindowWidth         = 5
 	minWindowCount         = 1
 	wireframeTriangleDepth = false
-	applyWireframe         = false // draw wireframes on top of rendered objects
+	applyWireframe         = true // draw wireframes on top of rendered objects
 )
 
 var (

@@ -219,6 +219,28 @@ func DummyTextureSpinningCube(t colors.DynamicTexture, background DynamicBackgro
 	}
 }
 
+func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObject{
+			objects.DynamicObjectFromTriangles(
+				objects.DynamicTriangle{
+					Triangle: objects.Triangle{
+						A: geometry.Point{0, 0, 0},
+						B: geometry.Point{5, 0, 0},
+						C: geometry.Point{5, 0, 5},
+					},
+					Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colors.Red, colors.Blue, colors.Green)),
+				}).WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.Vector3D{0, -0.5, -2}),
+					geometry.RotateMatrixY(t*maths.Rotation),
+				)
+			}),
+		},
+		Background: background,
+	}
+}
+
 func CheckerboardSquare(background DynamicBackground) DynamicScene {
 	texture := colors.StaticTexture(colors.Checkerboard{16})
 	return CombinedDynamicScene{
