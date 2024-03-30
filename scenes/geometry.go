@@ -268,17 +268,30 @@ func HeightMap(background DynamicBackground) DynamicScene {
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
 			objects.NewDynamicObject(
-				objects.HeightMapCircle{
-					PerlinNoise: colors.NewPerlinNoise(),
-					N:           100,
+				objects.HeightMap{
+					Height: colors.UnitCircleClamper{
+						Sampler: colors.RotatingSampler{
+							Sampler:   colors.NewPerlinNoise(),
+							Rotations: 1,
+							Radius:    1,
+							OffsetX:   0.0,
+							OffsetY:   0,
+							OffsetT:   0,
+						},
+						MaxRadius: 0.95,
+						Decay:     9,
+					},
+					Gradient: colors.LinearGradient{[]colors.Color{colors.Black, colors.Grayscale.Interpolate(0.75), colors.White}},
+					N:        100,
 				},
 			).WithDynamicTransform(
 
 				func(t float64) geometry.HomogeneusMatrix {
 					return geometry.MatrixProduct(
-						geometry.TranslationMatrix(geometry.Vector3D{0, -0.75, -2}),
+						geometry.RotateMatrixX(0.2),
+						geometry.TranslationMatrix(geometry.Vector3D{0, -0.8, -1.5}),
 						geometry.ScaleMatrix(1),
-						geometry.RotateMatrixY(t*maths.Rotation),
+						geometry.RotateMatrixY(-t*maths.Rotation),
 					)
 				},
 			),

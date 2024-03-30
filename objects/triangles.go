@@ -2,6 +2,7 @@ package objects
 
 import (
 	"fmt"
+	"math"
 	"slices"
 
 	"github.com/libeks/go-scene-renderer/colors"
@@ -146,7 +147,7 @@ func (t *Triangle) GetBoundingBox() BoundingBox {
 		pointA, depthA := line.A.ToPixel()
 		pointB, depthB := line.B.ToPixel()
 		if pointA == nil || pointB == nil {
-			panic(fmt.Errorf("Line should already be in front of camera %s", line))
+			panic(fmt.Errorf("line should already be in front of camera %s", line))
 		}
 		points = append(points, *pointA)
 		pointsX = append(pointsX, pointA.X)
@@ -172,6 +173,8 @@ func (t *Triangle) GetBoundingBox() BoundingBox {
 			X: min(slices.Max(pointsX), 1.0),
 			Y: min(slices.Max(pointsY), 1.0),
 		},
+		MinDepth: max(0, slices.Min(depths)),
+		MaxDepth: min(math.MaxFloat64, slices.Max(depths)),
 	}
 	t.bbox = bb
 	t.cachedBoundingBox = true

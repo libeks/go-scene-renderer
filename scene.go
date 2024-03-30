@@ -99,7 +99,7 @@ var (
 	// )
 	// scene = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
 	// scene = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
-	scene = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})))
+	scene = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
 )
 
 // scene = scenes.NoiseTest()

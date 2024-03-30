@@ -19,12 +19,13 @@ import (
 )
 
 const (
-	frameConcurrency       = 5     // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
-	generateVideoPNGs      = false // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
+	frameConcurrency       = 5    // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
+	generateVideoPNGs      = true // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
 	minWindowWidth         = 5
 	minWindowCount         = 1
 	wireframeTriangleDepth = false
 	applyWireframe         = false // draw wireframes on top of rendered objects
+	render_h265            = true  // if false, will render with h264
 )
 
 var (
@@ -108,23 +109,38 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 	}
 	fmt.Printf("Encoding with ffmpeg...\n")
 	// render video file from png frame images in .tmp/
-	encoder := "yuv420p"
-	format := "libx265"
-	cmd := exec.Command(
-		"ffmpeg", "-y",
+	params := []string{
+		"-y",
 		"-framerate", fmt.Sprintf("%d", vp.frameRate),
 		"-i", outFileFormat,
-		"-c:v", format,
-		"-pix_fmt", encoder,
-		"-profile:v", "main",
-		"-level", "3.1",
-		"-preset", "medium",
-		// "-vf", "lutyuv=u=128:v=128",
-		// "-b:v", "2600k",
-		"-crf", "14",
-		// "-x265-params", "lossless=1",
-		"-tag:v", "hvc1",
-		outFile)
+	}
+	if render_h265 {
+		params = append(params,
+			"-c:v", "libx265",
+			// "-pix_fmt", "yu v420p",
+			"-pix_fmt", "p010le",
+			// "-profile:v", "main",
+			"-level", "3.1",
+			"-preset", "medium",
+			"-crf", "14",
+			"-tag:v", "hvc1",
+		)
+	} else {
+		params = append(params,
+			"-c:v", "libx264",
+			"-pix_fmt", "yuv420p",
+			"-profile:v", "main",
+			"-level", "3.1",
+			"-preset", "medium",
+			"-crf", "14",
+		)
+	}
+	params = append(params, outFile)
+
+	// fmt.Printf("params %v\n", params)
+	cmd := exec.Command(
+		"ffmpeg",
+		params...)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Print(string(stdout))
@@ -253,12 +269,11 @@ func toImagePixel(p geometry.Pixel, width, height int) *RasterPixel {
 func (r Renderer) applyWireframeToImage(img *Image, scene scenes.StaticScene, ip ImagePreset) *Image {
 	triangles, _ := scene.Flatten()
 	for _, tri := range triangles {
-		// fmt.Printf("Tri %s Wireframe %s\n", tri, tri.GetWireframe())
 		for _, line := range tri.GetWireframe() {
 			pixA := toImagePixel(line.A, ip.width, ip.height)
 			pixB := toImagePixel(line.B, ip.width, ip.height)
 			if pixA == nil || pixB == nil {
-				fmt.Printf("Skipping line %s since one or both pixels are outside of screen\n", line)
+				fmt.Printf("Skipping line %v since one or both pixels are outside of screen\n", line)
 				continue
 			}
 			greenBlack := colors.SimpleGradient{

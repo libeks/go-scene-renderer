@@ -10,3 +10,7 @@ func Sigmoid(v float64) float64 {
 	// takes from (-inf, +int) to (0.0, 1.0), with an S-like shape centered on 0.0.
 	return 1 / (1 + math.Exp(-v))
 }
+
+func Radius(x, y float64) float64 {
+	return math.Sqrt(x*x + y*y)
+}
