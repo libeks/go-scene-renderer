@@ -12,6 +12,10 @@ var (
 	}
 )
 
+type DynamicObjectInt interface {
+	Frame(float64) StaticObject
+}
+
 type StaticObject struct {
 	triangles []StaticTriangle
 }
@@ -25,45 +29,61 @@ func (ob StaticObject) Flatten() []*StaticTriangle {
 }
 
 func DynamicObjectFromTriangles(tris ...DynamicTriangle) DynamicObject {
-	newTriangles := make([]triWithTransform, len(tris))
+	newObjs := make([]objWithTransform, len(tris))
 	for i, tri := range tris {
-		newTriangles[i] = triWithTransform{
-
-			tri: tri,
+		newObjs[i] = objWithTransform{
+			obj: dynamicTriangleWrapper{tri},
 			fn:  identityTransform,
 		}
 	}
 	return DynamicObject{
-		newTriangles,
+		newObjs,
 	}
 
 }
 
 func CombineDynamicObjects(objs ...DynamicObject) DynamicObject {
-	newTriangles := []triWithTransform{}
+	newObjs := []objWithTransform{}
 	for _, obj := range objs {
-		newTriangles = append(newTriangles, obj.triangles...)
+		newObjs = append(newObjs, obj.objs...)
 	}
 	return DynamicObject{
-		newTriangles,
+		newObjs,
 	}
 }
 
-type triWithTransform struct {
+type dynamicTriangleWrapper struct {
 	tri DynamicTriangle
+}
+
+func (d dynamicTriangleWrapper) Frame(t float64) StaticObject {
+	return StaticObject{[]StaticTriangle{d.tri.Frame(t)}}
+}
+
+type objWithTransform struct {
+	obj DynamicObjectInt
 	fn  func(float64) geometry.HomogeneusMatrix
 }
 
+func NewDynamicObject(obj DynamicObjectInt) DynamicObject {
+	return DynamicObject{objs: []objWithTransform{{obj: obj, fn: identityTransform}}}
+}
+
 type DynamicObject struct {
-	triangles []triWithTransform
+	objs []objWithTransform
 }
 
 func (ob DynamicObject) Frame(t float64) StaticObject {
-	staticTriangles := make([]StaticTriangle, 0, len(ob.triangles))
-	for _, dyTriangle := range ob.triangles {
-		transformedTriangle := dyTriangle.tri.ApplyMatrix(dyTriangle.fn(t))
-		if transformedTriangle != nil {
-			staticTriangles = append(staticTriangles, transformedTriangle.Frame(t)) // set texture to be static
+	staticTriangles := []StaticTriangle{}
+	for _, dyObj := range ob.objs {
+		staticTris := dyObj.obj.Frame(t)
+		for _, tri := range staticTris.triangles {
+			// fmt.Printf("triangles %s\n", staticTris)
+			// fmt.Printf("Applying matrix %s\n", dyObj.fn(t))
+			transformedTriangle := tri.ApplyMatrix(dyObj.fn(t))
+			if transformedTriangle != nil {
+				staticTriangles = append(staticTriangles, *transformedTriangle) // set texture to be static
+			}
 		}
 	}
 	return StaticObject{
@@ -72,32 +92,32 @@ func (ob DynamicObject) Frame(t float64) StaticObject {
 }
 
 func (ob DynamicObject) WithTransform(m geometry.HomogeneusMatrix) DynamicObject {
-	newTriangles := make([]triWithTransform, 0, len(ob.triangles))
-	for _, tri := range ob.triangles {
-		newTriangles = append(newTriangles, triWithTransform{
-			tri: tri.tri,
+	newTriangles := make([]objWithTransform, 0, len(ob.objs))
+	for _, tri := range ob.objs {
+		newTriangles = append(newTriangles, objWithTransform{
+			obj: tri.obj,
 			fn: func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(m, tri.fn(t))
 			},
 		})
 	}
 	return DynamicObject{
-		triangles: newTriangles,
+		objs: newTriangles,
 	}
 }
 
 func (ob DynamicObject) WithDynamicTransform(f func(float64) geometry.HomogeneusMatrix) DynamicObject {
-	newTriangles := make([]triWithTransform, 0, len(ob.triangles))
-	for _, tri := range ob.triangles {
-		newTriangles = append(newTriangles, triWithTransform{
-			tri: tri.tri,
+	newTriangles := make([]objWithTransform, 0, len(ob.objs))
+	for _, tri := range ob.objs {
+		newTriangles = append(newTriangles, objWithTransform{
+			obj: tri.obj,
 			fn: func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(f(t), tri.fn(t))
 			},
 		})
 	}
 	return DynamicObject{
-		triangles: newTriangles,
+		objs: newTriangles,
 	}
 }
 

@@ -14,7 +14,7 @@ func DummySpinningCubes(background DynamicBackground) DynamicScene {
 	diagonalCube := initialCube
 
 	return CombinedDynamicScene{
-		Objects: []objects.DynamicObject{
+		Objects: []objects.DynamicObjectInt{
 			diagonalCube.WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(
 					geometry.TranslationMatrix(geometry.Vector3D{0, math.Sqrt(3) / 2, -3}),
@@ -66,7 +66,7 @@ func SpinningMulticube(background DynamicBackground) DynamicScene {
 	)
 
 	return CombinedDynamicScene{
-		Objects: []objects.DynamicObject{
+		Objects: []objects.DynamicObjectInt{
 			multiCube.WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(
 					geometry.TranslationMatrix(geometry.Vector3D{0, 0, -10}),
@@ -82,7 +82,7 @@ func SpinningMulticube(background DynamicBackground) DynamicScene {
 func NoiseTest() DynamicScene {
 	texture := colors.StaticTexture(colors.NewPerlinNoiseTexture(colors.Grayscale))
 	return CombinedDynamicScene{
-		Objects: []objects.DynamicObject{
+		Objects: []objects.DynamicObjectInt{
 			objects.Parallelogram(geometry.Point{0, 0, -5}, geometry.Point{2, 0, -5}, geometry.Point{0, 2, -5}, texture),
 		},
 		Background: BackgroundFromTexture(texture),
@@ -110,7 +110,7 @@ func SpinningIndividualMulticube(background DynamicBackground) DynamicScene {
 	spacing := 2.0
 
 	return CombinedDynamicScene{
-		Objects: []objects.DynamicObject{
+		Objects: []objects.DynamicObjectInt{
 			diagonalCube.WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(
 					geometry.TranslationMatrix(geometry.Vector3D{0, 0, -5}),       // position within the scene
@@ -144,7 +144,7 @@ func MulticubeDance(g1, g2, g3 colors.Gradient, background DynamicBackground) Dy
 	spacing := 2.0
 	cubes := 19
 	ratio := 1 / float64(cubes)
-	objs := make([]objects.DynamicObject, 0, cubes*cubes*cubes)
+	objs := make([]objects.DynamicObjectInt, 0, cubes*cubes*cubes)
 	timeRatio := 1.5
 	for d1 := range cubes {
 		for d2 := range cubes {
@@ -189,7 +189,7 @@ func MulticubeDance(g1, g2, g3 colors.Gradient, background DynamicBackground) Dy
 
 func DummySpinningCube(background DynamicBackground) DynamicScene {
 	return CombinedDynamicScene{
-		Objects: []objects.DynamicObject{
+		Objects: []objects.DynamicObjectInt{
 			UnitRGBCube().WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(
 					geometry.TranslationMatrix(geometry.Vector3D{0, 0, -2}),
@@ -205,7 +205,7 @@ func DummySpinningCube(background DynamicBackground) DynamicScene {
 
 func DummyTextureSpinningCube(t colors.DynamicTexture, background DynamicBackground) DynamicScene {
 	return CombinedDynamicScene{
-		Objects: []objects.DynamicObject{
+		Objects: []objects.DynamicObjectInt{
 			UnitTextureCube(t, t, t, t, t, t).WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(
 					geometry.TranslationMatrix(geometry.Vector3D{0, 0, -1.5}),
@@ -221,7 +221,7 @@ func DummyTextureSpinningCube(t colors.DynamicTexture, background DynamicBackgro
 
 func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 	return CombinedDynamicScene{
-		Objects: []objects.DynamicObject{
+		Objects: []objects.DynamicObjectInt{
 			objects.DynamicObjectFromTriangles(
 				objects.DynamicTriangle{
 					Triangle: objects.Triangle{
@@ -229,8 +229,8 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						B: geometry.Point{5, 0, 0},
 						C: geometry.Point{5, 0, 5},
 					},
-					// Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colors.Red, colors.Blue, colors.Green)),
-					Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colors.Blue, colors.Blue, colors.Blue)),
+					Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colors.Red, colors.Blue, colors.Green)),
+					// Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colors.Blue, colors.Blue, colors.Blue)),
 				}).WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
 				return geometry.MatrixProduct(
 					geometry.TranslationMatrix(geometry.Vector3D{0, -0.5, -2}),
@@ -246,7 +246,7 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 func CheckerboardSquare(background DynamicBackground) DynamicScene {
 	texture := colors.StaticTexture(colors.Checkerboard{16})
 	return CombinedDynamicScene{
-		Objects: []objects.DynamicObject{
+		Objects: []objects.DynamicObjectInt{
 			objects.Parallelogram(
 				geometry.Point{0, 0, 0},
 				geometry.Point{2, 0, 0},
@@ -256,6 +256,29 @@ func CheckerboardSquare(background DynamicBackground) DynamicScene {
 					return geometry.MatrixProduct(
 						geometry.TranslationMatrix(geometry.Vector3D{0, 0, -5}),
 						geometry.RotateMatrixX(t*maths.Rotation),
+					)
+				},
+			),
+		},
+		Background: background,
+	}
+}
+
+func HeightMap(background DynamicBackground) DynamicScene {
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObjectInt{
+			objects.NewDynamicObject(
+				objects.HeightMapCircle{
+					PerlinNoise: colors.NewPerlinNoise(),
+					N:           100,
+				},
+			).WithDynamicTransform(
+
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D{0, -0.75, -2}),
+						geometry.ScaleMatrix(1),
+						geometry.RotateMatrixY(t*maths.Rotation),
 					)
 				},
 			),

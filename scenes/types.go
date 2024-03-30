@@ -34,8 +34,9 @@ func (s ObjectScene) Flatten() ([]*objects.StaticTriangle, Background) {
 	return tris, s.Background
 }
 
+// implements DynamicScene
 type CombinedDynamicScene struct {
-	Objects    []objects.DynamicObject
+	Objects    []objects.DynamicObjectInt
 	Background DynamicBackground
 }
 

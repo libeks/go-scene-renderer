@@ -19,12 +19,12 @@ import (
 )
 
 const (
-	frameConcurrency       = 10   // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
-	generateVideoPNGs      = true // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
+	frameConcurrency       = 5     // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
+	generateVideoPNGs      = false // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
 	minWindowWidth         = 5
 	minWindowCount         = 1
 	wireframeTriangleDepth = false
-	applyWireframe         = true // draw wireframes on top of rendered objects
+	applyWireframe         = false // draw wireframes on top of rendered objects
 )
 
 var (
@@ -121,7 +121,7 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 		"-preset", "medium",
 		// "-vf", "lutyuv=u=128:v=128",
 		// "-b:v", "2600k",
-		"-crf", "15",
+		"-crf", "14",
 		// "-x265-params", "lossless=1",
 		"-tag:v", "hvc1",
 		outFile)
@@ -253,6 +253,7 @@ func toImagePixel(p geometry.Pixel, width, height int) *RasterPixel {
 func (r Renderer) applyWireframeToImage(img *Image, scene scenes.StaticScene, ip ImagePreset) *Image {
 	triangles, _ := scene.Flatten()
 	for _, tri := range triangles {
+		// fmt.Printf("Tri %s Wireframe %s\n", tri, tri.GetWireframe())
 		for _, line := range tri.GetWireframe() {
 			pixA := toImagePixel(line.A, ip.width, ip.height)
 			pixB := toImagePixel(line.B, ip.width, ip.height)

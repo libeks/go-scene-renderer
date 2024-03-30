@@ -73,6 +73,17 @@ func (t *StaticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
 	return &color, depth
 }
 
+func (t StaticTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) *StaticTriangle {
+	newTriangle := t.Triangle.ApplyMatrix(m)
+	if newTriangle == nil {
+		return nil
+	}
+	return &StaticTriangle{
+		Triangle: *newTriangle,
+		Colorer:  t.Colorer,
+	}
+}
+
 func (t StaticTriangle) GetBoundingBox() BoundingBox {
 	return t.Triangle.GetBoundingBox()
 }
@@ -164,7 +175,7 @@ func (t *Triangle) GetBoundingBox() BoundingBox {
 	}
 	t.bbox = bb
 	t.cachedBoundingBox = true
-	fmt.Printf("bounding box %s\n", bb)
+	// fmt.Printf("bounding box %s\n", bb)
 	return bb
 }
 

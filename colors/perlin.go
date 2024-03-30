@@ -32,7 +32,7 @@ func NewRandomPerlinNoiseTexture(gradient Gradient) perlinNoiseTexture {
 }
 
 type perlinNoiseTexture struct {
-	noise    perlinNoise
+	noise    PerlinNoise
 	gradient Gradient
 }
 
@@ -47,25 +47,25 @@ func (p perlinNoiseTexture) GetFrameColor(x, y, t float64) Color {
 	return p.gradient.Interpolate(valZeroOne)
 }
 
-type perlinNoise struct {
+type PerlinNoise struct {
 	noise   *perlin.Perlin
 	offsetX float64
 	offsetY float64
 }
 
-func NewPerlinNoise() perlinNoise {
-	return perlinNoise{noise: perlin.NewPerlinRandSource(perlinAlpha, perlinBeta, perlinN, rand.NewSource(perlinSeed))}
+func NewPerlinNoise() PerlinNoise {
+	return PerlinNoise{noise: perlin.NewPerlinRandSource(perlinAlpha, perlinBeta, perlinN, rand.NewSource(perlinSeed))}
 }
 
-func NewRandomPerlinNoise() perlinNoise {
-	return perlinNoise{
+func NewRandomPerlinNoise() PerlinNoise {
+	return PerlinNoise{
 		noise:   perlin.NewPerlinRandSource(perlinAlpha, perlinBeta, perlinN, rand.NewSource(perlinSeed)),
 		offsetX: rand.Float64() * randConst,
 		offsetY: rand.Float64() * randConst,
 	}
 }
 
-func (p perlinNoise) GetFrameValue(x, y, t float64) float64 {
+func (p PerlinNoise) GetFrameValue(x, y, t float64) float64 {
 	valZeroOne := maths.Sigmoid(p.noise.Noise3D(x+p.offsetX, y+p.offsetY, t) * 5)
 	return valZeroOne
 }
