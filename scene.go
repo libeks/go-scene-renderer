@@ -1,7 +1,11 @@
 package main
 
 import (
+	"math"
+
 	"github.com/libeks/go-scene-renderer/colors"
+	"github.com/libeks/go-scene-renderer/geometry"
+	"github.com/libeks/go-scene-renderer/objects"
 	"github.com/libeks/go-scene-renderer/sampler"
 	"github.com/libeks/go-scene-renderer/scenes"
 )
@@ -32,20 +36,59 @@ var (
 	// 	},
 	// 	),
 	// )
+	// sampler.Scalar{
+	// 	sampler.NewPerlinNoise(),
+	// 	100,
+	// },
 
-	scene = scenes.BackgroundScene(
-		scenes.BackgroundFromTexture(
+	// scene = scenes.BackgroundScene()
+
+	scene = scenes.CombinedDynamicScene{
+		Objects: []objects.DynamicObjectInt{
+			objects.NewDynamicObject(
+				objects.Parallelogram(
+					geometry.Point{-1, -1, -2},
+					geometry.Point{-1, 1, -2},
+					geometry.Point{1, -1, -2},
+					colors.DynamicFromAnimatedTexture(
+						colors.GetAniTextureFromSampler(
+							sampler.Sigmoid{
+								sampler.Wiggle{
+									sampler.Rotated{
+										sampler.SineWave{
+											150,
+										},
+										math.Pi / 2,
+									},
+									4,
+									math.Pi / 50,
+								},
+								5,
+							},
+							colors.SimpleGradient{colors.White, colors.Black},
+						),
+					),
+				),
+			),
+		},
+		Background: scenes.BackgroundFromTexture(
 			colors.DynamicFromAnimatedTexture(
 				colors.GetAniTextureFromSampler(
 					sampler.Sigmoid{
-						sampler.SineWavy{},
+						sampler.Wiggle{
+							sampler.SineWave{
+								400,
+							},
+							4,
+							math.Pi / 50,
+						},
 						5,
 					},
 					colors.SimpleGradient{colors.White, colors.Black},
 				),
 			),
 		),
-	)
+	}
 	// scene = scenes.BackgroundScene(
 	// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
 	// 		colors.DynamicSubtexturer{

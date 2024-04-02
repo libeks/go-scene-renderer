@@ -1,6 +1,7 @@
 package sampler
 
 import (
+	// "fmt"
 	"math"
 
 	"github.com/libeks/go-scene-renderer/maths"
@@ -77,11 +78,42 @@ func (s SineWave) GetFrameValue(x, y, t float64) float64 {
 	return math.Sin(s.Factor * (x + y))
 }
 
+type SineOtherDirectionWave struct {
+	Factor float64
+}
+
+func (s SineOtherDirectionWave) GetFrameValue(x, y, t float64) float64 {
+	return math.Sin(s.Factor * (x - y))
+}
+
 type SineWavy struct {
 }
 
 func (s SineWavy) GetFrameValue(x, y, t float64) float64 {
 	return 2 * math.Sin(x*45+math.Sin(16*y*math.Pi))
+}
+
+type Rotated struct {
+	Sampler
+	Angle float64 // in radians
+}
+
+// assume it is evaluated on (0,1)
+func (s Rotated) GetFrameValue(x, y, t float64) float64 {
+	x, y = x*2-1, y*2-1
+	x, y = math.Cos(s.Angle)*x+math.Sin(s.Angle)*y, -math.Sin(s.Angle)*x+math.Cos(s.Angle)*y
+	return s.Sampler.GetFrameValue(x, y, t)
+}
+
+type Wiggle struct {
+	Sampler
+	NWiggles float64
+	Angle    float64 // max angle
+}
+
+func (s Wiggle) GetFrameValue(x, y, t float64) float64 {
+	// fmt.Printf("Angle %.3f %.3f\n", t, math.Sin(2*t*s.NWiggles*math.Pi)*s.Angle)
+	return Rotated{s.Sampler, math.Sin(2*t*s.NWiggles*math.Pi) * s.Angle}.GetFrameValue(x, y, t)
 }
 
 type SineWaveAnimation struct {
