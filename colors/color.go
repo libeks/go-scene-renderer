@@ -43,6 +43,10 @@ func (c Color) RGBA() (r, g, b, a uint32) {
 		maxUInt32
 }
 
+func (c Color) String() string {
+	return fmt.Sprintf("#%02x%02x%02x", floatToUInt32(c.R), floatToUInt32(c.G), floatToUInt32(c.B))
+}
+
 // Average the colors in the slice
 func Average(colors []Color) Color {
 	if len(colors) == 1 {
@@ -102,6 +106,10 @@ func Hex(s string) Color {
 
 func uInt32ToFloat(r uint32) float64 {
 	return float64(r) / float64(0xff)
+}
+
+func floatToUInt32(r float64) uint32 {
+	return uint32(r * float64(0xff))
 }
 
 func ToInterfaceSlice(colors []Color) []color.Color {

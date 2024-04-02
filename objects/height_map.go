@@ -24,32 +24,43 @@ func (o HeightMap) Frame(t float64) StaticObject {
 			dx, dy := 2/float64(o.N-1), 2/float64(o.N-1)
 			x, y := (2*float64(xd)/float64(o.N-1))-1.0, (2*float64(yd)/float64(o.N-1))-1.0
 
+			a, b, c, d := o.getAt(x, y, t), o.getAt(x, y+dy, t), o.getAt(x+dx, y, t), o.getAt(x+dx, y+dy, t)
 			triangles = append(triangles,
 				StaticTriangle{
 					Triangle: Triangle{
-						A: geometry.Point{x, zMult * o.getAt(x, y, t), y},
-						B: geometry.Point{x, zMult * o.getAt(x, y+dy, t), y + dy},
-						C: geometry.Point{x + dx, zMult * o.getAt(x+dx, y, t), y},
+						A: geometry.Point{x, zMult * a, y},
+						B: geometry.Point{x, zMult * b, y + dy},
+						C: geometry.Point{x + dx, zMult * c, y},
 					},
-					Colorer: colors.TriangleGradientTexture(
-						o.Gradient.Interpolate(o.getAt(x, y, t)),
-						o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
-						o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
-					),
+					// Colorer: colors.TriangleGradientTexture(
+					// 	o.Gradient.Interpolate(o.getAt(x, y, t)),
+					// 	o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
+					// 	o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
+					// ),
+					Colorer: colors.TriangleGradientInterpolationTexture{
+						o.Gradient,
+						a, b, c, d,
+						// colors.Subsample(o.Gradient, o.getAt(x, y, t), o.getAt(x, y+dy, t)),
+						// colors.Subsample(o.Gradient, o.getAt(x, y, t), o.getAt(x+dx, y, t)),
+					},
 				},
 			)
 			triangles = append(triangles,
 				StaticTriangle{
 					Triangle: Triangle{
-						A: geometry.Point{x + dx, zMult * o.getAt(x+dx, y+dy, t), y + dy},
-						B: geometry.Point{x, zMult * o.getAt(x, y+dx, t), y + dy},
-						C: geometry.Point{x + dx, zMult * o.getAt(x+dx, y, t), y},
+						A: geometry.Point{x + dx, zMult * d, y + dy},
+						B: geometry.Point{x, zMult * b, y + dy},
+						C: geometry.Point{x + dx, zMult * c, y},
 					},
-					Colorer: colors.TriangleGradientTexture(
-						o.Gradient.Interpolate(o.getAt(x+dx, y+dy, t)),
-						o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
-						o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
-					),
+					// Colorer: colors.TriangleGradientTexture(
+					// 	o.Gradient.Interpolate(o.getAt(x+dx, y+dy, t)),
+					// 	o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
+					// 	o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
+					// ),
+					Colorer: colors.TriangleGradientInterpolationTexture{
+						o.Gradient,
+						d, b, c, a,
+					},
 				},
 			)
 		}

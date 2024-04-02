@@ -83,12 +83,28 @@ func (w Window) Bisect(ip ImagePreset) []Window {
 	}
 }
 
+func initiateWindow(scene scenes.StaticScene, ip ImagePreset) []Window {
+	triangles, background := scene.Flatten()
+	i := 0
+	for _, tri := range triangles {
+		bbox := tri.GetBoundingBox()
+		if bbox.TopLeft.X > 1 || bbox.TopLeft.Y > 1 {
+			continue
+		}
+		if bbox.BottomRight.X < -1 || bbox.BottomRight.Y < -1 {
+			continue
+		}
+		triangles[i] = tri
+		i += 1
+	}
+	return []Window{
+		{0, ip.width, 0, ip.height, triangles[:i], background},
+	}
+}
+
 func subdivideSceneIntoWindows(scene scenes.StaticScene, ip ImagePreset) []Window {
 	// start with one window for the whole image. Assume that all objects fall within the image
-	triangles, background := scene.Flatten()
-	windows := []Window{
-		{0, ip.width, 0, ip.height, triangles, background},
-	}
+	windows := initiateWindow(scene, ip)
 	maxTriangles := 0
 	totalWork := 0
 	finalWindows := []Window{}

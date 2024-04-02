@@ -21,7 +21,7 @@ import (
 const (
 	frameConcurrency       = 5    // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
 	generateVideoPNGs      = true // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
-	minWindowWidth         = 5
+	minWindowWidth         = 3
 	minWindowCount         = 1
 	wireframeTriangleDepth = false
 	applyWireframe         = false // draw wireframes on top of rendered objects
@@ -48,7 +48,7 @@ func newRenderer() Renderer {
 	}
 }
 
-func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wireframe bool) error {
+func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wireframe bool, triDepth bool) error {
 	start := time.Now()
 	// clean up frames in temp directory before starting
 	tmpDirectory := ".tmp"
@@ -88,6 +88,8 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 						frame = r.getWireframeImage(frameObj, vp.ImagePreset)
 					}
 
+				} else if triDepth {
+					frame = r.getTriangleDepthImage(frameObj, vp.ImagePreset)
 				} else {
 					frame = r.getWindowedImage(frameObj, vp.ImagePreset)
 					if applyWireframe {
@@ -153,7 +155,7 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 	return nil
 }
 
-func RenderPNG(scene scenes.StaticScene, im ImagePreset, outfile string, wireframe bool) error {
+func RenderPNG(scene scenes.StaticScene, im ImagePreset, outfile string, wireframe bool, triDepth bool) error {
 	f, err := os.OpenFile(outfile, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		panic(err)
@@ -169,7 +171,8 @@ func RenderPNG(scene scenes.StaticScene, im ImagePreset, outfile string, wirefra
 			} else {
 				frame = r.getWireframeImage(scene, im)
 			}
-
+		} else if triDepth {
+			frame = r.getTriangleDepthImage(scene, im)
 		} else {
 			frame = r.getWindowedImage(scene, im)
 			if applyWireframe {
@@ -316,17 +319,22 @@ func (r Renderer) getTriangleDepthImage(scene scenes.StaticScene, ip ImagePreset
 	// set to black bakcground
 	img.Fill(colors.Black)
 	r.lineChannel <- ip.height
+	drawBorders := false
 	windows := subdivideSceneIntoWindows(scene, ip)
-	gradient := colors.SimpleGradient{colors.Black, colors.Red}
+	gradient := colors.LinearGradient{[]colors.Color{colors.Red, colors.Green, colors.White}}
 	var pixelColor colors.Color
 	for _, window := range windows {
 		for x := window.xMin; x < window.xMax; x++ {
 			for y := window.yMin; y < window.yMax; y++ {
 				nTriangles := len(window.triangles)
-				if x == window.xMin || y == window.yMin {
-					pixelColor = colors.Green
+				if nTriangles == 0 {
+					pixelColor = colors.Black
 				} else {
-					pixelColor = gradient.Interpolate(float64(nTriangles) / 1.0)
+					if drawBorders && (x == window.xMin || y == window.yMin) {
+						pixelColor = colors.Green
+					} else {
+						pixelColor = gradient.Interpolate(float64(nTriangles) / 30.0)
+					}
 				}
 				img.Set(x, y, pixelColor)
 			}
