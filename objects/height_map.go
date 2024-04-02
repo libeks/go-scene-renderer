@@ -3,12 +3,13 @@ package objects
 import (
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
+	"github.com/libeks/go-scene-renderer/sampler"
 )
 
 // returns an object bounded by x in (-1,1) and z (-1,1) with y value varying based on Perlin noise source
 type HeightMap struct {
 	Gradient colors.Gradient
-	Height   colors.Sampler
+	Height   sampler.Sampler
 	N        int
 }
 
@@ -32,16 +33,9 @@ func (o HeightMap) Frame(t float64) StaticObject {
 						B: geometry.Point{x, zMult * b, y + dy},
 						C: geometry.Point{x + dx, zMult * c, y},
 					},
-					// Colorer: colors.TriangleGradientTexture(
-					// 	o.Gradient.Interpolate(o.getAt(x, y, t)),
-					// 	o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
-					// 	o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
-					// ),
 					Colorer: colors.TriangleGradientInterpolationTexture{
 						o.Gradient,
 						a, b, c, d,
-						// colors.Subsample(o.Gradient, o.getAt(x, y, t), o.getAt(x, y+dy, t)),
-						// colors.Subsample(o.Gradient, o.getAt(x, y, t), o.getAt(x+dx, y, t)),
 					},
 				},
 			)
@@ -52,11 +46,6 @@ func (o HeightMap) Frame(t float64) StaticObject {
 						B: geometry.Point{x, zMult * b, y + dy},
 						C: geometry.Point{x + dx, zMult * c, y},
 					},
-					// Colorer: colors.TriangleGradientTexture(
-					// 	o.Gradient.Interpolate(o.getAt(x+dx, y+dy, t)),
-					// 	o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
-					// 	o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
-					// ),
 					Colorer: colors.TriangleGradientInterpolationTexture{
 						o.Gradient,
 						d, b, c, a,
@@ -73,7 +62,7 @@ func (o HeightMap) Frame(t float64) StaticObject {
 // returns an object bounded by x in (-1,1) and z (-1,1) with y value varying based on Perlin noise source
 type HeightMapCircle struct {
 	Gradient colors.Gradient
-	Height   colors.Sampler
+	Height   sampler.Sampler
 	N        int
 }
 

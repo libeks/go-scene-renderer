@@ -53,7 +53,9 @@ Consider a new type:
   - `y=P0*e^{\alpha x}\cos\left(\beta x\right)+C6e^{\alpha x}\sin\left(\beta x\right)\left\{0<x<t\right\}`
     - P0 is initial position, C6 is the velocity component (?), b is friction component, k is spring constant, etc
 - Add Phong lighting model
-- Improve bounding box computation when one vertex of triangles goes behind the camera
+- Add simple geometry based textures, like the transition between the faces of a cube
+- Use z-depth to better estimate triangle render order, add benchmarks
+- Specify an structure for animation sequences
 - Add textures from images
 
 ## Further Reading:

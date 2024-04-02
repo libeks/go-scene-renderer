@@ -1,22 +1,12 @@
 package colors
 
 import (
-	"math/rand"
-
-	"github.com/aquilax/go-perlin"
 	"github.com/libeks/go-scene-renderer/maths"
-)
-
-var (
-	perlinAlpha = 2.0
-	perlinBeta  = 2.0
-	perlinN     = int32(10)
-	perlinSeed  = int64(109)
-	randConst   = float64(10000)
+	"github.com/libeks/go-scene-renderer/sampler"
 )
 
 func NewPerlinNoiseTexture(gradient Gradient) perlinNoiseTexture {
-	p := NewPerlinNoise()
+	p := sampler.NewPerlinNoise()
 	return perlinNoiseTexture{
 		noise:    p,
 		gradient: gradient,
@@ -24,7 +14,7 @@ func NewPerlinNoiseTexture(gradient Gradient) perlinNoiseTexture {
 }
 
 func NewRandomPerlinNoiseTexture(gradient Gradient) perlinNoiseTexture {
-	p := NewRandomPerlinNoise()
+	p := sampler.NewRandomPerlinNoise()
 	return perlinNoiseTexture{
 		noise:    p,
 		gradient: gradient,
@@ -32,7 +22,7 @@ func NewRandomPerlinNoiseTexture(gradient Gradient) perlinNoiseTexture {
 }
 
 type perlinNoiseTexture struct {
-	noise    PerlinNoise
+	noise    sampler.PerlinNoise
 	gradient Gradient
 }
 
@@ -45,27 +35,4 @@ func (p perlinNoiseTexture) GetTextureColor(x, y float64) Color {
 func (p perlinNoiseTexture) GetFrameColor(x, y, t float64) Color {
 	valZeroOne := maths.Sigmoid(p.noise.GetFrameValue(x, y, t) * 10)
 	return p.gradient.Interpolate(valZeroOne)
-}
-
-type PerlinNoise struct {
-	noise   *perlin.Perlin
-	offsetX float64
-	offsetY float64
-}
-
-func NewPerlinNoise() PerlinNoise {
-	return PerlinNoise{noise: perlin.NewPerlinRandSource(perlinAlpha, perlinBeta, perlinN, rand.NewSource(perlinSeed))}
-}
-
-func NewRandomPerlinNoise() PerlinNoise {
-	return PerlinNoise{
-		noise:   perlin.NewPerlinRandSource(perlinAlpha, perlinBeta, perlinN, rand.NewSource(perlinSeed)),
-		offsetX: rand.Float64() * randConst,
-		offsetY: rand.Float64() * randConst,
-	}
-}
-
-func (p PerlinNoise) GetFrameValue(x, y, t float64) float64 {
-	valZeroOne := maths.Sigmoid(p.noise.Noise3D(x+p.offsetX, y+p.offsetY, t) * 5)
-	return valZeroOne
 }

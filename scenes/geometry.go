@@ -7,6 +7,7 @@ import (
 	"github.com/libeks/go-scene-renderer/geometry"
 	"github.com/libeks/go-scene-renderer/maths"
 	"github.com/libeks/go-scene-renderer/objects"
+	"github.com/libeks/go-scene-renderer/sampler"
 )
 
 func DummySpinningCubes(background DynamicBackground) DynamicScene {
@@ -515,9 +516,9 @@ func HeightMap(background DynamicBackground) DynamicScene {
 		Objects: []objects.DynamicObjectInt{
 			objects.NewDynamicObject(
 				objects.HeightMap{
-					Height: colors.UnitCircleClamper{
-						Sampler: colors.RotatingSampler{
-							Sampler:   colors.NewPerlinNoise(),
+					Height: sampler.UnitCircleClamper{
+						Sampler: sampler.RotatingSampler{
+							Sampler:   sampler.NewPerlinNoise(),
 							Rotations: 1,
 							Radius:    0.25,
 							OffsetX:   0.5,
