@@ -59,9 +59,22 @@ Consider a new type:
 - Add textures from images
 - Add a caleidascope, i.e. render a full scene, but fetch pixels from a triangle slice of the full scene
 - Develop a way to do visual aberration, where colors move with a slight delay
+  - Or color movement is distorted around the edges of the screen
 - Explore transparencies
   - try Moire patterns
 - Better document all of the helpers and types, right now it is so very confusing
+
+## Ideas from Insta:
+
+- https://www.instagram.com/reel/C5IRkXhgPQp/?utm_source=ig_web_copy_link
+- https://www.instagram.com/p/C5G6c3_toa0/?img_index=1
+- https://www.instagram.com/p/C5KgPvJovVe/
+- https://www.instagram.com/p/C5DQWcuomyF/
+- https://www.instagram.com/p/C5MRFySLnfy/
+- https://www.instagram.com/p/C46t0QLrsHH/?img_index=1
+- https://www.instagram.com/p/C4n6hKVOcIT/?img_index=1
+- https://www.instagram.com/p/C4QLY-lNUYs/?img_index=1
+- https://www.instagram.com/p/C4nfzZ8yJVz/
 
 ## Further Reading:
 
