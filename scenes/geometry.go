@@ -518,7 +518,7 @@ func HeightMap(background DynamicBackground) DynamicScene {
 				objects.HeightMap{
 					Height: sampler.UnitCircleClamper{
 						Sampler: sampler.RotatingSampler{
-							Sampler:   sampler.NewPerlinNoise(),
+							Sampler:   sampler.Sigmoid{sampler.NewPerlinNoise(), 5},
 							Rotations: 1,
 							Radius:    0.25,
 							OffsetX:   0.5,
@@ -538,7 +538,7 @@ func HeightMap(background DynamicBackground) DynamicScene {
 						geometry.RotateMatrixX(0.2),
 						geometry.TranslationMatrix(geometry.Vector3D{0, -0.8, -1.5}),
 						geometry.ScaleMatrix(1),
-						geometry.RotateMatrixY(-t*maths.Rotation),
+						// geometry.RotateMatrixY(-t*maths.Rotation),
 					)
 				},
 			),

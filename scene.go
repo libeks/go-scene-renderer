@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/libeks/go-scene-renderer/colors"
+	"github.com/libeks/go-scene-renderer/sampler"
 	"github.com/libeks/go-scene-renderer/scenes"
 )
 
@@ -31,12 +32,20 @@ var (
 	// 	},
 	// 	),
 	// )
-	// scene = scenes.BackgroundScene(
-	// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
-	// 		colors.NewPerlinNoiseTexture(colors.SimpleGradient{colors.White, colors.Black}),
-	// 	),
-	// 	),
-	// )
+
+	scene = scenes.BackgroundScene(
+		scenes.BackgroundFromTexture(
+			colors.DynamicFromAnimatedTexture(
+				colors.GetAniTextureFromSampler(
+					sampler.Sigmoid{
+						sampler.SineWavy{},
+						5,
+					},
+					colors.SimpleGradient{colors.White, colors.Black},
+				),
+			),
+		),
+	)
 	// scene = scenes.BackgroundScene(
 	// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
 	// 		colors.DynamicSubtexturer{
@@ -47,27 +56,45 @@ var (
 	// 	),
 	// 	),
 	// )
-	// RotatingLine
-	// scene = scenes.SineWaveWCross{
-	// 	XYRatio:      0.0001,
-	// 	SigmoidRatio: 2.0,
-	// 	SinCycles:    3,
-	// 	TScale:       0.3,
-	// 	// TOffset:      0.0,
-	// 	// Gradient:     color.Grayscale,
-	// 	Gradient: gradient,
-	// }
+	// scene = scenes.BackgroundScene(
+	// 	scenes.BackgroundFromTexture(
+	// 		colors.DynamicFromAnimatedTexture(
+	// 			colors.SineWaveWCrossAnimation{
+	// 				XYRatio:      0.0001,
+	// 				SigmoidRatio: 2.0,
+	// 				SinCycles:    3,
+	// 				TScale:       0.3,
+	// 				// TOffset:      0.0,
+	// 				Gradient: colors.Grayscale,
+	// 				// Gradient: gradient,
+	// 			},
+	// 		),
+	// 	),
+	// )
 	// scene = scenes.DummyTextureSpinningCube(
 	// 	colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
 	// 		colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
 	// 		8,
-	// 		colors.NewRandomPerlinNoise(),
+	// 		sampler.Sigmoid{sampler.NewPerlinNoise(), 5},
 	// 	}),
 	// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
 	// 		colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
 	// 		32,
-	// 		colors.NewRandomPerlinNoise(),
+	// 		sampler.Sigmoid{sampler.NewPerlinNoise(), 5},
 	// 	})),
+	// )
+
+	// scene = scenes.BackgroundScene(
+	// 	scenes.BackgroundFromTexture(
+	// 		colors.StaticTexture(
+	// 			colors.RoundedSquare{
+	// 				On:        colors.White,
+	// 				Off:       colors.Black,
+	// 				HalfWidth: 0.9,
+	// 				Radius:    0.1,
+	// 			},
+	// 		),
+	// 	),
 	// )
 
 	// scene = scenes.MulticubeDance(
@@ -99,7 +126,7 @@ var (
 	// )
 	// scene = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
 	// scene = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
-	scene = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})))
+	// scene = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})))
 )
 
 // scene = scenes.NoiseTest()

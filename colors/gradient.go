@@ -9,15 +9,6 @@ type Gradient interface {
 	// v=0.0 returns start color
 	// v=1.0 return end color
 	Interpolate(v float64) Color
-	// Subsample(a, b float64) Gradient
-}
-
-func GetGradientColorPalette(g Gradient) []Color {
-	out := make([]Color, 256)
-	for i := range 256 {
-		out[i] = g.Interpolate(float64(i) / 256.0)
-	}
-	return out
 }
 
 type SimpleGradient struct {
@@ -30,6 +21,12 @@ func (g SimpleGradient) String() string {
 }
 
 func (g SimpleGradient) Interpolate(v float64) Color {
+	if v < 0 {
+		return Red
+	}
+	if v > 1 {
+		return Blue
+	}
 	return Color{
 		R: interpolate(v, g.Start.R, g.End.R),
 		G: interpolate(v, g.Start.G, g.End.G),

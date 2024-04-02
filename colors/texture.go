@@ -52,27 +52,6 @@ func (t triangleGradientTexture) GetTextureColor(b, c float64) Color {
 	return cColor
 }
 
-// type TriangleGradientInterpolationTexture struct {
-// 	GradientAB Gradient
-// 	GradientAC Gradient
-// }
-
-// func (t TriangleGradientInterpolationTexture) GetTextureColor(b, c float64) Color {
-// 	if c == 1 {
-// 		return t.GradientAC.Interpolate(1.0)
-// 	}
-// 	if b == 1 {
-// 		return t.GradientAB.Interpolate(1.0)
-// 	}
-// 	// fmt.Printf("Texture interpolation %.3f, %.3f, %s, %s\n", b, c, t.GradientAB.Interpolate(b), t.GradientAB.Interpolate(c))
-// 	return Average([]Color{t.GradientAB.Interpolate(b), t.GradientAC.Interpolate(c)})
-// 	// // abGradient := SimpleGradient{t.ColorA, t.ColorB}
-// 	// abColor := t.GradientAB.Interpolate(b / (1 - c))
-// 	// triangleGradient := SimpleGradient{abColor, t.ColorC}
-// 	// cColor := triangleGradient.Interpolate(c)
-// 	// return cColor
-// }
-
 type TriangleGradientInterpolationTexture struct {
 	Gradient
 	A float64
@@ -85,24 +64,11 @@ func (g TriangleGradientInterpolationTexture) GetTextureColor(b, c float64) Colo
 	if b == 1 {
 		return g.Gradient.Interpolate(g.B)
 	}
-	// if b == 1 {
-	// 	return t.GradientAB.Interpolate(1.0)
-	// }
-	// fmt.Printf("Texture interpolation %.3f, %.3f, %s, %s\n", b, c, t.GradientAB.Interpolate(b), t.GradientAB.Interpolate(c))
-	// return Average([]Color{t.GradientAB.Interpolate(b), t.GradientAC.Interpolate(c)})
-	// abGradient := SimpleGradient{t.ColorA, t.ColorB}
 
 	AtoB := (b*(g.B) + (1-b)*g.A)
 	CtoD := (b*(g.D) + (1-b)*g.C)
 	t := (c*(CtoD) + (1-c)*AtoB)
 
-	// tToB := (b*(g.B) + (1-b)*g.A)
-	// c = c / (1 - b)
-	// t := (c*(g.C) + (1-c)*tToB)
-
-	// t := b / (1 - c)
-	// abColor := t.GradientAB.Interpolate(b / (1 - c))
-	// triangleGradient := SimpleGradient{abColor, t.ColorC}
 	cColor := g.Gradient.Interpolate(t)
 	return cColor
 }

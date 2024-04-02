@@ -41,6 +41,22 @@ func bucketRemainder(x, d float64) (float64, float64) {
 	return float64(int(x/d)) * d, math.Mod(x, d) * 1 / d
 }
 
+type samplerColorer struct {
+	sampler  sampler.Sampler
+	gradient Gradient
+}
+
+func (s samplerColorer) GetFrameColor(x, y, t float64) Color {
+	return s.gradient.Interpolate(s.sampler.GetFrameValue(x, y, t))
+}
+
+func GetAniTextureFromSampler(s sampler.Sampler, g Gradient) AnimatedTexture {
+	return samplerColorer{
+		sampler:  s,
+		gradient: g,
+	}
+}
+
 type DynamicSubtexturer struct {
 	Subtexture   AnimatedTexture
 	N            int // number of squares to tile
@@ -71,6 +87,7 @@ func (m StaticMapper) GetFrameColor(x, y, t float64) Color {
 			return mapping.Texture.GetTextureColor(x, y)
 		}
 	}
+	// t is most likely < 0
 	return Red // shouldn't ever happen if the last Mapping starts at 0.0
 }
 

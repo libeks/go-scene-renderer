@@ -207,6 +207,7 @@ func (r Renderer) progressbar(nFiles, nLines int) {
 
 func (r Renderer) wait() {
 	<-r.doneChannel
+	fmt.Println("")
 }
 
 func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) *Image {

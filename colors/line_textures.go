@@ -103,6 +103,33 @@ func (t Square) GetTextureColor(x, y float64) Color {
 	return PulsingSquare{t.On, t.Off}.GetFrameColor(x, y, t.Thickness)
 }
 
+type RoundedSquare struct {
+	On        Color
+	Off       Color
+	HalfWidth float64
+	Radius    float64 // takes away from Thickness
+}
+
+func (t RoundedSquare) GetTextureColor(x, y float64) Color {
+	x, y = x*2-1, y*2-1
+	if math.Abs(x) > t.HalfWidth || math.Abs(y) > t.HalfWidth {
+		// definitely outside
+		return t.Off
+	}
+	if math.Abs(x) <= t.HalfWidth-t.Radius && math.Abs(y) <= t.HalfWidth-t.Radius {
+		// inside the inner square
+		return t.On
+	}
+	if (math.Abs(x) >= t.HalfWidth-t.Radius) != (math.Abs(y) >= t.HalfWidth-t.Radius) {
+		// one of the side rectangles
+		return t.On
+	}
+	if maths.Radius(t.HalfWidth-t.Radius-math.Abs(x), t.HalfWidth-t.Radius-math.Abs(y)) <= t.Radius {
+		return t.On
+	}
+	return t.Off
+}
+
 type Circle struct {
 	On        Color
 	Off       Color

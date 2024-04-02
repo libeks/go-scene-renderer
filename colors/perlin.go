@@ -13,14 +13,6 @@ func NewPerlinNoiseTexture(gradient Gradient) perlinNoiseTexture {
 	}
 }
 
-func NewRandomPerlinNoiseTexture(gradient Gradient) perlinNoiseTexture {
-	p := sampler.NewRandomPerlinNoise()
-	return perlinNoiseTexture{
-		noise:    p,
-		gradient: gradient,
-	}
-}
-
 type perlinNoiseTexture struct {
 	noise    sampler.PerlinNoise
 	gradient Gradient

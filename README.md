@@ -57,6 +57,11 @@ Consider a new type:
 - Use z-depth to better estimate triangle render order, add benchmarks
 - Specify an structure for animation sequences
 - Add textures from images
+- Add a caleidascope, i.e. render a full scene, but fetch pixels from a triangle slice of the full scene
+- Develop a way to do visual aberration, where colors move with a slight delay
+- Explore transparencies
+  - try Moire patterns
+- Better document all of the helpers and types, right now it is so very confusing
 
 ## Further Reading:
 
