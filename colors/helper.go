@@ -1,7 +1,7 @@
 package colors
 
 import (
-	"math"
+	"sync"
 
 	"github.com/libeks/go-scene-renderer/sampler"
 )
@@ -38,7 +38,9 @@ func DynamicFromAnimatedTexture(ani AnimatedTexture) DynamicTexture {
 
 // returns x/d
 func bucketRemainder(x, d float64) (float64, float64) {
-	return float64(int(x/d)) * d, math.Mod(x, d) * 1 / d
+	// return float64(int(x/d)) * d, math.Mod(x, d) * 1 / d
+	f := float64(int(x / d))
+	return f * d, (x - f*d) / d
 }
 
 type samplerColorer struct {
@@ -57,17 +59,57 @@ func GetAniTextureFromSampler(s sampler.Sampler, g Gradient) AnimatedTexture {
 	}
 }
 
+type v struct {
+	x float64
+	y float64
+	t float64
+}
+
+func NewDynamicSubtexturer(s AnimatedTexture, n int, sampler sampler.Sampler) DynamicSubtexturer {
+	cache := make(map[v]float64, 0)
+	return DynamicSubtexturer{
+		Subtexture:   s,
+		N:            n,
+		PointSampler: sampler,
+
+		cache:   cache,
+		RWMutex: &sync.RWMutex{},
+	}
+}
+
 type DynamicSubtexturer struct {
 	Subtexture   AnimatedTexture
 	N            int // number of squares to tile
 	PointSampler sampler.Sampler
+
+	cache map[v]float64
+	*sync.RWMutex
+}
+
+func (s DynamicSubtexturer) getCellValue(xMeta, yMeta, t float64) float64 {
+	s.RLock()
+	val, ok := s.cache[v{x: xMeta, y: yMeta, t: t}]
+	s.RUnlock()
+	if ok {
+		return val
+	} else {
+		val := s.PointSampler.GetFrameValue(xMeta, yMeta, t)
+
+		s.Lock()
+		s.cache[v{x: xMeta, y: yMeta, t: t}] = val
+		s.Unlock()
+		// s.Unlock()
+		return val
+	}
 }
 
 func (s DynamicSubtexturer) GetFrameColor(x, y, t float64) Color {
 	d := 1 / float64(s.N)
 	xMeta, xValue := bucketRemainder(x, d)
 	yMeta, yValue := bucketRemainder(y, d)
-	tHere := s.PointSampler.GetFrameValue(xMeta, yMeta, t)
+	tHere := s.getCellValue(xMeta, yMeta, t)
+
+	// tHere := s.PointSampler.GetFrameValue(xMeta, yMeta, t)
 	return s.Subtexture.GetFrameColor(xValue, yValue, tHere)
 }
 

@@ -1,11 +1,7 @@
 package main
 
 import (
-	"math"
-
 	"github.com/libeks/go-scene-renderer/colors"
-	"github.com/libeks/go-scene-renderer/geometry"
-	"github.com/libeks/go-scene-renderer/objects"
 	"github.com/libeks/go-scene-renderer/sampler"
 	"github.com/libeks/go-scene-renderer/scenes"
 )
@@ -43,63 +39,64 @@ var (
 
 	// scene = scenes.BackgroundScene()
 
-	scene = scenes.CombinedDynamicScene{
-		Objects: []objects.DynamicObjectInt{
-			objects.NewDynamicObject(
-				objects.Parallelogram(
-					geometry.Point{X: -1, Y: -1, Z: -2},
-					geometry.Point{X: -1, Y: 1, Z: -2},
-					geometry.Point{X: 1, Y: -1, Z: -2},
-					colors.DynamicFromAnimatedTexture(
-						colors.GetAniTextureFromSampler(
-							sampler.Sigmoid{
-								Sampler: sampler.Wiggle{
-									Sampler: sampler.Rotated{
-										Sampler: sampler.SineWave{
-											Factor: 150,
-										},
-										Angle: math.Pi / 2,
-									},
-									NWiggles: 4,
-									Angle:    math.Pi / 50,
-								},
-								Ratio: 5,
-							},
-							colors.SimpleGradient{Start: colors.White, End: colors.Black},
-						),
-					),
-				),
-			),
-		},
-		Background: scenes.BackgroundFromTexture(
-			colors.DynamicFromAnimatedTexture(
-				colors.GetAniTextureFromSampler(
-					sampler.Sigmoid{
-						Sampler: sampler.Wiggle{
-							Sampler: sampler.SineWave{
-								Factor: 400,
-							},
-							NWiggles: 4,
-							Angle:    math.Pi / 50,
-						},
-						Ratio: 5,
-					},
-					colors.SimpleGradient{Start: colors.White, End: colors.Black},
-				),
+	// scene = scenes.CombinedDynamicScene{
+	// 	Objects: []objects.DynamicObjectInt{
+	// 		objects.NewDynamicObject(
+	// 			objects.Parallelogram(
+	// 				geometry.Point{X: -1, Y: -1, Z: -2},
+	// 				geometry.Point{X: -1, Y: 1, Z: -2},
+	// 				geometry.Point{X: 1, Y: -1, Z: -2},
+	// 				colors.DynamicFromAnimatedTexture(
+	// 					colors.GetAniTextureFromSampler(
+	// 						sampler.Sigmoid{
+	// 							Sampler: sampler.Wiggle{
+	// 								Sampler: sampler.Rotated{
+	// 									Sampler: sampler.SineWave{
+	// 										Factor: 150,
+	// 									},
+	// 									Angle: math.Pi / 2,
+	// 								},
+	// 								NWiggles: 4,
+	// 								Angle:    math.Pi / 50,
+	// 							},
+	// 							Ratio: 5,
+	// 						},
+	// 						colors.SimpleGradient{Start: colors.White, End: colors.Black},
+	// 					),
+	// 				),
+	// 			),
+	// 		),
+	// 	},
+	// 	Background: scenes.BackgroundFromTexture(
+	// 		colors.DynamicFromAnimatedTexture(
+	// 			colors.GetAniTextureFromSampler(
+	// 				sampler.Sigmoid{
+	// 					Sampler: sampler.Wiggle{
+	// 						Sampler: sampler.SineWave{
+	// 							Factor: 400,
+	// 						},
+	// 						NWiggles: 4,
+	// 						Angle:    math.Pi / 50,
+	// 					},
+	// 					Ratio: 5,
+	// 				},
+	// 				colors.SimpleGradient{Start: colors.White, End: colors.Black},
+	// 			),
+	// 		),
+	// 	),
+	// }
+
+	scene = scenes.BackgroundScene(
+		scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
+			colors.NewDynamicSubtexturer(
+				colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+				100,
+				sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 10},
 			),
 		),
-	}
+		),
+	)
 
-// scene = scenes.BackgroundScene(
-// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
-// 		colors.DynamicSubtexturer{
-// 			colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
-// 			100,
-// 			colors.NewPerlinNoise(),
-// 		},
-// 	),
-// 	),
-// )
 // scene = scenes.BackgroundScene(
 // 	scenes.BackgroundFromTexture(
 // 		colors.DynamicFromAnimatedTexture(

@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	frameConcurrency       = 5    // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
+	frameConcurrency       = 10   // should depend on video preset. Too many and you'll operate close to full memory, slowing rendering down.
 	generateVideoPNGs      = true // set to false to debug ffmpeg settings without recreating image files (files have to exist in .tmp/)
 	minWindowWidth         = 3
 	minWindowCount         = 1

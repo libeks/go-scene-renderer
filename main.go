@@ -14,7 +14,7 @@ import (
 const (
 	PNG_FORMAT      = "png"
 	MP4_FORMAT      = "mp4"
-	do_pprof        = false
+	do_pprof        = true
 	image_timestamp = 0.0
 )
 

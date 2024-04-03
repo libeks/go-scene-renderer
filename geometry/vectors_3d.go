@@ -9,6 +9,7 @@ var (
 	NilVector3D = Vector3D{} // default zero values
 )
 
+// helper to not have to write field names
 func V3(x, y, z float64) Vector3D {
 	return Vector3D{
 		X: x,
