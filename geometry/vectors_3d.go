@@ -9,6 +9,14 @@ var (
 	NilVector3D = Vector3D{} // default zero values
 )
 
+func V3(x, y, z float64) Vector3D {
+	return Vector3D{
+		X: x,
+		Y: y,
+		Z: z,
+	}
+}
+
 type Vector3D struct {
 	X, Y, Z float64
 }

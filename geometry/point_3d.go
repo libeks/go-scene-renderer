@@ -6,6 +6,10 @@ var (
 	OriginPoint = Point{}
 )
 
+func Pt(x, y, z float64) Point {
+	return Point{X: x, Y: y, Z: z}
+}
+
 // A point is a vector, but I don't want to get confused
 type Point Vector3D
 

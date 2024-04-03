@@ -14,9 +14,9 @@ type RotatingLine struct {
 }
 
 func (t RotatingLine) GetFrameColor(x, y, f float64) Color {
-	v := geometry.Vector2D{x*2 - 1, y*2 - 1} // do math in the square -1 to 1
-	orth := geometry.Vector2D{1, 0}          // orthogonal vector is rotated 90 degrees from vertical
-	direct := geometry.Vector2D{0, 1}
+	v := geometry.Vector2D{X: x*2 - 1, Y: y*2 - 1} // do math in the square -1 to 1
+	orth := geometry.Vector2D{X: 1, Y: 0}          // orthogonal vector is rotated 90 degrees from vertical
+	direct := geometry.Vector2D{X: 0, Y: 1}
 	m := geometry.RotateMatrix2D(f * maths.Rotation)
 	orth, direct = m.MultVect(orth), m.MultVect(direct)
 	xdistance := math.Abs(v.DotProduct(orth))
@@ -34,9 +34,9 @@ type RotatingCross struct {
 }
 
 func (t RotatingCross) GetFrameColor(x, y, f float64) Color {
-	v := geometry.Vector2D{x*2 - 1, y*2 - 1} // do math in the square -1 to 1
-	v1 := geometry.Vector2D{0, 1}            // orthogonal vector is rotated 90 degrees from vertical
-	v2 := geometry.Vector2D{1, 0}            // orthogonal vector is rotated 90 degrees from vertical
+	v := geometry.Vector2D{X: x*2 - 1, Y: y*2 - 1} // do math in the square -1 to 1
+	v1 := geometry.Vector2D{X: 0, Y: 1}            // orthogonal vector is rotated 90 degrees from vertical
+	v2 := geometry.Vector2D{X: 1, Y: 0}            // orthogonal vector is rotated 90 degrees from vertical
 	m := geometry.RotateMatrix2D(f * maths.Rotation)
 	v1, v2 = m.MultVect(v1), m.MultVect(v2)
 	d1, d2 := math.Abs(v.DotProduct(v1)), math.Abs(v.DotProduct(v2))
@@ -137,7 +137,7 @@ type Circle struct {
 }
 
 func (t Circle) GetTextureColor(x, y float64) Color {
-	v := geometry.Vector2D{x*2 - 1, y*2 - 1} // do math in the square -1 to 1
+	v := geometry.Vector2D{X: x*2 - 1, Y: y*2 - 1} // do math in the square -1 to 1
 	if v.Mag() < 2*t.Thickness {
 		return t.On
 	}

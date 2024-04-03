@@ -281,8 +281,8 @@ func (r Renderer) applyWireframeToImage(img *Image, scene scenes.StaticScene, ip
 				continue
 			}
 			greenBlack := colors.SimpleGradient{
-				colors.Green,
-				colors.Black,
+				Start: colors.Green,
+				End:   colors.Black,
 			}
 			ratio := 8.0
 			colorA := greenBlack.Interpolate(2*maths.Sigmoid(line.ADepth/ratio) - 1)
@@ -290,7 +290,7 @@ func (r Renderer) applyWireframeToImage(img *Image, scene scenes.StaticScene, ip
 			img.RenderLine(NewRasterLine(
 				*pixA,
 				*pixB,
-			), colors.SimpleGradient{colorA, colorB})
+			), colors.SimpleGradient{Start: colorA, End: colorB})
 		}
 		bbox := tri.GetBoundingBox()
 		pixA := toImagePixel(bbox.TopLeft, ip.width, ip.height)
@@ -298,10 +298,11 @@ func (r Renderer) applyWireframeToImage(img *Image, scene scenes.StaticScene, ip
 		if pixA == nil || pixB == nil {
 			continue
 		}
-		img.RenderLine(NewRasterLine(*pixA, RasterPixel{pixA.X, pixB.Y}), colors.SimpleGradient{colors.Red, colors.Red})
-		img.RenderLine(NewRasterLine(*pixA, RasterPixel{pixB.X, pixA.Y}), colors.SimpleGradient{colors.Red, colors.Red})
-		img.RenderLine(NewRasterLine(*pixB, RasterPixel{pixA.X, pixB.Y}), colors.SimpleGradient{colors.Red, colors.Red})
-		img.RenderLine(NewRasterLine(*pixB, RasterPixel{pixB.X, pixA.Y}), colors.SimpleGradient{colors.Red, colors.Red})
+		gradient := colors.SimpleGradient{Start: colors.Red, End: colors.Red}
+		img.RenderLine(NewRasterLine(*pixA, RasterPixel{pixA.X, pixB.Y}), gradient)
+		img.RenderLine(NewRasterLine(*pixA, RasterPixel{pixB.X, pixA.Y}), gradient)
+		img.RenderLine(NewRasterLine(*pixB, RasterPixel{pixA.X, pixB.Y}), gradient)
+		img.RenderLine(NewRasterLine(*pixB, RasterPixel{pixB.X, pixA.Y}), gradient)
 	}
 	return img
 }
@@ -322,7 +323,7 @@ func (r Renderer) getTriangleDepthImage(scene scenes.StaticScene, ip ImagePreset
 	r.lineChannel <- ip.height
 	drawBorders := false
 	windows := subdivideSceneIntoWindows(scene, ip)
-	gradient := colors.LinearGradient{[]colors.Color{colors.Red, colors.Green, colors.White}}
+	gradient := colors.LinearGradient{Points: []colors.Color{colors.Red, colors.Green, colors.White}}
 	var pixelColor colors.Color
 	for _, window := range windows {
 		for x := window.xMin; x < window.xMax; x++ {

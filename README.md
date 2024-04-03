@@ -36,6 +36,7 @@ For help, here are other types of interfaces/objects which may come in handy:
   _ Translation by an arbitrary 3D vector (`TranslationMatrix`),
   _ Rotation by a radian angle around one of the three axes (`RotateMatrixX`, `RotateMatrixY`,`RotateMatrixZ`), and \* Scaling of all axes (`ScaleMatrix`).
 - These matrices can be combined using `MatrixProduct`, applied right to left.
+- `Sampler` is an interface with `GetFrameValue(x,y,t float) float`. It can be converted into a texture using `colors.GetAniTextureFromSampler` along with a texture
 
 Consider a new type:
 

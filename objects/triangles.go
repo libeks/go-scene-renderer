@@ -66,7 +66,7 @@ type StaticTriangle struct {
 // (x,y, -1), with perspective
 // and a z-index. The bigger the index, the farther the object.
 func (t *StaticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
-	b, c, depth, intersect := t.rayIntersectLocalCoords(ray{geometry.OriginPoint, geometry.Vector3D{x, y, -1}})
+	b, c, depth, intersect := t.rayIntersectLocalCoords(ray{geometry.OriginPoint, geometry.V3(x, y, -1)})
 	if !intersect {
 		return nil, 0
 	}
@@ -187,9 +187,9 @@ func (t *Triangle) GetBoundingBox() BoundingBox {
 // in front of the camera
 func (t Triangle) getSceneWireframe() []geometry.Line {
 	minDepth := -0.01 // minimum z-coordinate to keep on screen
-	lineAB := geometry.Line{t.A, t.B}.CropToFrontOfCamera(minDepth)
-	lineAC := geometry.Line{t.A, t.C}.CropToFrontOfCamera(minDepth)
-	lineBC := geometry.Line{t.B, t.C}.CropToFrontOfCamera(minDepth)
+	lineAB := geometry.Line{A: t.A, B: t.B}.CropToFrontOfCamera(minDepth)
+	lineAC := geometry.Line{A: t.A, B: t.C}.CropToFrontOfCamera(minDepth)
+	lineBC := geometry.Line{A: t.B, B: t.C}.CropToFrontOfCamera(minDepth)
 	if lineAB != nil && lineAC != nil && lineBC != nil {
 		// all lines are in front of the camera
 		return []geometry.Line{
@@ -207,8 +207,8 @@ func (t Triangle) getSceneWireframe() []geometry.Line {
 		return []geometry.Line{
 			*lineAC,
 			*lineBC,
-			geometry.Line{
-				lineAC.A, lineBC.A,
+			{
+				A: lineAC.A, B: lineBC.A,
 			},
 		}
 	} else if !t.A.IsInFrontOfCamera(minDepth) && !t.C.IsInFrontOfCamera(minDepth) {
@@ -216,8 +216,8 @@ func (t Triangle) getSceneWireframe() []geometry.Line {
 		return []geometry.Line{
 			*lineAB,
 			*lineBC,
-			geometry.Line{
-				lineBC.B, lineAB.A,
+			{
+				A: lineBC.B, B: lineAB.A,
 			},
 		}
 	} else if !t.B.IsInFrontOfCamera(minDepth) && !t.C.IsInFrontOfCamera(minDepth) {
@@ -225,15 +225,14 @@ func (t Triangle) getSceneWireframe() []geometry.Line {
 		return []geometry.Line{
 			*lineAB,
 			*lineAC,
-			geometry.Line{
-				lineAB.B, lineAC.B,
+			{
+				A: lineAB.B, B: lineAC.B,
 			},
 		}
 	}
 
 	// if two lines are missing, not sure what that means
 	panic(fmt.Errorf("two lines are missing, not sure what to do \n%s \n%s \n%s \n%v \n%v \n%v", t.A, t.B, t.C, lineAB, lineAC, lineBC))
-	return []geometry.Line{}
 }
 
 func (t Triangle) GetWireframe() []geometry.RasterLine {

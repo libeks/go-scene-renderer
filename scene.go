@@ -47,25 +47,25 @@ var (
 		Objects: []objects.DynamicObjectInt{
 			objects.NewDynamicObject(
 				objects.Parallelogram(
-					geometry.Point{-1, -1, -2},
-					geometry.Point{-1, 1, -2},
-					geometry.Point{1, -1, -2},
+					geometry.Point{X: -1, Y: -1, Z: -2},
+					geometry.Point{X: -1, Y: 1, Z: -2},
+					geometry.Point{X: 1, Y: -1, Z: -2},
 					colors.DynamicFromAnimatedTexture(
 						colors.GetAniTextureFromSampler(
 							sampler.Sigmoid{
-								sampler.Wiggle{
-									sampler.Rotated{
-										sampler.SineWave{
-											150,
+								Sampler: sampler.Wiggle{
+									Sampler: sampler.Rotated{
+										Sampler: sampler.SineWave{
+											Factor: 150,
 										},
-										math.Pi / 2,
+										Angle: math.Pi / 2,
 									},
-									4,
-									math.Pi / 50,
+									NWiggles: 4,
+									Angle:    math.Pi / 50,
 								},
-								5,
+								Ratio: 5,
 							},
-							colors.SimpleGradient{colors.White, colors.Black},
+							colors.SimpleGradient{Start: colors.White, End: colors.Black},
 						),
 					),
 				),
@@ -75,101 +75,104 @@ var (
 			colors.DynamicFromAnimatedTexture(
 				colors.GetAniTextureFromSampler(
 					sampler.Sigmoid{
-						sampler.Wiggle{
-							sampler.SineWave{
-								400,
+						Sampler: sampler.Wiggle{
+							Sampler: sampler.SineWave{
+								Factor: 400,
 							},
-							4,
-							math.Pi / 50,
+							NWiggles: 4,
+							Angle:    math.Pi / 50,
 						},
-						5,
+						Ratio: 5,
 					},
-					colors.SimpleGradient{colors.White, colors.Black},
+					colors.SimpleGradient{Start: colors.White, End: colors.Black},
 				),
 			),
 		),
 	}
-	// scene = scenes.BackgroundScene(
-	// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
-	// 		colors.DynamicSubtexturer{
-	// 			colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
-	// 			100,
-	// 			colors.NewPerlinNoise(),
-	// 		},
-	// 	),
-	// 	),
-	// )
-	// scene = scenes.BackgroundScene(
-	// 	scenes.BackgroundFromTexture(
-	// 		colors.DynamicFromAnimatedTexture(
-	// 			colors.SineWaveWCrossAnimation{
-	// 				XYRatio:      0.0001,
-	// 				SigmoidRatio: 2.0,
-	// 				SinCycles:    3,
-	// 				TScale:       0.3,
-	// 				// TOffset:      0.0,
-	// 				Gradient: colors.Grayscale,
-	// 				// Gradient: gradient,
-	// 			},
-	// 		),
-	// 	),
-	// )
-	// scene = scenes.DummyTextureSpinningCube(
-	// 	colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
-	// 		colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
-	// 		8,
-	// 		sampler.Sigmoid{sampler.NewPerlinNoise(), 5},
-	// 	}),
-	// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
-	// 		colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
-	// 		32,
-	// 		sampler.Sigmoid{sampler.NewPerlinNoise(), 5},
-	// 	})),
-	// )
 
-	// scene = scenes.BackgroundScene(
-	// 	scenes.BackgroundFromTexture(
-	// 		colors.StaticTexture(
-	// 			colors.RoundedSquare{
-	// 				On:        colors.White,
-	// 				Off:       colors.Black,
-	// 				HalfWidth: 0.9,
-	// 				Radius:    0.1,
-	// 			},
-	// 		),
-	// 	),
-	// )
+// scene = scenes.BackgroundScene(
+// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
+// 		colors.DynamicSubtexturer{
+// 			colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+// 			100,
+// 			colors.NewPerlinNoise(),
+// 		},
+// 	),
+// 	),
+// )
+// scene = scenes.BackgroundScene(
+// 	scenes.BackgroundFromTexture(
+// 		colors.DynamicFromAnimatedTexture(
+// 			colors.SineWaveWCrossAnimation{
+// 				XYRatio:      0.0001,
+// 				SigmoidRatio: 2.0,
+// 				SinCycles:    3,
+// 				TScale:       0.3,
+// 				// TOffset:      0.0,
+// 				Gradient: colors.Grayscale,
+// 				// Gradient: gradient,
+// 			},
+// 		),
+// 	),
+// )
+// scene = scenes.DummyTextureSpinningCube(
+// 	colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
+// 		colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+// 		8,
+// 		sampler.Sigmoid{sampler.NewPerlinNoise(), 5},
+// 	}),
+// 	scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(colors.DynamicSubtexturer{
+// 		colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+// 		32,
+// 		sampler.Sigmoid{sampler.NewPerlinNoise(), 5},
+// 	})),
+// )
 
-	// scene = scenes.MulticubeDance(
-	// 	// scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})),
-	// 	colors.SimpleGradient{colors.Black, colors.Red},
-	// 	colors.SimpleGradient{colors.Black, colors.Green},
-	// 	colors.SimpleGradient{colors.Black, colors.Blue},
-	// 	scenes.BackgroundFromTexture(
-	// 		colors.DynamicFromAnimatedTexture(
-	// 			colors.SineWaveAnimation{
-	// 				XYRatio:      0.1,
-	// 				SigmoidRatio: 2,
-	// 				SinCycles:    3,
-	// 				Gradient:     colors.Grayscale.Subsample(0.4, 0.6),
-	// 			}),
-	// 	),
-	// )
+// scene = scenes.BackgroundScene(
+// 	scenes.BackgroundFromTexture(
+// 		colors.StaticTexture(
+// 			colors.RoundedSquare{
+// 				On:        colors.White,
+// 				Off:       colors.Black,
+// 				HalfWidth: 0.9,
+// 				Radius:    0.1,
+// 			},
+// 		),
+// 	),
+// )
 
-	// scene = scenes.SpinningMulticube(
-	// 	scenes.BackgroundFromTexture(
-	// 		colors.DynamicFromAnimatedTexture(
-	// 			colors.SineWaveAnimation{
-	// 				XYRatio:      0.1,
-	// 				SigmoidRatio: 2,
-	// 				SinCycles:    3,
-	// 				Gradient:     colors.Grayscale,
-	// 			}),
-	// 	),
-	// )
-	// scene = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
-	// scene = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
-	// scene = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})))
+// scene = scenes.MulticubeDance(
+// 	// scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})),
+// 	colors.SimpleGradient{colors.Black, colors.Red},
+// 	colors.SimpleGradient{colors.Black, colors.Green},
+// 	colors.SimpleGradient{colors.Black, colors.Blue},
+// 	scenes.BackgroundFromTexture(
+// 		colors.DynamicFromAnimatedTexture(
+// 			colors.SineWaveAnimation{
+// 				XYRatio:      0.1,
+// 				SigmoidRatio: 2,
+// 				SinCycles:    3,
+// 				Gradient:     colors.Grayscale.Subsample(0.4, 0.6),
+// 			}),
+// 	),
+// )
+
+// scene = scenes.SpinningMulticube(
+//
+//	scenes.BackgroundFromTexture(
+//		colors.DynamicFromAnimatedTexture(
+//			colors.SineWaveAnimation{
+//				XYRatio:      0.1,
+//				SigmoidRatio: 2,
+//				SinCycles:    3,
+//				Gradient:     colors.Grayscale,
+//			}),
+//	),
+//
+// )
+// scene = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
+// scene = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
+// scene = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})))
 )
 
 // scene = scenes.NoiseTest()

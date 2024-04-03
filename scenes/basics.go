@@ -31,48 +31,48 @@ func BackgroundScene(background DynamicBackground) DynamicScene {
 func UnitTextureCube(t1, t2, t3, t4, t5, t6 colors.DynamicTexture) objects.DynamicObject {
 	return objects.CombineDynamicObjects(
 		objects.Parallelogram(
-			geometry.Point{0, 0, 0},
-			geometry.Point{0, 1, 0},
-			geometry.Point{1, 0, 0},
+			geometry.Pt(0, 0, 0),
+			geometry.Pt(0, 1, 0),
+			geometry.Pt(1, 0, 0),
 			t1,
 		),
 		objects.Parallelogram(
-			geometry.Point{0, 0, 0},
-			geometry.Point{0, 0, 1},
-			geometry.Point{1, 0, 0},
+			geometry.Pt(0, 0, 0),
+			geometry.Pt(0, 0, 1),
+			geometry.Pt(1, 0, 0),
 			t2,
 		),
 		objects.Parallelogram(
-			geometry.Point{0, 0, 0},
-			geometry.Point{0, 0, 1},
-			geometry.Point{0, 1, 0},
+			geometry.Pt(0, 0, 0),
+			geometry.Pt(0, 0, 1),
+			geometry.Pt(0, 1, 0),
 			t3,
 		),
 
 		// halfway
 
 		objects.Parallelogram(
-			geometry.Point{0, 0, 1},
-			geometry.Point{0, 1, 1},
-			geometry.Point{1, 0, 1},
+			geometry.Pt(0, 0, 1),
+			geometry.Pt(0, 1, 1),
+			geometry.Pt(1, 0, 1),
 			t4,
 		),
 		objects.Parallelogram(
-			geometry.Point{0, 1, 0},
-			geometry.Point{0, 1, 1},
-			geometry.Point{1, 1, 0},
+			geometry.Pt(0, 1, 0),
+			geometry.Pt(0, 1, 1),
+			geometry.Pt(1, 1, 0),
 			t5,
 		),
 		objects.Parallelogram(
-			geometry.Point{1, 0, 0},
-			geometry.Point{1, 0, 1},
-			geometry.Point{1, 1, 0},
+			geometry.Pt(1, 0, 0),
+			geometry.Pt(1, 0, 1),
+			geometry.Pt(1, 1, 0),
 			t6,
 		),
 	).WithTransform(geometry.TranslationMatrix(
-		geometry.Vector3D{
+		geometry.V3(
 			-0.5, -0.5, -0.5,
-		},
+		),
 	))
 }
 
