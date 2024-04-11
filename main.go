@@ -42,7 +42,7 @@ func main() {
 		log.Fatal("Insufficient arguments, expect <outputfile>.")
 	}
 
-	// format := argsWithoutProg[0]
+	scene := getScene()
 	outFile, err := filepath.Abs(argsWithoutProg[0])
 	if err != nil {
 		log.Fatalf("Invalid file path %s", err)

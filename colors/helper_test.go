@@ -32,7 +32,6 @@ func TestBucketRemainder(t *testing.T) {
 			if !cmp.Equal(div, tt.wantDiv, opt) || !cmp.Equal(rem, tt.wantRem, opt) {
 				t.Errorf("wanted (%.9f, %.9f), got (%.9f, %.9f)", tt.wantDiv, tt.wantRem, div, rem)
 			}
-			return
 		})
 	}
 }

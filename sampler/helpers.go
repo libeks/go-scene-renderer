@@ -122,7 +122,7 @@ type SineWaveAnimation struct {
 	SinCycles    int
 }
 
-func (s SineWaveAnimation) GetFrameColor(x, y, t float64) float64 {
+func (s SineWaveAnimation) GetFrameValue(x, y, t float64) float64 {
 	tRatio := 1 / (2 * math.Pi * float64(s.SinCycles))
 	valMinOneToOne := math.Sin(float64(t)/tRatio + float64(x+y)/s.XYRatio)
 	valZeroOne := maths.Sigmoid(valMinOneToOne * s.SigmoidRatio)
@@ -137,7 +137,7 @@ type SineWaveWCrossAnimation struct {
 	TScale       float64
 }
 
-func (s SineWaveWCrossAnimation) GetFrameColor(x, y float64, t float64) float64 {
+func (s SineWaveWCrossAnimation) GetFrameValue(x, y float64, t float64) float64 {
 	// tRatio := 1 / (2 * math.Pi * float64(s.SinCycles))
 	// waveComponent := float64(t)/tRatio + float64(x+y)/s.XYRatio
 	waveComponent := 0.5
