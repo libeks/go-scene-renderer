@@ -13,10 +13,10 @@ import (
 var (
 	EinsteinOnTheBeach = scenes.BackgroundScene(
 		scenes.BackgroundFromTexture(colors.FuzzyDynamic{
-			colors.StaticTexture(
+			Texture: colors.StaticTexture(
 				colors.VerticalGradient{
-					colors.LinearGradient{
-						[]colors.Color{
+					Gradient: colors.LinearGradient{
+						Points: []colors.Color{
 							// einstein on the beach kind of gradient
 							colors.Black,
 							colors.Hex("#737C93"),
@@ -32,7 +32,7 @@ var (
 					},
 				},
 			),
-			0.003,
+			StdDev: 0.003,
 		},
 		),
 	)
@@ -100,7 +100,7 @@ var (
 			colors.NewDynamicSubtexturer(
 				colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
 				8,
-				sampler.Sigmoid{sampler.NewPerlinNoise(), 5},
+				sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5},
 			),
 		),
 		scenes.BackgroundFromTexture(
@@ -108,7 +108,7 @@ var (
 				colors.NewDynamicSubtexturer(
 					colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
 					32,
-					sampler.Sigmoid{sampler.NewPerlinNoise(), 5},
+					sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5},
 				),
 			),
 		),
@@ -128,9 +128,9 @@ var (
 	)
 
 	MulticubeContracting = scenes.MulticubeDance(
-		colors.SimpleGradient{colors.Black, colors.Red},
-		colors.SimpleGradient{colors.Black, colors.Green},
-		colors.SimpleGradient{colors.Black, colors.Blue},
+		colors.SimpleGradient{Start: colors.Black, End: colors.Red},
+		colors.SimpleGradient{Start: colors.Black, End: colors.Green},
+		colors.SimpleGradient{Start: colors.Black, End: colors.Blue},
 		scenes.BackgroundFromTexture(
 			colors.DynamicFromAnimatedTexture(
 				colors.GetAniTextureFromSampler(
@@ -159,9 +159,9 @@ var (
 			),
 		),
 	)
-	Checkckerboard   = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
-	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Blue})))
-	HeightMap        = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{colors.Black})))
+	Checkckerboard   = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
+	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
+	HeightMap        = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
 
 	Noise = scenes.NoiseTest()
 	// Perlin = scenes.NewPerlinNoise(color.Grayscale)
