@@ -63,6 +63,8 @@ Consider a new type:
   - Or color movement is distorted around the edges of the screen
 - Explore transparencies
   - try Moire patterns
+  - allow a binary mask, i.e. the point is either fully transparent or is obscured
+- Add other primitives besides triangles, such as circular disks and spheres
 - Better document all of the helpers and types, right now it is so very confusing
 
 ## Ideas from Insta:

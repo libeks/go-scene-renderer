@@ -10,7 +10,7 @@ type DynamicScene interface {
 }
 
 type StaticScene interface {
-	Flatten() ([]*objects.StaticTriangle, Background)
+	Flatten() ([]objects.BasicObject, Background)
 }
 
 type Background interface {
@@ -26,8 +26,8 @@ type ObjectScene struct {
 	Background
 }
 
-func (s ObjectScene) Flatten() ([]*objects.StaticTriangle, Background) {
-	tris := []*objects.StaticTriangle{}
+func (s ObjectScene) Flatten() ([]objects.BasicObject, Background) {
+	tris := []objects.BasicObject{}
 	for _, obj := range s.Objects {
 		tris = append(tris, obj.Flatten()...)
 	}

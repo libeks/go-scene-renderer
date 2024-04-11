@@ -33,13 +33,10 @@ func (t DynamicTriangle) Frame(f float64) StaticTriangle {
 	}
 }
 
-func (t DynamicTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) *DynamicTriangle {
+func (t DynamicTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) DynamicTriangle {
 	newTriangle := t.Triangle.ApplyMatrix(m)
-	if newTriangle == nil {
-		return nil
-	}
-	return &DynamicTriangle{
-		Triangle: *newTriangle,
+	return DynamicTriangle{
+		Triangle: newTriangle,
 		Colorer:  t.Colorer,
 	}
 }
@@ -65,7 +62,7 @@ type StaticTriangle struct {
 // emanating from the camera at (0,0,0), pointed in the direction
 // (x,y, -1), with perspective
 // and a z-index. The bigger the index, the farther the object.
-func (t *StaticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
+func (t StaticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
 	b, c, depth, intersect := t.rayIntersectLocalCoords(ray{geometry.OriginPoint, geometry.V3(x, y, -1)})
 	if !intersect {
 		return nil, 0
@@ -74,13 +71,10 @@ func (t *StaticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
 	return &color, depth
 }
 
-func (t StaticTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) *StaticTriangle {
+func (t StaticTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) BasicObject {
 	newTriangle := t.Triangle.ApplyMatrix(m)
-	if newTriangle == nil {
-		return nil
-	}
-	return &StaticTriangle{
-		Triangle: *newTriangle,
+	return StaticTriangle{
+		Triangle: newTriangle,
 		Colorer:  t.Colorer,
 	}
 }
@@ -112,20 +106,20 @@ type Triangle struct {
 	bbox              BoundingBox
 }
 
-func (t Triangle) ApplyMatrix(m geometry.HomogeneusMatrix) *Triangle {
+func (t Triangle) ApplyMatrix(m geometry.HomogeneusMatrix) Triangle {
 	a, ok := m.MultVect(t.A.ToHomogenous()).ToPoint()
 	if !ok {
-		return nil
+		panic(fmt.Errorf("could not apply matrix %s to point %s", m, t.A))
 	}
 	b, ok := m.MultVect(t.B.ToHomogenous()).ToPoint()
 	if !ok {
-		return nil
+		panic(fmt.Errorf("could not apply matrix %s to point %s", m, t.B))
 	}
 	c, ok := m.MultVect(t.C.ToHomogenous()).ToPoint()
 	if !ok {
-		return nil
+		panic(fmt.Errorf("could not apply matrix %s to point %s", m, t.C))
 	}
-	return &Triangle{
+	return Triangle{
 		A: a, B: b, C: c,
 	}
 }

@@ -3,6 +3,7 @@ package objects
 import (
 	"fmt"
 
+	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 )
 
@@ -16,16 +17,24 @@ type DynamicObjectInt interface {
 	Frame(float64) StaticObject
 }
 
-type StaticObject struct {
-	triangles []StaticTriangle
+type BasicObject interface {
+	GetColorDepth(x, y float64) (*colors.Color, float64)
+	ApplyMatrix(m geometry.HomogeneusMatrix) BasicObject
+	GetBoundingBox() BoundingBox
+	GetWireframe() []geometry.RasterLine
 }
 
-func (ob StaticObject) Flatten() []*StaticTriangle {
-	triPointers := make([]*StaticTriangle, len(ob.triangles))
-	for i, tri := range ob.triangles {
-		triPointers[i] = &tri
-	}
-	return triPointers
+type StaticObject struct {
+	triangles []BasicObject
+}
+
+func (ob StaticObject) Flatten() []BasicObject {
+	return ob.triangles
+	// triPointers := make([]Basic, len(ob.triangles))
+	// for i, tri := range ob.triangles {
+	// 	triPointers[i] = tri
+	// }
+	// return triPointers
 }
 
 func DynamicObjectFromTriangles(tris ...DynamicTriangle) DynamicObject {
@@ -57,7 +66,7 @@ type dynamicTriangleWrapper struct {
 }
 
 func (d dynamicTriangleWrapper) Frame(t float64) StaticObject {
-	return StaticObject{[]StaticTriangle{d.tri.Frame(t)}}
+	return StaticObject{[]BasicObject{d.tri.Frame(t)}}
 }
 
 type objWithTransform struct {
@@ -74,16 +83,15 @@ type DynamicObject struct {
 }
 
 func (ob DynamicObject) Frame(t float64) StaticObject {
-	staticTriangles := []StaticTriangle{}
+	staticTriangles := []BasicObject{}
 	for _, dyObj := range ob.objs {
 		staticTris := dyObj.obj.Frame(t)
 		for _, tri := range staticTris.triangles {
 			// fmt.Printf("triangles %s\n", staticTris)
 			// fmt.Printf("Applying matrix %s\n", dyObj.fn(t))
 			transformedTriangle := tri.ApplyMatrix(dyObj.fn(t))
-			if transformedTriangle != nil {
-				staticTriangles = append(staticTriangles, *transformedTriangle) // set texture to be static
-			}
+
+			staticTriangles = append(staticTriangles, transformedTriangle) // set texture to be static
 		}
 	}
 	return StaticObject{

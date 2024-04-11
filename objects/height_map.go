@@ -18,7 +18,7 @@ func (o HeightMap) getAt(x, y, t float64) float64 {
 }
 
 func (o HeightMap) Frame(t float64) StaticObject {
-	triangles := []StaticTriangle{}
+	triangles := []BasicObject{}
 	zMult := 1.0
 	for xd := range o.N {
 		for yd := range o.N {
@@ -73,7 +73,7 @@ func (o HeightMapCircle) getAt(x, y, t float64) float64 {
 }
 
 func (o HeightMapCircle) Frame(t float64) StaticObject {
-	triangles := []StaticTriangle{}
+	triangles := []BasicObject{}
 	zMult := 1.0
 	for xd := range o.N {
 		for yd := range o.N {
