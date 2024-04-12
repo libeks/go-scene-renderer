@@ -1,6 +1,8 @@
 package objects
 
 import (
+	"fmt"
+
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 )
@@ -10,22 +12,22 @@ func GradientParallelogram(a, b, c geometry.Point, colorA, colorB, colorC, color
 	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
 
 	return DynamicObjectFromTriangles(
-		DynamicTriangle{
-			Triangle: Triangle{
+		DynamicTriangle(
+			Triangle{
 				A: a,
 				B: b,
 				C: c,
 			},
-			Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC)),
-		},
-		DynamicTriangle{
-			Triangle: Triangle{
+			colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC)),
+		),
+		DynamicTriangle(
+			Triangle{
 				A: d,
 				B: c,
 				C: b,
 			},
-			Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colorD, colorC, colorB)),
-		},
+			colors.StaticTexture(colors.TriangleGradientTexture(colorD, colorC, colorB)),
+		),
 	)
 }
 
@@ -33,21 +35,56 @@ func Parallelogram(a, b, c geometry.Point, texture colors.DynamicTexture) Dynami
 	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
 
 	return DynamicObjectFromTriangles(
-		DynamicTriangle{
-			Triangle: Triangle{
+		DynamicTriangle(
+			Triangle{
 				A: a,
 				B: b,
 				C: c,
 			},
-			Colorer: texture,
-		},
-		DynamicTriangle{
-			Triangle: Triangle{
+			texture,
+		),
+		DynamicTriangle(
+			Triangle{
 				A: d,
 				B: c,
 				C: b,
 			},
-			Colorer: colors.RotateDynamicTexture180(texture),
+			colors.RotateDynamicTexture180(texture),
+		),
+	)
+}
+
+func ParallelogramWithTransparency(a, b, c geometry.Point, texture colors.DynamicTexture, transparency colors.DynamicTransparency) DynamicObject {
+	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
+
+	v := DynamicTriangleWithTransparency(
+		Triangle{
+			A: a,
+			B: b,
+			C: c,
 		},
+		texture,
+		transparency,
+	)
+	fmt.Printf("out: %s %v\n", v, v)
+	return DynamicObjectFromTriangles(
+		DynamicTriangleWithTransparency(
+			Triangle{
+				A: a,
+				B: b,
+				C: c,
+			},
+			texture,
+			transparency,
+		),
+		DynamicTriangleWithTransparency(
+			Triangle{
+				A: d,
+				B: c,
+				C: b,
+			},
+			colors.RotateDynamicTexture180(texture),
+			transparency,
+		),
 	)
 }

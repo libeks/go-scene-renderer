@@ -240,264 +240,264 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(1, 1, 0),
 						B: geometry.Pt(1, 0, 0),
 						C: geometry.Pt(0, 1, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a11, B: a10, C: a01, D: a00,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(0, 0, 0),
 						B: geometry.Pt(1, 0, 0),
 						C: geometry.Pt(0, 1, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a00, B: a10, C: a01, D: a11,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(1, -1, 0),
 						B: geometry.Pt(1, 0, 0),
 						C: geometry.Pt(0, -1, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a19, B: a10, C: a09, D: a00,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(0, 0, 0),
 						B: geometry.Pt(1, 0, 0),
 						C: geometry.Pt(0, -1, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a00, B: a10, C: a09, D: a19,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform),
 
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(-1, 1, 0),
 						B: geometry.Pt(-1, 0, 0),
 						C: geometry.Pt(0, 1, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a91, B: a90, C: a01, D: a00,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(0, 0, 0),
 						B: geometry.Pt(-1, 0, 0),
 						C: geometry.Pt(0, 1, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a00, B: a90, C: a01, D: a91,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(-1, -1, 0),
 						B: geometry.Pt(-1, 0, 0),
 						C: geometry.Pt(0, -1, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a99, B: a90, C: a09, D: a00,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(0, 0, 0),
 						B: geometry.Pt(-1, 0, 0),
 						C: geometry.Pt(0, -1, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a00, B: a90, C: a09, D: a99,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform),
 
 			// triangles towards the middle
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(-1, 0, 0),
 						B: geometry.Pt(-1, -1, 0),
 						C: geometry.Pt(0, 0, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a90, B: a99, C: a00, D: a09,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform2),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(0, -1, 0),
 						B: geometry.Pt(-1, -1, 0),
 						C: geometry.Pt(0, 0, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a09, B: a99, C: a00, D: a90,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform2),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(1, 0, 0),
 						B: geometry.Pt(1, -1, 0),
 						C: geometry.Pt(0, 0, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a10, B: a19, C: a00, D: a09,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform2),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(0, -1, 0),
 						B: geometry.Pt(1, -1, 0),
 						C: geometry.Pt(0, 0, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a09, B: a19, C: a00, D: a10,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform2),
 
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(1, 0, 0),
 						B: geometry.Pt(1, 1, 0),
 						C: geometry.Pt(0, 0, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a10, B: a11, C: a00, D: a01,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform2),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(0, 1, 0),
 						B: geometry.Pt(1, 1, 0),
 						C: geometry.Pt(0, 0, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a01, B: a11, C: a00, D: a10,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform2),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(-1, 0, 0),
 						B: geometry.Pt(-1, 1, 0),
 						C: geometry.Pt(0, 0, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a90, B: a91, C: a00, D: a01,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform2),
 			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle{
-					Triangle: objects.Triangle{
+				objects.DynamicTriangle(
+					objects.Triangle{
 						A: geometry.Pt(0, 1, 0),
 						B: geometry.Pt(-1, 1, 0),
 						C: geometry.Pt(0, 0, 0),
 					},
-					Colorer: colors.StaticTexture(
+					colors.StaticTexture(
 						colors.TriangleGradientInterpolationTexture{
 							Gradient: gradient,
 
 							A: a01, B: a91, C: a00, D: a90,
 						},
 					),
-				},
+				),
 			).WithDynamicTransform(transform2),
 		},
 		Background: background,
@@ -517,6 +517,31 @@ func CheckerboardSquare(background DynamicBackground) DynamicScene {
 					return geometry.MatrixProduct(
 						geometry.TranslationMatrix(geometry.V3(0, 0, -5)),
 						geometry.RotateMatrixX(t*maths.Rotation),
+					)
+				},
+			),
+		},
+		Background: background,
+	}
+}
+
+func CheckerboardSquareWithRoundHole(background DynamicBackground) DynamicScene {
+	texture := colors.StaticTexture(colors.Checkerboard{Squares: 16})
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObjectInt{
+			objects.ParallelogramWithTransparency(
+				geometry.Pt(0, 0, 0),
+				geometry.Pt(2, 0, 0),
+				geometry.Pt(0, 2, 0),
+				texture,
+				colors.DynamicFromAnimatedTransparency(
+					colors.CircleCutout{Radius: 0.8},
+				),
+			).WithDynamicTransform(
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.V3(0, 0, -5)),
+						geometry.RotateMatrixY(t*maths.Rotation),
 					)
 				},
 			),

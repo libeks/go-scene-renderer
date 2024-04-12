@@ -27,32 +27,32 @@ func (o HeightMap) Frame(t float64) StaticObject {
 
 			a, b, c, d := o.getAt(x, y, t), o.getAt(x, y+dy, t), o.getAt(x+dx, y, t), o.getAt(x+dx, y+dy, t)
 			triangles = append(triangles,
-				StaticTriangle{
-					Triangle: Triangle{
+				StaticTriangle(
+					Triangle{
 						A: geometry.Pt(x, zMult*a, y),
 						B: geometry.Pt(x, zMult*b, y+dy),
 						C: geometry.Pt(x+dx, zMult*c, y),
 					},
-					Colorer: colors.TriangleGradientInterpolationTexture{
+					colors.TriangleGradientInterpolationTexture{
 						Gradient: o.Gradient,
 
 						A: a, B: b, C: c, D: d,
 					},
-				},
+				),
 			)
 			triangles = append(triangles,
-				StaticTriangle{
-					Triangle: Triangle{
+				StaticTriangle(
+					Triangle{
 						A: geometry.Pt(x+dx, zMult*d, y+dy),
 						B: geometry.Pt(x, zMult*b, y+dy),
 						C: geometry.Pt(x+dx, zMult*c, y),
 					},
-					Colorer: colors.TriangleGradientInterpolationTexture{
+					colors.TriangleGradientInterpolationTexture{
 						Gradient: o.Gradient,
 
 						A: d, B: b, C: c, D: a,
 					},
-				},
+				),
 			)
 		}
 	}
@@ -82,34 +82,34 @@ func (o HeightMapCircle) Frame(t float64) StaticObject {
 
 			if inCircle(x, y) && inCircle(x+dx, y) && inCircle(x, y+dy) {
 				triangles = append(triangles,
-					StaticTriangle{
-						Triangle: Triangle{
+					StaticTriangle(
+						Triangle{
 							A: geometry.Pt(x, zMult*o.getAt(x, y, t), y),
 							B: geometry.Pt(x, zMult*o.getAt(x, y+dy, t), y+dy),
 							C: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y, t), y),
 						},
-						Colorer: colors.TriangleGradientTexture(
+						colors.TriangleGradientTexture(
 							o.Gradient.Interpolate(o.getAt(x, y, t)),
 							o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
 							o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
 						),
-					},
+					),
 				)
 			}
 			if inCircle(x+dx, y+dy) && inCircle(x+dx, y) && inCircle(x, y+dy) {
 				triangles = append(triangles,
-					StaticTriangle{
-						Triangle: Triangle{
+					StaticTriangle(
+						Triangle{
 							A: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y+dy, t), y+dy),
 							B: geometry.Pt(x, zMult*o.getAt(x, y+dx, t), y+dy),
 							C: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y, t), y),
 						},
-						Colorer: colors.TriangleGradientTexture(
+						colors.TriangleGradientTexture(
 							o.Gradient.Interpolate(o.getAt(x+dx, y+dy, t)),
 							o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
 							o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
 						),
-					},
+					),
 				)
 			}
 		}

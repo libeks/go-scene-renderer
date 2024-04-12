@@ -43,6 +43,25 @@ Consider a new type:
 - `DynamicObject`, which is a collection of `DynamicTriangles` along with some transformations, applied with either `.WithTransform(matrix)` or `.WithDynamicTransform(func(float64) HomogeneousMatrix)`
 - A `DynamicObject` can be evaluated at `.Frame(float64)` to get `StaticObject`, which consists of `StaticTriangles`
 
+## A common pattern:
+
+I often run into having three types of a Thing:
+* Animated version, evaluated at `(locus Position, t float) retType`
+* Dynamic version, evaluated at `(t float) StaticVersion`
+* Static version, fixed to a frame, evaluated at `(locus Position) retType`
+
+Here `locus Position` is any positional value. It can be a pixel, it can be a texture space.
+The following types implement this approach, with some gaps:
+* Textures, implements Dynamic, Static, and Animated version
+* Triangles, implements Dynamic and Static version
+* Object, implementing Dynamic and Static, no Animated version
+* Sampler, implements Animated versions
+* Transparency, implements Animated, Dynamic, Static
+* Scene, implements Dynamic and Static
+* Background, implements Dynamic and Static
+
+Ideally there would be boilerplate that would accomplish this out of the box, without having to rewrite the same code over and over again
+
 ## TODOs:
 
 - Add more intense gradients, like Bezier, etc

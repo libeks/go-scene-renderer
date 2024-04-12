@@ -36,6 +36,14 @@ func (s UnitCircleClamper) GetFrameValue(x, y, t float64) float64 {
 	return s.Sampler.GetFrameValue(x, y, t) * max((1-2*maths.Sigmoid(s.Decay*(1/(s.MaxRadius)*maths.Radius(x, y)-1))), 0)
 }
 
+type Constant struct {
+	Val float64
+}
+
+func (s Constant) GetFrameValue(x, y, t float64) float64 {
+	return s.Val
+}
+
 type Sigmoid struct {
 	Sampler
 	Ratio float64

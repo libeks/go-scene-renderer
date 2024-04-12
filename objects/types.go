@@ -37,7 +37,7 @@ func (ob StaticObject) Flatten() []BasicObject {
 	// return triPointers
 }
 
-func DynamicObjectFromTriangles(tris ...DynamicTriangle) DynamicObject {
+func DynamicObjectFromTriangles(tris ...dynamicTriangle) DynamicObject {
 	newObjs := make([]objWithTransform, len(tris))
 	for i, tri := range tris {
 		newObjs[i] = objWithTransform{
@@ -62,7 +62,7 @@ func CombineDynamicObjects(objs ...DynamicObject) DynamicObject {
 }
 
 type dynamicTriangleWrapper struct {
-	tri DynamicTriangle
+	tri dynamicTriangle
 }
 
 func (d dynamicTriangleWrapper) Frame(t float64) StaticObject {
@@ -87,10 +87,7 @@ func (ob DynamicObject) Frame(t float64) StaticObject {
 	for _, dyObj := range ob.objs {
 		staticTris := dyObj.obj.Frame(t)
 		for _, tri := range staticTris.triangles {
-			// fmt.Printf("triangles %s\n", staticTris)
-			// fmt.Printf("Applying matrix %s\n", dyObj.fn(t))
 			transformedTriangle := tri.ApplyMatrix(dyObj.fn(t))
-
 			staticTriangles = append(staticTriangles, transformedTriangle) // set texture to be static
 		}
 	}

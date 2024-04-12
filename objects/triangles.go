@@ -9,83 +9,129 @@ import (
 	"github.com/libeks/go-scene-renderer/geometry"
 )
 
-func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC colors.Color) DynamicTriangle {
-	return DynamicTriangle{
-		Triangle: Triangle{
+func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC colors.Color) dynamicTriangle {
+	return DynamicTriangle(
+		Triangle{
 			A: a,
 			B: b,
 			C: c,
 		},
-		Colorer: colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC)),
+		colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC)),
+	)
+}
+
+func DynamicTriangleWithTransparency(t Triangle, colorer colors.DynamicTexture, trans colors.DynamicTransparency) dynamicTriangle {
+	return dynamicTriangle{
+		Triangle:            t,
+		Colorer:             colorer,
+		useTransparency:     true,
+		DynamicTransparency: trans,
+	}
+}
+
+func DynamicTriangle(t Triangle, colorer colors.DynamicTexture) dynamicTriangle {
+	return dynamicTriangle{
+		Triangle:            t,
+		Colorer:             colorer,
+		useTransparency:     false,
+		DynamicTransparency: colors.StaticTransparency(colors.Opaque()),
 	}
 }
 
 // DynamicTriangle is a Triangle with a DynamicTexture, which can be evaluated for a specific frame
-type DynamicTriangle struct {
+type dynamicTriangle struct {
 	Triangle
-	Colorer colors.DynamicTexture
+	Colorer         colors.DynamicTexture
+	useTransparency bool
+	colors.DynamicTransparency
 }
 
-func (t DynamicTriangle) Frame(f float64) StaticTriangle {
-	return StaticTriangle{
-		t.Triangle,
-		t.Colorer.GetFrame(f),
+func (t dynamicTriangle) Frame(f float64) staticTriangle {
+	return staticTriangle{
+		Triangle:        t.Triangle,
+		Colorer:         t.Colorer.GetFrame(f),
+		Transparency:    t.DynamicTransparency.GetFrame(f),
+		useTransparency: t.useTransparency,
 	}
 }
 
-func (t DynamicTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) DynamicTriangle {
+func (t dynamicTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) dynamicTriangle {
 	newTriangle := t.Triangle.ApplyMatrix(m)
-	return DynamicTriangle{
-		Triangle: newTriangle,
-		Colorer:  t.Colorer,
+	return dynamicTriangle{
+		Triangle:            newTriangle,
+		Colorer:             t.Colorer,
+		DynamicTransparency: t.DynamicTransparency,
 	}
 }
 
-func (t DynamicTriangle) GetBoundingBox() BoundingBox {
+func (t dynamicTriangle) GetBoundingBox() BoundingBox {
 	return t.Triangle.GetBoundingBox()
 }
 
+func (t dynamicTriangle) String() string {
+	return fmt.Sprintf("DynamicTriangle: %s with %s transparency: %v (%s)", t.Triangle, t.Colorer, t.useTransparency, t.DynamicTransparency)
+}
+
 // return all the lines that describe the triangle, without any fill, used to generate wireframe images
-func (t DynamicTriangle) GetWireframe() []geometry.RasterLine {
+func (t dynamicTriangle) GetWireframe() []geometry.RasterLine {
 	return t.Triangle.GetWireframe()
 }
 
+func StaticTriangle(t Triangle, colorer colors.Texture) staticTriangle {
+	return staticTriangle{
+		Triangle:     t,
+		Colorer:      colorer,
+		Transparency: colors.Opaque(),
+	}
+}
+
 // StaticTriangle is a Triangle with a Texture applied to it
-type StaticTriangle struct {
+type staticTriangle struct {
 	Triangle
 	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but b+c<1.0
 	// it describes the coordinates on the triangle from A towards B and C, respectively
-	Colorer colors.Texture
+	Colorer         colors.Texture
+	useTransparency bool
+	colors.Transparency
 }
 
 // returns the color of the triangle at a ray
 // emanating from the camera at (0,0,0), pointed in the direction
 // (x,y, -1), with perspective
 // and a z-index. The bigger the index, the farther the object.
-func (t StaticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
+func (t staticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
 	b, c, depth, intersect := t.rayIntersectLocalCoords(ray{geometry.OriginPoint, geometry.V3(x, y, -1)})
 	if !intersect {
+		return nil, 0
+	}
+	if t.useTransparency && !t.Transparency.GetAlpha(b, c) {
 		return nil, 0
 	}
 	color := t.Colorer.GetTextureColor(b, c)
 	return &color, depth
 }
 
-func (t StaticTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) BasicObject {
+func (t staticTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) BasicObject {
 	newTriangle := t.Triangle.ApplyMatrix(m)
-	return StaticTriangle{
-		Triangle: newTriangle,
-		Colorer:  t.Colorer,
+	return staticTriangle{
+		Triangle:        newTriangle,
+		Colorer:         t.Colorer,
+		useTransparency: t.useTransparency,
+		Transparency:    t.Transparency,
 	}
 }
 
-func (t StaticTriangle) GetBoundingBox() BoundingBox {
+func (t staticTriangle) GetBoundingBox() BoundingBox {
 	return t.Triangle.GetBoundingBox()
 }
 
 // return all the lines that describe the triangle, without any fill, used to generate wireframe images
-func (t StaticTriangle) GetWireframe() []geometry.RasterLine {
+func (t staticTriangle) GetWireframe() []geometry.RasterLine {
 	return t.Triangle.GetWireframe()
+}
+
+func (t staticTriangle) String() string {
+	return fmt.Sprintf("StaticTriangle: %s with %s transparency: %v (%s)", t.Triangle, t.Colorer, t.useTransparency, t.Transparency)
 }
 
 // A Triangle describes an uncolored object in the space

@@ -163,6 +163,21 @@ var (
 	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
 	HeightMap        = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
 
+	SpinningTriangleWithHole = scenes.CheckerboardSquareWithRoundHole(
+		scenes.BackgroundFromTexture(
+			colors.DynamicFromAnimatedTexture(
+				colors.GetAniTextureFromSampler(
+					sampler.SineWaveAnimation{
+						XYRatio:      0.1,
+						SigmoidRatio: 2,
+						SinCycles:    3,
+					},
+					colors.Subsample(colors.Grayscale, 0.4, 0.6),
+				),
+			),
+		),
+	)
+
 	Noise = scenes.NoiseTest()
 	// Perlin = scenes.NewPerlinNoise(color.Grayscale)
 )
