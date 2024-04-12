@@ -1,8 +1,6 @@
 package objects
 
 import (
-	"fmt"
-
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 )
@@ -57,16 +55,6 @@ func Parallelogram(a, b, c geometry.Point, texture colors.DynamicTexture) Dynami
 func ParallelogramWithTransparency(a, b, c geometry.Point, texture colors.DynamicTexture, transparency colors.DynamicTransparency) DynamicObject {
 	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
 
-	v := DynamicTriangleWithTransparency(
-		Triangle{
-			A: a,
-			B: b,
-			C: c,
-		},
-		texture,
-		transparency,
-	)
-	fmt.Printf("out: %s %v\n", v, v)
 	return DynamicObjectFromTriangles(
 		DynamicTriangleWithTransparency(
 			Triangle{
@@ -84,7 +72,7 @@ func ParallelogramWithTransparency(a, b, c geometry.Point, texture colors.Dynami
 				C: b,
 			},
 			colors.RotateDynamicTexture180(texture),
-			transparency,
+			transparency, // TODO: flip transparency around, flip it around
 		),
 	)
 }

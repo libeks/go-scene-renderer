@@ -91,8 +91,6 @@ func NoiseTest() DynamicScene {
 }
 
 func SpinningIndividualMulticube(background DynamicBackground) DynamicScene {
-	// initialCube := UnitRGBCube()
-	// texture := color.SquareGradientTexture(color.White, color.Red, color.Black, color.Blue)
 	texture := colors.StaticTexture(colors.NewPerlinNoiseTexture(colors.Grayscale))
 	initialCube := UnitTextureCube(
 		texture,
@@ -134,6 +132,55 @@ func SpinningIndividualMulticube(background DynamicBackground) DynamicScene {
 					geometry.RotateMatrixY(t*maths.Rotation),               // rotation around common center
 					geometry.TranslationMatrix(geometry.V3(spacing, 0, 0)), // position within the group
 					geometry.RotateMatrixY(math.Sin(-2*t*maths.Rotation)),  // rotation around own axis
+				)
+			}),
+		},
+		Background: background,
+	}
+}
+
+func SpinningIndividualMulticubeWithHoles(background DynamicBackground) DynamicScene {
+	texture := colors.StaticTexture(colors.NewPerlinNoiseTexture(colors.Grayscale))
+	initialCube := UnitTextureCubeWithTransparency(
+		texture,
+		texture,
+		texture,
+		texture,
+		texture,
+		texture,
+		colors.DynamicFromAnimatedTransparency(
+			colors.CircleCutout{Radius: 0.8},
+		),
+	)
+	diagonalCube := initialCube.WithTransform(
+		geometry.MatrixProduct(
+			geometry.RotateMatrixX(-0.615),
+			geometry.RotateMatrixZ(math.Pi/4), // arcsin(1/sqrt(2)), angle between edge and short diagonal
+		)) // cube with lower point at (0,0,0), upper at (0,sqrt(3) ,0)
+
+	// spacing := 2.0
+
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObjectInt{
+			diagonalCube.WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(0, 0, -1.5)), // position within the scene
+					geometry.ScaleMatrix(1),                             // scale around own center
+					geometry.RotateMatrixY(-2*t*maths.Rotation),         // rotation around own axis
+				)
+			}),
+			diagonalCube.WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(0, 0, -1.5)), // position within the scene
+					geometry.ScaleMatrix(0.7),                           // scale around own center
+					geometry.RotateMatrixZ(-2*t*maths.Rotation),         // rotation around own axis
+				)
+			}),
+			diagonalCube.WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(0, 0, -1.5)), // position within the scene
+					geometry.ScaleMatrix(0.49),                          // scale around own center
+					geometry.RotateMatrixX(-2*t*maths.Rotation),         // rotation around own axis
 				)
 			}),
 		},

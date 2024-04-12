@@ -161,6 +161,7 @@ var (
 	)
 	Checkckerboard   = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
 	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
+	SpinningHolyCube = scenes.SpinningIndividualMulticubeWithHoles(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
 	HeightMap        = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
 
 	SpinningTriangleWithHole = scenes.CheckerboardSquareWithRoundHole(
