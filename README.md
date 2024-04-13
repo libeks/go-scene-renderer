@@ -77,13 +77,14 @@ Ideally there would be boilerplate that would accomplish this out of the box, wi
 - Use z-depth to better estimate triangle render order, add benchmarks
 - Specify a structure for animation sequences
 - Add textures from images
-- Add a caleidascope, i.e. render a full scene, but fetch pixels from a triangle slice of the full scene
+- Add a kaleidoscope, i.e. render a full scene, but fetch pixels from a triangle slice of the full scene
 - Develop a way to do visual aberration, where colors move with a slight delay
   - Or color movement is distorted around the edges of the screen
 - Explore transparencies
   - try Moire patterns
 - Add other primitives besides triangles, such as  spheres
 - Add the ability to move the camera around a static scene (or move the scene around that camera consistently)
+  - Requires the ability to translate from a vector to Rotation angles in the three coordinates
 - Add pixel size to rendering, to allow for primitives like point and line, etc
 
 ## Ideas from Insta:
