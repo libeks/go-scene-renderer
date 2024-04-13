@@ -75,16 +75,16 @@ Ideally there would be boilerplate that would accomplish this out of the box, wi
 - Add Phong lighting model
 - Add simple geometry based textures, like the transition between the faces of a cube
 - Use z-depth to better estimate triangle render order, add benchmarks
-- Specify an structure for animation sequences
+- Specify a structure for animation sequences
 - Add textures from images
 - Add a caleidascope, i.e. render a full scene, but fetch pixels from a triangle slice of the full scene
 - Develop a way to do visual aberration, where colors move with a slight delay
   - Or color movement is distorted around the edges of the screen
 - Explore transparencies
   - try Moire patterns
-  - allow a binary mask, i.e. the point is either fully transparent or is obscured
-- Add other primitives besides triangles, such as circular disks and spheres
-- Better document all of the helpers and types, right now it is so very confusing
+- Add other primitives besides triangles, such as  spheres
+- Add the ability to move the camera around a static scene (or move the scene around that camera consistently)
+- Add pixel size to rendering, to allow for primitives like point and line, etc
 
 ## Ideas from Insta:
 
