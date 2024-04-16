@@ -43,7 +43,8 @@ type CombinedDynamicScene struct {
 func (s CombinedDynamicScene) GetFrame(t float64) StaticScene {
 	frameObjects := make([]objects.StaticObject, len(s.Objects))
 	for i, object := range s.Objects {
-		frameObjects[i] = object.Frame(t)
+		obj := object.Frame(t)
+		frameObjects[i] = obj
 	}
 	return ObjectScene{
 		Objects:    frameObjects,

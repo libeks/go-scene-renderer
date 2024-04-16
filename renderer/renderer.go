@@ -32,19 +32,31 @@ var (
 	cleanUpFrameCache = false
 )
 
+type fileReport struct {
+	frameID int
+	// triangleChecks  int
+	// trianglesInView int
+}
+
+type chunkReport struct {
+	pixels            int
+	triangleChecks    int
+	trianglesInWindow int
+}
+
 // Renderer does two things - tracks progress of per-frame goroutines, and updates
 // a progress bar based on the number of image rows that have been rendered so far
 type Renderer struct {
-	lineChannel chan int // each line completion is sent on lineChannel
-	fileChannel chan int // each file completion is sent on fileChannel
-	doneChannel chan int // doneChannel sends a message when all frames are rendered
+	lineChannel chan chunkReport // each line completion is sent on lineChannel
+	fileChannel chan fileReport  // each file completion is sent on fileChannel
+	doneChannel chan struct{}    // doneChannel sends a message when all frames are rendered
 }
 
 func newRenderer() Renderer {
 	return Renderer{
-		lineChannel: make(chan int, 10),
-		fileChannel: make(chan int, 10),
-		doneChannel: make(chan int, 1),
+		lineChannel: make(chan chunkReport, 10),
+		fileChannel: make(chan fileReport, 10),
+		doneChannel: make(chan struct{}, 1),
 	}
 }
 
@@ -64,7 +76,7 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 		}
 		r := newRenderer()
 		var sem = semaphore.NewWeighted(int64(frameConcurrency))
-		go r.progressbar(vp.nFrameCount, vp.nFrameCount*vp.height) // start progressbar before launching goroutines to not deadlock
+		go r.progressbar(vp.nFrameCount, vp.nFrameCount*vp.width*vp.height) // start progressbar before launching goroutines to not deadlock
 
 		fmt.Printf("Rendering frames...\n")
 		for i := range vp.nFrameCount {
@@ -101,7 +113,9 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 					panic(err)
 				}
 				sem.Release(1)
-				r.fileChannel <- 1
+				r.fileChannel <- fileReport{
+					frameID: i,
+				}
 
 			}()
 		}
@@ -180,25 +194,27 @@ func RenderPNG(scene scenes.StaticScene, im ImagePreset, outfile string, wirefra
 			}
 		}
 		png.Encode(f, frame.GetImage())
-		r.fileChannel <- 1
+		r.fileChannel <- fileReport{
+			frameID: 0,
+		}
 	}()
 	r.wait()
 	return nil
 }
 
-func (r Renderer) progressbar(nFiles, nLines int) {
+func (r Renderer) progressbar(nFiles, nPixels int) {
 	fileProgress := 0
-	lineProgress := 0
-	bar := progressbar.New(nLines)
+	pixelProgress := 0
+	bar := progressbar.New(nPixels)
 	for {
 		select {
-		case prog := <-r.lineChannel:
-			lineProgress += prog
-			bar.Add(prog)
-		case prog := <-r.fileChannel:
-			fileProgress += prog
+		case windowProg := <-r.lineChannel:
+			pixelProgress += windowProg.pixels
+			bar.Add(windowProg.pixels)
+		case <-r.fileChannel:
+			fileProgress += 1
 			if fileProgress == nFiles {
-				r.doneChannel <- 1
+				r.doneChannel <- struct{}{}
 				return
 			}
 		}
@@ -213,33 +229,46 @@ func (r Renderer) wait() {
 func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) *Image {
 	img := NewImage(ip)
 	windows := subdivideSceneIntoWindows(scene, ip)
-	pixelCount := 0
+	var imageTriangles, imageChecks int
 	for _, window := range windows {
+		var nTriangles, windowChecks int
 		for x := window.xMin; x < window.xMax; x++ {
 			for y := window.yMin; y < window.yMax; y++ {
 				xR, yR := getImageSpace(x, ip.width), getImageSpace(y, ip.height)
 				var pixelColor colors.Color
 				if ip.interpolateN > 1 {
-					// if len(window.triangles) > 0 && ip.interpolateN > 1 {
-
 					samples := make([]colors.Color, ip.interpolateN)
 					for i := range ip.interpolateN {
 						dx, dy := getPixelWiggle(ip.width), getPixelWiggle(ip.height)
-						samples[i] = window.GetColor(xR+rand.Float64()*dx, yR+rand.Float64()*dy)
+						var nChecks int
+						samples[i], nTriangles, nChecks = window.GetColor(xR+rand.Float64()*dx, yR+rand.Float64()*dy)
+						windowChecks += nChecks
 					}
 					pixelColor = colors.Average(samples)
 				} else {
-					pixelColor = window.GetColor(xR, yR)
+					var nChecks int
+					pixelColor, nTriangles, nChecks = window.GetColor(xR, yR)
+					windowChecks += nChecks
 				}
 
 				img.Set(x, y, pixelColor)
-				pixelCount += 1
-				if pixelCount%ip.height == 0 {
-					r.lineChannel <- 1
-				}
 			}
 		}
+		windowPixels := (window.yMax - window.yMin) * (window.xMax - window.xMin)
+		r.lineChannel <- chunkReport{
+			pixels:            windowPixels,
+			triangleChecks:    windowChecks,
+			trianglesInWindow: nTriangles,
+		}
+		imageTriangles += windowPixels * nTriangles
+		imageChecks += windowChecks
 	}
+	imagePixels := ip.width * ip.height
+	fmt.Printf("Image had %d pixels, %.3f triangles per pixel, %.3f checks per pixel\n",
+		imagePixels,
+		float64(imageTriangles)/float64(imagePixels),
+		float64(imageChecks)/float64(imagePixels),
+	)
 	return img
 }
 
@@ -312,7 +341,9 @@ func (r Renderer) getWireframeImage(scene scenes.StaticScene, ip ImagePreset) *I
 	// set to black bakcground
 	img.Fill(colors.Black)
 	r.applyWireframeToImage(img, scene, ip)
-	r.lineChannel <- ip.height
+	r.lineChannel <- chunkReport{
+		pixels: ip.height * ip.width,
+	}
 	return img
 }
 
@@ -320,7 +351,9 @@ func (r Renderer) getTriangleDepthImage(scene scenes.StaticScene, ip ImagePreset
 	img := NewImage(ip)
 	// set to black bakcground
 	img.Fill(colors.Black)
-	r.lineChannel <- ip.height
+	r.lineChannel <- chunkReport{
+		pixels: ip.height * ip.width,
+	}
 	drawBorders := false
 	windows := subdivideSceneIntoWindows(scene, ip)
 	gradient := colors.LinearGradient{Points: []colors.Color{colors.Red, colors.Green, colors.White}}

@@ -48,7 +48,7 @@ type dynamicTriangle struct {
 
 func (t dynamicTriangle) Frame(f float64) staticTriangle {
 	return staticTriangle{
-		Triangle:        t.Triangle,
+		Triangle:        &t.Triangle,
 		Colorer:         t.Colorer.GetFrame(f),
 		Transparency:    t.DynamicTransparency.GetFrame(f),
 		useTransparency: t.useTransparency,
@@ -79,7 +79,7 @@ func (t dynamicTriangle) GetWireframe() []geometry.RasterLine {
 
 func StaticTriangle(t Triangle, colorer colors.Texture) staticTriangle {
 	return staticTriangle{
-		Triangle:     t,
+		Triangle:     &t,
 		Colorer:      colorer,
 		Transparency: colors.Opaque(),
 	}
@@ -87,7 +87,7 @@ func StaticTriangle(t Triangle, colorer colors.Texture) staticTriangle {
 
 // StaticTriangle is a Triangle with a Texture applied to it
 type staticTriangle struct {
-	Triangle
+	*Triangle
 	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but b+c<1.0
 	// it describes the coordinates on the triangle from A towards B and C, respectively
 	Colorer         colors.Texture
@@ -114,7 +114,7 @@ func (t staticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
 func (t staticTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) BasicObject {
 	newTriangle := t.Triangle.ApplyMatrix(m)
 	return staticTriangle{
-		Triangle:        newTriangle,
+		Triangle:        &newTriangle,
 		Colorer:         t.Colorer,
 		useTransparency: t.useTransparency,
 		Transparency:    t.Transparency,
@@ -179,10 +179,10 @@ func (t *Triangle) GetBoundingBox() BoundingBox {
 		return t.bbox
 	}
 	wireframe := t.getSceneWireframe()
-	points := []geometry.Pixel{}
-	pointsX := []float64{}
-	pointsY := []float64{}
-	depths := []float64{}
+	points := make([]geometry.Pixel, 0, 6)
+	pointsX := make([]float64, 0, 6)
+	pointsY := make([]float64, 0, 6)
+	depths := make([]float64, 0, 6)
 	for _, line := range wireframe {
 		pointA, depthA := line.A.ToPixel()
 		pointB, depthB := line.B.ToPixel()

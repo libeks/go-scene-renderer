@@ -30,11 +30,6 @@ type StaticObject struct {
 
 func (ob StaticObject) Flatten() []BasicObject {
 	return ob.triangles
-	// triPointers := make([]Basic, len(ob.triangles))
-	// for i, tri := range ob.triangles {
-	// 	triPointers[i] = tri
-	// }
-	// return triPointers
 }
 
 func DynamicObjectFromTriangles(tris ...dynamicTriangle) DynamicObject {

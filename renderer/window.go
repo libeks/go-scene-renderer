@@ -1,7 +1,9 @@
 package renderer
 
 import (
+	"cmp"
 	"math"
+	"slices"
 
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/objects"
@@ -19,21 +21,27 @@ type Window struct {
 	background scenes.Background
 }
 
-func (w Window) GetColor(x, y float64) colors.Color {
+// GetColor returns the color at the pixel, as well as the number of triangles, and comparisons before a match was made
+func (w Window) GetColor(x, y float64) (colors.Color, int, int) {
 	minZ := math.MaxFloat64
+	checks := 0
 	var closestColor *colors.Color
 	for _, tri := range w.triangles {
+		if tri.GetBoundingBox().MinDepth > minZ && closestColor != nil {
+			// this triangle is behind the one we've found already, break early
+			break
+		}
 		c, depth := tri.GetColorDepth(x, y)
+		checks += 1
 		if c != nil && depth < minZ {
 			minZ = depth
 			closestColor = c
 		}
 	}
 	if closestColor != nil {
-		// todo, do something with minZ
-		return *closestColor
+		return *closestColor, len(w.triangles), checks
 	}
-	return w.background.GetColor(x, y)
+	return w.background.GetColor(x, y), len(w.triangles), checks
 }
 
 func (w Window) Width() int {
@@ -97,8 +105,13 @@ func initiateWindow(scene scenes.StaticScene, ip ImagePreset) []Window {
 		triangles[i] = tri
 		i += 1
 	}
+	triangles = triangles[:i]
+	// put the closest triangles in the front
+	slices.SortFunc(triangles, func(a, b objects.BasicObject) int {
+		return cmp.Compare(a.GetBoundingBox().MinDepth, b.GetBoundingBox().MinDepth)
+	})
 	return []Window{
-		{0, ip.width, 0, ip.height, triangles[:i], background},
+		{0, ip.width, 0, ip.height, triangles, background},
 	}
 }
 
@@ -125,9 +138,5 @@ func subdivideSceneIntoWindows(scene scenes.StaticScene, ip ImagePreset) []Windo
 			}
 		}
 	}
-	// fmt.Printf(
-	// 	"Image has %d windows, max # of triangles is %d, total work (pixels * triangles) is %d\n",
-	// 	len(finalWindows), maxTriangles, totalWork,
-	// )
 	return finalWindows
 }
