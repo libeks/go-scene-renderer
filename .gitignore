@@ -21,6 +21,7 @@
 gallery/
 .tmp/
 pprof/
+*.png
 
 # Go workspace file
 go.work
