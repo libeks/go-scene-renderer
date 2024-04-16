@@ -16,11 +16,11 @@ func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC colors.Colo
 			B: b,
 			C: c,
 		},
-		colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC)),
+		colors.OpaqueDynamicTexture(colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC))),
 	)
 }
 
-func DynamicTriangleWithTransparency(t Triangle, colorer colors.DynamicTexture, trans colors.DynamicTransparency) dynamicTriangle {
+func DynamicTriangleWithTransparency(t Triangle, colorer colors.DynamicTransparentTexture, trans colors.DynamicTransparency) dynamicTriangle {
 	return dynamicTriangle{
 		Triangle:            t,
 		Colorer:             colorer,
@@ -29,7 +29,7 @@ func DynamicTriangleWithTransparency(t Triangle, colorer colors.DynamicTexture, 
 	}
 }
 
-func DynamicTriangle(t Triangle, colorer colors.DynamicTexture) dynamicTriangle {
+func DynamicTriangle(t Triangle, colorer colors.DynamicTransparentTexture) dynamicTriangle {
 	return dynamicTriangle{
 		Triangle:            t,
 		Colorer:             colorer,
@@ -41,7 +41,7 @@ func DynamicTriangle(t Triangle, colorer colors.DynamicTexture) dynamicTriangle 
 // DynamicTriangle is a Triangle with a DynamicTexture, which can be evaluated for a specific frame
 type dynamicTriangle struct {
 	Triangle
-	Colorer         colors.DynamicTexture
+	Colorer         colors.DynamicTransparentTexture
 	useTransparency bool
 	colors.DynamicTransparency
 }
@@ -77,7 +77,7 @@ func (t dynamicTriangle) GetWireframe() []geometry.RasterLine {
 	return t.Triangle.GetWireframe()
 }
 
-func StaticTriangle(t Triangle, colorer colors.Texture) staticTriangle {
+func StaticTriangle(t Triangle, colorer colors.TransparentTexture) staticTriangle {
 	return staticTriangle{
 		Triangle:     &t,
 		Colorer:      colorer,
@@ -90,7 +90,7 @@ type staticTriangle struct {
 	*Triangle
 	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but b+c<1.0
 	// it describes the coordinates on the triangle from A towards B and C, respectively
-	Colorer         colors.Texture
+	Colorer         colors.TransparentTexture
 	useTransparency bool
 	colors.Transparency
 }
@@ -104,11 +104,11 @@ func (t staticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
 	if !intersect {
 		return nil, 0
 	}
-	if t.useTransparency && !t.Transparency.GetAlpha(b, c) {
+	colorPtr := t.Colorer.GetTextureColor(b, c)
+	if colorPtr == nil {
 		return nil, 0
 	}
-	color := t.Colorer.GetTextureColor(b, c)
-	return &color, depth
+	return colorPtr, depth
 }
 
 func (t staticTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) BasicObject {

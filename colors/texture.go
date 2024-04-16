@@ -5,13 +5,77 @@ type Texture interface {
 	GetTextureColor(b, c float64) Color
 }
 
+type TransparentTexture interface {
+	GetTextureColor(b, c float64) *Color
+}
+
 type DynamicTexture interface {
 	GetFrame(t float64) Texture
+}
+
+type DynamicTransparentTexture interface {
+	GetFrame(t float64) TransparentTexture
 }
 
 // a helper for when a static texture is needed as a dynamic texture
 type staticTexture struct {
 	t Texture
+}
+
+type transparentTexture struct {
+	texture      Texture
+	transparency Transparency
+}
+
+func (t transparentTexture) GetTextureColor(b, c float64) *Color {
+	if !t.transparency.GetAlpha(b, c) {
+		return nil
+	}
+	color := t.texture.GetTextureColor(b, c)
+	return &color
+}
+
+type dynamicTransparentTexture struct {
+	texture      DynamicTexture
+	transparency DynamicTransparency
+}
+
+func (t dynamicTransparentTexture) GetFrame(tt float64) TransparentTexture {
+	return transparentTexture{
+		texture:      t.texture.GetFrame(tt),
+		transparency: t.transparency.GetFrame(tt),
+	}
+}
+
+func GetDynamicTransparentTexture(texture DynamicTexture, transparency DynamicTransparency) dynamicTransparentTexture {
+	return dynamicTransparentTexture{
+		texture, transparency,
+	}
+}
+
+type opaqueTexture struct {
+	texture Texture
+}
+
+func (t opaqueTexture) GetTextureColor(b, c float64) *Color {
+	color := t.texture.GetTextureColor(b, c)
+	return &color
+}
+
+func OpaqueTexture(t Texture) TransparentTexture {
+	return opaqueTexture{t}
+}
+
+type dynamicOpaqueTexture struct {
+	texture DynamicTexture
+}
+
+func (t dynamicOpaqueTexture) GetFrame(tt float64) TransparentTexture {
+	return opaqueTexture{t.texture.GetFrame(tt)}
+}
+
+func OpaqueDynamicTexture(t DynamicTexture) DynamicTransparentTexture {
+	return dynamicOpaqueTexture{t}
 }
 
 func (t staticTexture) GetFrame(f float64) Texture {
@@ -97,25 +161,25 @@ func (g squareGradientTexture) GetTextureColor(b, c float64) Color {
 }
 
 type rotatedTexture struct {
-	t Texture
+	t TransparentTexture
 }
 
-func (t rotatedTexture) GetTextureColor(b, c float64) Color {
+func (t rotatedTexture) GetTextureColor(b, c float64) *Color {
 	return t.t.GetTextureColor(1-b, 1-c)
 }
 
-func RotateTexture180(texture Texture) Texture {
+func RotateTexture180(texture TransparentTexture) TransparentTexture {
 	return rotatedTexture{texture}
 }
 
 type rotatedDynamicTexture struct {
-	t DynamicTexture
+	t DynamicTransparentTexture
 }
 
-func (r rotatedDynamicTexture) GetFrame(t float64) Texture {
+func (r rotatedDynamicTexture) GetFrame(t float64) TransparentTexture {
 	return RotateTexture180(r.t.GetFrame(t))
 }
 
-func RotateDynamicTexture180(texture DynamicTexture) DynamicTexture {
+func RotateDynamicTexture180(texture DynamicTransparentTexture) DynamicTransparentTexture {
 	return rotatedDynamicTexture{texture}
 }

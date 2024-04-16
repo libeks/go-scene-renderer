@@ -44,22 +44,24 @@ var (
 					geometry.Point{X: -1, Y: -1, Z: -2},
 					geometry.Point{X: -1, Y: 1, Z: -2},
 					geometry.Point{X: 1, Y: -1, Z: -2},
-					colors.DynamicFromAnimatedTexture(
-						colors.GetAniTextureFromSampler(
-							sampler.Sigmoid{
-								Sampler: sampler.Wiggle{
-									Sampler: sampler.Rotated{
-										Sampler: sampler.SineWave{
-											Factor: 150,
+					colors.OpaqueDynamicTexture(
+						colors.DynamicFromAnimatedTexture(
+							colors.GetAniTextureFromSampler(
+								sampler.Sigmoid{
+									Sampler: sampler.Wiggle{
+										Sampler: sampler.Rotated{
+											Sampler: sampler.SineWave{
+												Factor: 150,
+											},
+											Angle: math.Pi / 2,
 										},
-										Angle: math.Pi / 2,
+										NWiggles: 4,
+										Angle:    math.Pi / 50,
 									},
-									NWiggles: 4,
-									Angle:    math.Pi / 50,
+									Ratio: 5,
 								},
-								Ratio: 5,
-							},
-							colors.SimpleGradient{Start: colors.White, End: colors.Black},
+								colors.SimpleGradient{Start: colors.White, End: colors.Black},
+							),
 						),
 					),
 				),
@@ -96,13 +98,13 @@ var (
 	)
 
 	MinecraftCube = scenes.DummyTextureSpinningCube(
-		colors.DynamicFromAnimatedTexture(
+		colors.OpaqueDynamicTexture(colors.DynamicFromAnimatedTexture(
 			colors.NewDynamicSubtexturer(
 				colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
 				8,
 				sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5},
 			),
-		),
+		)),
 		scenes.BackgroundFromTexture(
 			colors.DynamicFromAnimatedTexture(
 				colors.NewDynamicSubtexturer(

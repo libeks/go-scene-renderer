@@ -33,11 +33,11 @@ func (o HeightMap) Frame(t float64) StaticObject {
 						B: geometry.Pt(x, zMult*b, y+dy),
 						C: geometry.Pt(x+dx, zMult*c, y),
 					},
-					colors.TriangleGradientInterpolationTexture{
+					colors.OpaqueTexture(colors.TriangleGradientInterpolationTexture{
 						Gradient: o.Gradient,
 
 						A: a, B: b, C: c, D: d,
-					},
+					}),
 				),
 			)
 			triangles = append(triangles,
@@ -47,11 +47,11 @@ func (o HeightMap) Frame(t float64) StaticObject {
 						B: geometry.Pt(x, zMult*b, y+dy),
 						C: geometry.Pt(x+dx, zMult*c, y),
 					},
-					colors.TriangleGradientInterpolationTexture{
+					colors.OpaqueTexture(colors.TriangleGradientInterpolationTexture{
 						Gradient: o.Gradient,
 
 						A: d, B: b, C: c, D: a,
-					},
+					}),
 				),
 			)
 		}
@@ -88,10 +88,11 @@ func (o HeightMapCircle) Frame(t float64) StaticObject {
 							B: geometry.Pt(x, zMult*o.getAt(x, y+dy, t), y+dy),
 							C: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y, t), y),
 						},
-						colors.TriangleGradientTexture(
+						colors.OpaqueTexture(colors.TriangleGradientTexture(
 							o.Gradient.Interpolate(o.getAt(x, y, t)),
 							o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
 							o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
+						),
 						),
 					),
 				)
@@ -104,11 +105,11 @@ func (o HeightMapCircle) Frame(t float64) StaticObject {
 							B: geometry.Pt(x, zMult*o.getAt(x, y+dx, t), y+dy),
 							C: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y, t), y),
 						},
-						colors.TriangleGradientTexture(
+						colors.OpaqueTexture(colors.TriangleGradientTexture(
 							o.Gradient.Interpolate(o.getAt(x+dx, y+dy, t)),
 							o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
 							o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
-						),
+						)),
 					),
 				)
 			}
