@@ -65,22 +65,16 @@ Ideally there would be boilerplate that would accomplish this out of the box, wi
 ## TODOs:
 
 - Add more intense gradients, like Bezier, etc
-- Find Lab color space transformation code, try that out
 - Is there some way to create a mapping from pixel space to Window index? If all Windows were uniform, this would be trivial, but they're of various sizes. Maybe storing them as a tree could help? But lookup would be O(log(n))
 - Investiate if there are any optimizations using GPU/CUDA
-- Add spring-loaded-mass interactions
-  - See https://www.desmos.com/calculator/k01p40v0ct
-  - `y=P0*e^{\alpha x}\cos\left(\beta x\right)+C6e^{\alpha x}\sin\left(\beta x\right)\left\{0<x<t\right\}`
-    - P0 is initial position, C6 is the velocity component (?), b is friction component, k is spring constant, etc
 - Add Phong lighting model
 - Add simple geometry based textures, like the transition between the faces of a cube
-- Use z-depth to better estimate triangle render order, add benchmarks
 - Specify a structure for animation sequences
 - Add textures from images
 - Add a kaleidoscope, i.e. render a full scene, but fetch pixels from a triangle slice of the full scene
 - Develop a way to do visual aberration, where colors move with a slight delay
   - Or color movement is distorted around the edges of the screen
-- Explore transparencies
+- Explore partial transparencies
   - try Moire patterns
 - Add other primitives besides triangles, such as  spheres
 - Add the ability to move the camera around a static scene (or move the scene around that camera consistently)
