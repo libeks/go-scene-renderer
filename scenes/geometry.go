@@ -666,3 +666,37 @@ func HeightMap(background DynamicBackground) DynamicScene {
 		Background: background,
 	}
 }
+
+func SquaresAlongPath(background DynamicBackground) DynamicScene {
+	path := geometry.BezierPath{
+		Points: []geometry.Point{
+			{X: 0, Y: 0, Z: 0},
+			{X: 3, Y: 0, Z: 0},
+			{X: 3, Y: 3, Z: 0},
+		},
+	}
+	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 8}))
+	texture := colors.GetDynamicTransparentTexture(
+		checkerTexture,
+		colors.DynamicFromAnimatedTransparency(
+			colors.CircleCutout{Radius: 0.8},
+		),
+	)
+
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObjectInt{
+			objects.RectanglesAlongPath(path, 100, 1, texture).
+				WithDynamicTransform(
+					func(t float64) geometry.HomogeneusMatrix {
+						return geometry.MatrixProduct(
+							// geometry.RotateMatrixX(0.2),
+							geometry.TranslationMatrix(geometry.V3(0, 0, -5)),
+							// geometry.ScaleMatrix(1),
+							geometry.RotateMatrixY(-t*maths.Rotation),
+						)
+					},
+				),
+		},
+		Background: background,
+	}
+}

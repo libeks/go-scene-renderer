@@ -52,27 +52,19 @@ func Parallelogram(a, b, c geometry.Point, texture colors.DynamicTransparentText
 	)
 }
 
-// func ParallelogramWithTransparency(a, b, c geometry.Point, texture colors.DynamicTexture, transparency colors.DynamicTransparency) DynamicObject {
-// 	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
+func RectanglesAlongPath(path geometry.BezierPath, n int, size float64, texture colors.DynamicTransparentTexture) DynamicObject {
+	upVector := geometry.Vector3D{X: 0, Y: 1, Z: 0}
+	objects := []DynamicObject{}
+	for i := range n {
+		t := float64(i) / float64(n-1)
+		direction := path.GetDirection(t)
+		normalVector := direction.ForwardVector.CrossProduct(upVector).Unit()
+		relaltiveUpVector := normalVector.CrossProduct(direction.ForwardVector).Unit()
+		a := geometry.Point(direction.Origin.Vector().AddVector(normalVector.ScalarMultiply(-size)).AddVector(relaltiveUpVector.ScalarMultiply(-size)))
+		b := geometry.Point(direction.Origin.Vector().AddVector(normalVector.ScalarMultiply(size)).AddVector(relaltiveUpVector.ScalarMultiply(-size)))
+		c := geometry.Point(direction.Origin.Vector().AddVector(normalVector.ScalarMultiply(-size)).AddVector(relaltiveUpVector.ScalarMultiply(size)))
+		objects = append(objects, Parallelogram(a, b, c, texture))
 
-// 	return DynamicObjectFromTriangles(
-// 		DynamicTriangleWithTransparency(
-// 			Triangle{
-// 				A: a,
-// 				B: b,
-// 				C: c,
-// 			},
-// 			texture,
-// 			transparency,
-// 		),
-// 		DynamicTriangleWithTransparency(
-// 			Triangle{
-// 				A: d,
-// 				B: c,
-// 				C: b,
-// 			},
-// 			colors.RotateDynamicTexture180(texture),
-// 			transparency, // TODO: flip transparency around, flip it around
-// 		),
-// 	)
-// }
+	}
+	return CombineDynamicObjects(objects...)
+}
