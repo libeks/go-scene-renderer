@@ -10,6 +10,18 @@ func BezierZeroOne(t float64) float64 {
 	return -2*math.Pow(t, 3) + 3*math.Pow(t, 2)
 }
 
+// func SlowFastSlow(t float64) float64 {
+// 	pt := Bezier[Linear]{
+// 		[]Linear{
+// 			Linear(0.0),
+// 			Linear(0.0),
+// 			Linear(1.0),
+// 			Linear(1.0),
+// 		},
+// 	}.At(t)
+// 	return float64(pt)
+// }
+
 type Vec3 struct {
 	X, Y, Z float64
 }

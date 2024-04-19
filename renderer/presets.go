@@ -39,6 +39,11 @@ var (
 		height:       1000,
 		interpolateN: 16,
 	}
+	ImagePresetIPhone = ImagePreset{
+		width:        1170,
+		height:       1170,
+		interpolateN: 9,
+	}
 	VideoPresetTest = VideoPreset{
 		ImagePreset: ImagePresetTest,
 		nFrameCount: 30,
@@ -52,6 +57,11 @@ var (
 	VideoPresetHiDef = VideoPreset{
 		ImagePreset: ImagePresetHiDef,
 		nFrameCount: 400,
+		frameRate:   30,
+	}
+	VideoPresetIPhone = VideoPreset{
+		ImagePreset: ImagePresetIPhone,
+		nFrameCount: 600,
 		frameRate:   30,
 	}
 
@@ -89,6 +99,8 @@ func ParseImagePreset(flagVal string) (ImagePreset, error) {
 		return ImagePresetIntermediate, nil
 	case "hidef":
 		return ImagePresetHiDef, nil
+	case "iphone":
+		return ImagePresetIPhone, nil
 	default:
 		return ImagePreset{}, fmt.Errorf("could not parse image format '%s'", flagVal)
 	}
@@ -128,6 +140,8 @@ func ParseVideoPreset(flagVal string) (VideoPreset, error) {
 		return VideoPresetIntermediate, nil
 	case "hidef":
 		return VideoPresetHiDef, nil
+	case "iphone":
+		return VideoPresetIPhone, nil
 	default:
 		return VideoPreset{}, fmt.Errorf("could not parse video format '%s'", flagVal)
 	}

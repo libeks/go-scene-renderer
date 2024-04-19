@@ -53,6 +53,10 @@ func ScaleMatrix(t float64) HomogeneusMatrix {
 	}
 }
 
+func RotateYaw(t float64) HomogeneusMatrix {
+	return RotateMatrixY(t)
+}
+
 func RotateMatrixX(t float64) HomogeneusMatrix {
 	return HomogeneusMatrix{
 		1,
@@ -77,6 +81,10 @@ func RotateMatrixX(t float64) HomogeneusMatrix {
 	}
 }
 
+func RotatePitch(t float64) HomogeneusMatrix {
+	return RotateMatrixZ(t)
+}
+
 func RotateMatrixY(t float64) HomogeneusMatrix {
 	return HomogeneusMatrix{
 		math.Cos(t),
@@ -99,6 +107,10 @@ func RotateMatrixY(t float64) HomogeneusMatrix {
 		0,
 		1,
 	}
+}
+
+func RotateRoll(t float64) HomogeneusMatrix {
+	return RotateMatrixX(t)
 }
 
 func RotateMatrixZ(t float64) HomogeneusMatrix {

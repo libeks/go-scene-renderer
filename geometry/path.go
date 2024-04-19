@@ -1,5 +1,7 @@
 package geometry
 
+import "math"
+
 type tuple struct {
 	a int
 	b int
@@ -11,16 +13,41 @@ type BezierPath struct {
 	Points []Point
 }
 
-type Direction struct {
-	Origin        Point
+type EulerDirection struct {
 	ForwardVector Vector3D
 	UpVector      Vector3D
+	RightVector   Vector3D
+}
+
+func (d EulerDirection) GetRollPitchYaw() RollPitchYaw {
+	yaw := math.Atan2(d.ForwardVector.Z, d.ForwardVector.X)
+}
+
+type Direction struct {
+	// ForwardVector and UpVector should be orthogonal
+	Origin      Point
+	Orientation EulerDirection
+}
+
+type RollPitchYaw struct {
+	// angles expressed in radians
+	Roll  float64
+	Pitch float64
+	Yaw   float64
 }
 
 func (p BezierPath) GetDirection(t float64) Direction {
+	upVector := Vector3D{0, 1, 0}
+	forwardVector := p.direction(t)
+	rightVector := forwardVector.CrossProduct(upVector).Unit()
+	relativeUpVector := rightVector.CrossProduct(forwardVector).Unit()
 	return Direction{
-		Origin:        p.bezierPoint(t),
-		ForwardVector: p.direction(t),
+		Origin: p.bezierPoint(t),
+		Orientation: EulerDirection{
+			ForwardVector: forwardVector,
+			UpVector:      relativeUpVector,
+			RightVector:   rightVector,
+		},
 	}
 }
 

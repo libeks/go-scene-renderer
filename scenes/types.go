@@ -24,6 +24,7 @@ type DynamicBackground interface {
 type ObjectScene struct {
 	Objects []objects.StaticObject
 	Background
+	CameraDirection
 }
 
 func (s ObjectScene) Flatten() ([]objects.BasicObject, Background) {

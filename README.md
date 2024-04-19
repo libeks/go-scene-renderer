@@ -80,6 +80,8 @@ Ideally there would be boilerplate that would accomplish this out of the box, wi
 - Add the ability to move the camera around a static scene (or move the scene around that camera consistently)
   - Requires the ability to translate from a vector to Rotation angles in the three coordinates
 - Add pixel size to rendering, to allow for primitives like point and line, etc
+- Do I have my coordinates all wrong? They don't follow the RHR, since Z goes positive into the scene. It should be negative
+  - I guess my coordinates are Left Handed. How embarrassing!
 
 ## Ideas from Insta:
 

@@ -58,11 +58,11 @@ func RectanglesAlongPath(path geometry.BezierPath, n int, size float64, texture 
 	for i := range n {
 		t := float64(i) / float64(n-1)
 		direction := path.GetDirection(t)
-		normalVector := direction.ForwardVector.CrossProduct(upVector).Unit()
-		relaltiveUpVector := normalVector.CrossProduct(direction.ForwardVector).Unit()
-		a := geometry.Point(direction.Origin.Vector().AddVector(normalVector.ScalarMultiply(-size)).AddVector(relaltiveUpVector.ScalarMultiply(-size)))
-		b := geometry.Point(direction.Origin.Vector().AddVector(normalVector.ScalarMultiply(size)).AddVector(relaltiveUpVector.ScalarMultiply(-size)))
-		c := geometry.Point(direction.Origin.Vector().AddVector(normalVector.ScalarMultiply(-size)).AddVector(relaltiveUpVector.ScalarMultiply(size)))
+		rightVector := direction.ForwardVector.CrossProduct(upVector).Unit()
+		relaltiveUpVector := rightVector.CrossProduct(direction.ForwardVector).Unit()
+		a := geometry.Point(direction.Origin.Vector().AddVector(rightVector.ScalarMultiply(-size)).AddVector(relaltiveUpVector.ScalarMultiply(-size)))
+		b := geometry.Point(direction.Origin.Vector().AddVector(rightVector.ScalarMultiply(size)).AddVector(relaltiveUpVector.ScalarMultiply(-size)))
+		c := geometry.Point(direction.Origin.Vector().AddVector(rightVector.ScalarMultiply(-size)).AddVector(relaltiveUpVector.ScalarMultiply(size)))
 		objects = append(objects, Parallelogram(a, b, c, texture))
 
 	}
