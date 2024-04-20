@@ -153,13 +153,11 @@ func (p plane) String() string {
 
 func (p plane) IntersectPoint(r ray) *geometry.Point {
 	denominator := p.N.DotProduct(r.D)
-	// fmt.Printf("denominator %0.3f\n", denominator)
 	if denominator == 0.0 {
 		return nil // ray is parallel to plane, no intersection
 	}
 	t := (p.D - p.N.DotProduct(r.P.Vector())) / denominator
 	if t < 0.0 {
-		// fmt.Printf("object behind camera %0.3f\n", t)
 		return nil // ray intersects plane before ray's starting point
 	}
 	point := geometry.Point(r.P.Vector().AddVector(r.D.ScalarMultiply(t)))
