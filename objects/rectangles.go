@@ -53,17 +53,24 @@ func Parallelogram(a, b, c geometry.Point, texture colors.DynamicTransparentText
 }
 
 func RectanglesAlongPath(path geometry.BezierPath, n int, size float64, texture colors.DynamicTransparentTexture) DynamicObject {
-	upVector := geometry.Vector3D{X: 0, Y: 1, Z: 0}
+	// upVector := geometry.Vector3D{X: 0, Y: 1, Z: 0}
 	objects := []DynamicObject{}
 	for i := range n {
 		t := float64(i) / float64(n-1)
 		direction := path.GetDirection(t)
-		rightVector := direction.ForwardVector.CrossProduct(upVector).Unit()
-		relaltiveUpVector := rightVector.CrossProduct(direction.ForwardVector).Unit()
-		a := geometry.Point(direction.Origin.Vector().AddVector(rightVector.ScalarMultiply(-size)).AddVector(relaltiveUpVector.ScalarMultiply(-size)))
-		b := geometry.Point(direction.Origin.Vector().AddVector(rightVector.ScalarMultiply(size)).AddVector(relaltiveUpVector.ScalarMultiply(-size)))
-		c := geometry.Point(direction.Origin.Vector().AddVector(rightVector.ScalarMultiply(-size)).AddVector(relaltiveUpVector.ScalarMultiply(size)))
-		objects = append(objects, Parallelogram(a, b, c, texture))
+		a := geometry.Point(direction.Origin.Vector().AddVector(direction.Orientation.RightVector.ScalarMultiply(-size)).AddVector(direction.Orientation.UpVector.ScalarMultiply(-size)))
+		b := geometry.Point(direction.Origin.Vector().AddVector(direction.Orientation.RightVector.ScalarMultiply(size)).AddVector(direction.Orientation.UpVector.ScalarMultiply(-size)))
+		c := geometry.Point(direction.Origin.Vector().AddVector(direction.Orientation.RightVector.ScalarMultiply(-size)).AddVector(direction.Orientation.UpVector.ScalarMultiply(size)))
+		// var tt colors.DynamicTransparentTexture
+		// if i == n-1 {
+		// 	tt = colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform{Color: colors.Red}))
+		// 	// scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black}))
+		// } else if i == 0 {
+		// 	tt = colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue}))
+		// } else {
+		tt := texture
+		// }
+		objects = append(objects, Parallelogram(a, b, c, tt))
 
 	}
 	return CombineDynamicObjects(objects...)

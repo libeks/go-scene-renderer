@@ -82,7 +82,7 @@ func RotateMatrixX(t float64) HomogeneusMatrix {
 }
 
 func RotatePitch(t float64) HomogeneusMatrix {
-	return RotateMatrixZ(t)
+	return RotateMatrixX(t)
 }
 
 func RotateMatrixY(t float64) HomogeneusMatrix {
@@ -110,7 +110,7 @@ func RotateMatrixY(t float64) HomogeneusMatrix {
 }
 
 func RotateRoll(t float64) HomogeneusMatrix {
-	return RotateMatrixX(t)
+	return RotateMatrixZ(t)
 }
 
 func RotateMatrixZ(t float64) HomogeneusMatrix {

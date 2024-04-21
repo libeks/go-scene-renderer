@@ -1,16 +1,29 @@
 package geometry
 
-import "math"
+import (
+	"fmt"
+)
 
 type tuple struct {
 	a int
 	b int
 }
 
-var binomialCache = make(map[tuple]int)
+var (
+	OriginPosition = Direction{
+		Origin: Point{0, 0, 0},
+		Orientation: EulerDirection{
+			V3(0, 0, -1), // negative since the camera points in negative z-direction
+			V3(0, 1, 0),
+			V3(1, 0, 0)},
+	}
 
-type BezierPath struct {
-	Points []Point
+	binomialCache = make(map[tuple]int)
+)
+
+type Path interface {
+	// at every frame, get a camera position and direction it's pointing in
+	GetDirection(float64) Direction
 }
 
 type EulerDirection struct {
@@ -19,9 +32,71 @@ type EulerDirection struct {
 	RightVector   Vector3D
 }
 
-func (d EulerDirection) GetRollPitchYaw() RollPitchYaw {
-	yaw := math.Atan2(d.ForwardVector.Z, d.ForwardVector.X)
+func (d EulerDirection) String() string {
+	return fmt.Sprintf("EulerDirection: {Forward: %s, Up: %s, Right: %s}", d.ForwardVector, d.UpVector, d.RightVector)
 }
+
+func (d EulerDirection) ApplyMatrix(m Matrix3D) EulerDirection {
+	return EulerDirection{
+		m.MultVect(d.ForwardVector),
+		m.MultVect(d.UpVector),
+		m.MultVect(d.RightVector),
+	}
+}
+
+func (d EulerDirection) Inverse3DMatrix() Matrix3D {
+	// return the matrix that transforms the x,y,z vectors into the given direction
+
+	m := Matrix3D{
+		d.RightVector.X,
+		d.RightVector.Y,
+		d.RightVector.Z, // negative since the camera points in negative z-direction
+
+		d.UpVector.X,
+		d.UpVector.Y,
+		d.UpVector.Z, // negative since the camera points in negative z-direction
+
+		d.ForwardVector.X,
+		d.ForwardVector.Y,
+		d.ForwardVector.Z, // negative since the camera points in negative z-direction
+	}
+	// ret, valid := m.Inverse()
+	// if !valid {
+	// 	return Identity3D
+	// }
+	ret := m.ScalarMult(-1)
+	return ret
+}
+
+func (d EulerDirection) InverseHomoMatrix() HomogeneusMatrix {
+	// return the matrix that transforms the x,y,z vectors into the given direction
+	return d.Inverse3DMatrix().toHomogenous()
+}
+
+// func (d EulerDirection) GetRollPitchYaw() RollPitchYaw {
+// 	fmt.Printf("Initially we have %s\n", d)
+// 	// zero out the forward vector's X-coord by yawing
+// 	yaw := math.Atan2(d.ForwardVector.X, d.ForwardVector.Z)
+// 	fmt.Printf("Yaw at %.3f %.3f is %.3f\n", d.ForwardVector.X, d.ForwardVector.Z, yaw)
+// 	newDirection := d.ApplyMatrix(RotateYaw3D(-yaw))
+// 	// forward vector's Z-coord is now 0
+// 	// now pitch the forward vector to have a zero Y-coord
+// 	fmt.Printf("After un-yaw, we have %s\n", newDirection)
+// 	pitch := math.Atan2(newDirection.ForwardVector.Y, newDirection.ForwardVector.Z)
+// 	fmt.Printf("Pitch at %.3f %.3f is %.3f\n", newDirection.ForwardVector.Y, newDirection.ForwardVector.X, pitch)
+// 	newDirection = d.ApplyMatrix(RotatePitch3D(-pitch))
+// 	fmt.Printf("After un-pitching, we have %s\n", newDirection)
+// 	// now Forward vector points along the Z axis (perpendicularly into the image plane)
+// 	roll := math.Atan2(newDirection.RightVector.Y, newDirection.RightVector.X)
+// 	fmt.Printf("Roll at %.3f %.3f is %.3f\n", newDirection.RightVector.Y, newDirection.RightVector.X, roll)
+// 	newDirection = d.ApplyMatrix(RotateRoll3D(-roll))
+// 	fmt.Printf("After a full unroll we have %s\n", newDirection)
+// 	return RollPitchYaw{
+// 		Roll:  roll,
+// 		Pitch: pitch,
+// 		Yaw:   yaw,
+// 	}
+// }
 
 type Direction struct {
 	// ForwardVector and UpVector should be orthogonal
@@ -29,11 +104,19 @@ type Direction struct {
 	Orientation EulerDirection
 }
 
+func (d Direction) InverseHomoMatrix() HomogeneusMatrix {
+	return d.Orientation.InverseHomoMatrix().MatrixMult(TranslationMatrix(Vector3D(d.Origin).ScalarMultiply(-1)))
+}
+
 type RollPitchYaw struct {
 	// angles expressed in radians
 	Roll  float64
 	Pitch float64
 	Yaw   float64
+}
+
+type BezierPath struct {
+	Points []Point
 }
 
 func (p BezierPath) GetDirection(t float64) Direction {

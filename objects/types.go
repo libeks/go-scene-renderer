@@ -151,15 +151,15 @@ func (p plane) String() string {
 	return fmt.Sprintf("Plane(->%s, at %f)", p.N, p.D)
 }
 
-func (p plane) IntersectPoint(r ray) *geometry.Point {
+func (p plane) IntersectPoint(r ray) (geometry.Point, bool) {
 	denominator := p.N.DotProduct(r.D)
 	if denominator == 0.0 {
-		return nil // ray is parallel to plane, no intersection
+		return geometry.Point{}, false // ray is parallel to plane, no intersection
 	}
 	t := (p.D - p.N.DotProduct(r.P.Vector())) / denominator
 	if t < 0.0 {
-		return nil // ray intersects plane before ray's starting point
+		return geometry.Point{}, false // ray intersects plane before ray's starting point
 	}
 	point := geometry.Point(r.P.Vector().AddVector(r.D.ScalarMultiply(t)))
-	return &point
+	return point, true
 }

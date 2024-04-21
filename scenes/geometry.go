@@ -700,3 +700,29 @@ func SquaresAlongPath(background DynamicBackground) DynamicScene {
 		Background: background,
 	}
 }
+
+func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
+	path := geometry.BezierPath{
+		Points: []geometry.Point{
+			{X: 0, Y: 0, Z: 0},
+			{X: 0, Y: 10, Z: 0},
+			{X: 0, Y: 0, Z: 8},
+			{X: 0, Y: 10, Z: 16},
+		},
+	}
+	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 8}))
+	texture := colors.GetDynamicTransparentTexture(
+		checkerTexture,
+		colors.DynamicFromAnimatedTransparency(
+			colors.CircleCutout{Radius: 0.6},
+		),
+	)
+
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObjectInt{
+			objects.RectanglesAlongPath(path, 20, 1, texture),
+		},
+		Background: background,
+		CameraPath: path,
+	}
+}

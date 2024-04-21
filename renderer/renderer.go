@@ -226,10 +226,20 @@ func (r Renderer) wait() {
 	fmt.Println("")
 }
 
+type Offset struct {
+	dx float64
+	dy float64
+}
+
 func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) *Image {
 	img := NewImage(ip)
 	windows := subdivideSceneIntoWindows(scene, ip)
 	var imageTriangles, imageChecks int
+	dx, dy := getPixelWiggle(ip.width), getPixelWiggle(ip.height)
+	offsets := make([]Offset, ip.interpolateN)
+	for i := range ip.interpolateN {
+		offsets[i] = Offset{rand.Float64() * dx, rand.Float64() * dy}
+	}
 	for _, window := range windows {
 		var nTriangles, windowChecks int
 		for x := window.xMin; x < window.xMax; x++ {
@@ -238,10 +248,9 @@ func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) *Im
 				var pixelColor colors.Color
 				if ip.interpolateN > 1 {
 					samples := make([]colors.Color, ip.interpolateN)
-					for i := range ip.interpolateN {
-						dx, dy := getPixelWiggle(ip.width), getPixelWiggle(ip.height)
+					for i, offset := range offsets {
 						var nChecks int
-						samples[i], nTriangles, nChecks = window.GetColor(xR+rand.Float64()*dx, yR+rand.Float64()*dy)
+						samples[i], nTriangles, nChecks = window.GetColor(xR+offset.dx, yR+offset.dy)
 						windowChecks += nChecks
 					}
 					pixelColor = colors.Average(samples)

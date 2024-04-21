@@ -1,7 +1,10 @@
 package scenes
 
 import (
+	"fmt"
+
 	"github.com/libeks/go-scene-renderer/colors"
+	"github.com/libeks/go-scene-renderer/geometry"
 	"github.com/libeks/go-scene-renderer/objects"
 )
 
@@ -24,20 +27,30 @@ type DynamicBackground interface {
 type ObjectScene struct {
 	Objects []objects.StaticObject
 	Background
-	CameraDirection
+	CameraDirection geometry.Direction
 }
 
 func (s ObjectScene) Flatten() ([]objects.BasicObject, Background) {
 	tris := []objects.BasicObject{}
+	inverseMatrix := s.CameraDirection.InverseHomoMatrix()
+	fmt.Printf("Inverse camera matrix: %s\n", inverseMatrix)
 	for _, obj := range s.Objects {
-		tris = append(tris, obj.Flatten()...)
+		// obj = obj.ApplyMatrix(inverseMatrix)
+		basics := obj.Flatten()
+		movedBasics := []objects.BasicObject{}
+		for _, b := range basics {
+			movedBasics = append(movedBasics, b.ApplyMatrix(inverseMatrix))
+		}
+		tris = append(tris, movedBasics...)
 	}
+
 	return tris, s.Background
 }
 
 // implements DynamicScene
 type CombinedDynamicScene struct {
 	Objects    []objects.DynamicObjectInt
+	CameraPath geometry.Path
 	Background DynamicBackground
 }
 
@@ -47,8 +60,22 @@ func (s CombinedDynamicScene) GetFrame(t float64) StaticScene {
 		obj := object.Frame(t)
 		frameObjects[i] = obj
 	}
+
+	direction := geometry.OriginPosition
+	if s.CameraPath != nil {
+		direction = s.CameraPath.GetDirection(t)
+	}
+	// direction = geometry.Direction{
+	// 	Origin: geometry.Point{0, 0, 4},
+	// 	Orientation: geometry.EulerDirection{
+	// 		geometry.V3(0, 0, -1),
+	// 		geometry.V3(0, 1, 0),
+	// 		geometry.V3(1, 0, 0)},
+	// }
+	fmt.Printf("%.3f direction: %v\n", t, direction)
 	return ObjectScene{
-		Objects:    frameObjects,
-		Background: s.Background.GetFrame(t),
+		Objects:         frameObjects,
+		Background:      s.Background.GetFrame(t),
+		CameraDirection: direction,
 	}
 }

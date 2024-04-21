@@ -47,6 +47,7 @@ type dynamicTriangle struct {
 }
 
 func (t dynamicTriangle) Frame(f float64) staticTriangle {
+	// fmt.Printf("Colorer %v\n", t.Colorer)
 	return staticTriangle{
 		Triangle:        &t.Triangle,
 		Colorer:         t.Colorer.GetFrame(f),
@@ -319,12 +320,12 @@ func (t *Triangle) rayIntersectLocalCoords(r ray) (float64, float64, float64, bo
 		t.normalMagSq = t.normal.Mag() * t.normal.Mag()
 		t.cached = true
 	}
-	intersectDot := t.plane.IntersectPoint(r)
-	if intersectDot == nil {
+	intersectDot, doesIntersect := t.plane.IntersectPoint(r)
+	if !doesIntersect {
 		return 0, 0, 0, false
 	}
 	iVect := intersectDot.Subtract(t.A)
-	iMag := geometry.OriginPoint.Subtract(*intersectDot).Mag()
+	iMag := geometry.OriginPoint.Subtract(intersectDot).Mag()
 
 	bVect := t.bVect
 	cVect := t.cVect

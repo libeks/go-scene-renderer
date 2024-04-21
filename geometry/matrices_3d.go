@@ -2,6 +2,14 @@ package geometry
 
 import "fmt"
 
+var (
+	Identity3D = Matrix3D{
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
+	}
+)
+
 type Matrix3D struct {
 	A1 float64
 	A2 float64
@@ -100,7 +108,21 @@ func (m Matrix3D) Inverse() (Matrix3D, bool) {
 	if d == 0 {
 		return Matrix3D{}, false
 	}
-	return m.Transpose().ScalarMult(1 / d), true
+	fmt.Printf("got %.3f, %.3f = %.3f \n", m.B1, m.C2, m.B1*m.C2)
+	k := Matrix3D{
+		m.B2*m.C3 - m.B3*m.C2,
+		-m.B1*m.C3 + m.B3*m.C1,
+		m.B1*m.C2 - m.B2*m.C1,
+
+		-m.A2*m.C3 + m.C2*m.A3,
+		m.A1*m.C3 - m.A3*m.C1,
+		-m.A1*m.C2 + m.C1*m.A2,
+
+		m.A2*m.B3 - m.A3*m.B2, // should be 0...
+		-m.A1*m.B3 + m.B1*m.A3,
+		m.A1*m.B2 - m.A2*m.B1,
+	}
+	return k.Transpose().ScalarMult(1 / d), true
 }
 
 func (m Matrix3D) MultVect(v Vector3D) Vector3D {

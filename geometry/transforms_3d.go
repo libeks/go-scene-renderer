@@ -18,14 +18,10 @@ func Scale2DMatrix(t float64) Matrix3D {
 		0,
 		0,
 		t,
-
-		0,
-		0,
-		0,
 	}
 }
 
-func RotateYaw3D(t float64) Matrix3D {
+func RotatePitch3D(t float64) Matrix3D {
 	return Matrix3D{
 		1,
 		0,
@@ -33,15 +29,15 @@ func RotateYaw3D(t float64) Matrix3D {
 
 		0,
 		math.Cos(t),
-		-math.Sin(t),
+		math.Sin(t),
 
 		0,
-		math.Sin(t),
+		-math.Sin(t),
 		math.Cos(t),
 	}
 }
 
-func RotatePitch3D(t float64) Matrix3D {
+func RotateYaw3D(t float64) Matrix3D {
 	return Matrix3D{
 		math.Cos(t),
 		0,
