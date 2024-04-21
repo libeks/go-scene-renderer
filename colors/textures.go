@@ -90,3 +90,9 @@ func (c Checkerboard) GetTextureColor(x, y float64) Color {
 	}
 	return White
 }
+
+func (c Checkerboard) GetAlpha(x, y float64) bool {
+	r := 1 / float64(c.Squares)
+	xV, yV := int(x/r), int(y/r)
+	return (xV+yV)%2 == 0
+}

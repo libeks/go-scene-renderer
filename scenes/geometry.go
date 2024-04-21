@@ -1,6 +1,7 @@
 package scenes
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/libeks/go-scene-renderer/colors"
@@ -286,13 +287,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 	gradient := colors.LinearGradient{Points: []colors.Color{colors.Black, colors.Grayscale.Interpolate(0.75), colors.Red}}
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(1, 1, 0),
-						B: geometry.Pt(1, 0, 0),
-						C: geometry.Pt(0, 1, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(1, 1, 0),
+						geometry.Pt(1, 0, 0),
+						geometry.Pt(0, 1, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -304,13 +305,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(0, 0, 0),
-						B: geometry.Pt(1, 0, 0),
-						C: geometry.Pt(0, 1, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(0, 0, 0),
+						geometry.Pt(1, 0, 0),
+						geometry.Pt(0, 1, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -322,13 +323,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(1, -1, 0),
-						B: geometry.Pt(1, 0, 0),
-						C: geometry.Pt(0, -1, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(1, -1, 0),
+						geometry.Pt(1, 0, 0),
+						geometry.Pt(0, -1, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -340,13 +341,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(0, 0, 0),
-						B: geometry.Pt(1, 0, 0),
-						C: geometry.Pt(0, -1, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(0, 0, 0),
+						geometry.Pt(1, 0, 0),
+						geometry.Pt(0, -1, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -359,13 +360,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 				),
 			).WithDynamicTransform(transform),
 
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(-1, 1, 0),
-						B: geometry.Pt(-1, 0, 0),
-						C: geometry.Pt(0, 1, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(-1, 1, 0),
+						geometry.Pt(-1, 0, 0),
+						geometry.Pt(0, 1, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -377,13 +378,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(0, 0, 0),
-						B: geometry.Pt(-1, 0, 0),
-						C: geometry.Pt(0, 1, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(0, 0, 0),
+						geometry.Pt(-1, 0, 0),
+						geometry.Pt(0, 1, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -395,13 +396,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(-1, -1, 0),
-						B: geometry.Pt(-1, 0, 0),
-						C: geometry.Pt(0, -1, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(-1, -1, 0),
+						geometry.Pt(-1, 0, 0),
+						geometry.Pt(0, -1, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -413,13 +414,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(0, 0, 0),
-						B: geometry.Pt(-1, 0, 0),
-						C: geometry.Pt(0, -1, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(0, 0, 0),
+						geometry.Pt(-1, 0, 0),
+						geometry.Pt(0, -1, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -433,13 +434,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 			).WithDynamicTransform(transform),
 
 			// triangles towards the middle
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(-1, 0, 0),
-						B: geometry.Pt(-1, -1, 0),
-						C: geometry.Pt(0, 0, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(-1, 0, 0),
+						geometry.Pt(-1, -1, 0),
+						geometry.Pt(0, 0, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -451,13 +452,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform2),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(0, -1, 0),
-						B: geometry.Pt(-1, -1, 0),
-						C: geometry.Pt(0, 0, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(0, -1, 0),
+						geometry.Pt(-1, -1, 0),
+						geometry.Pt(0, 0, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -469,13 +470,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform2),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(1, 0, 0),
-						B: geometry.Pt(1, -1, 0),
-						C: geometry.Pt(0, 0, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(1, 0, 0),
+						geometry.Pt(1, -1, 0),
+						geometry.Pt(0, 0, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -487,13 +488,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform2),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(0, -1, 0),
-						B: geometry.Pt(1, -1, 0),
-						C: geometry.Pt(0, 0, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(0, -1, 0),
+						geometry.Pt(1, -1, 0),
+						geometry.Pt(0, 0, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -506,13 +507,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 				),
 			).WithDynamicTransform(transform2),
 
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(1, 0, 0),
-						B: geometry.Pt(1, 1, 0),
-						C: geometry.Pt(0, 0, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(1, 0, 0),
+						geometry.Pt(1, 1, 0),
+						geometry.Pt(0, 0, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -524,13 +525,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform2),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(0, 1, 0),
-						B: geometry.Pt(1, 1, 0),
-						C: geometry.Pt(0, 0, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(0, 1, 0),
+						geometry.Pt(1, 1, 0),
+						geometry.Pt(0, 0, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -542,13 +543,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform2),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(-1, 0, 0),
-						B: geometry.Pt(-1, 1, 0),
-						C: geometry.Pt(0, 0, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(-1, 0, 0),
+						geometry.Pt(-1, 1, 0),
+						geometry.Pt(0, 0, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -560,13 +561,13 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 					),
 				),
 			).WithDynamicTransform(transform2),
-			objects.DynamicObjectFromTriangles(
-				objects.DynamicTriangle(
-					objects.Triangle{
-						A: geometry.Pt(0, 1, 0),
-						B: geometry.Pt(-1, 1, 0),
-						C: geometry.Pt(0, 0, 0),
-					},
+			objects.DynamicObjectFromBasics(
+				objects.DynamicBasicObject(
+					objects.Tri(
+						geometry.Pt(0, 1, 0),
+						geometry.Pt(-1, 1, 0),
+						geometry.Pt(0, 0, 0),
+					),
 					colors.OpaqueDynamicTexture(
 						colors.StaticTexture(
 							colors.TriangleGradientInterpolationTexture{
@@ -724,5 +725,62 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 		},
 		Background: background,
 		CameraPath: path,
+	}
+}
+
+func ThreeSpheres(background DynamicBackground) DynamicScene {
+	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 16}))
+	whiteTexture := colors.StaticTexture(colors.Uniform{Color: colors.White})
+	texture := colors.GetDynamicTransparentTexture(
+		checkerTexture,
+		colors.DynamicFromAnimatedTransparency(
+			colors.CircleCutout{Radius: 0.6},
+		),
+	)
+	transparentCheckerTexture := colors.GetDynamicTransparentTexture(
+		whiteTexture,
+		colors.StaticTransparency(colors.Checkerboard{Squares: 16}),
+	)
+	redTexture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.VerticalGradientTexture{colors.LinearGradient{[]colors.Color{colors.Black, colors.Red, colors.Red, colors.Black}}}))
+
+	dynamicSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), texture))
+	checkerSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), transparentCheckerTexture))
+	redSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), redTexture))
+	fmt.Printf("Checker Sphere %s\n", checkerSphere)
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObjectInt{
+			dynamicSphere.WithDynamicTransform(
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						// geometry.RotateMatrixX(0.2),
+						geometry.TranslationMatrix(geometry.V3(-3, 0, -5)),
+						// geometry.ScaleMatrix(1),
+						geometry.RotateMatrixY(-2*t*maths.Rotation),
+					)
+				},
+			),
+			redSphere.WithDynamicTransform(
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						// geometry.RotateMatrixX(0.2),
+						geometry.TranslationMatrix(geometry.V3(0, 0, -5)),
+						// geometry.ScaleMatrix(1),
+						geometry.RotateMatrixZ(-3*t*maths.Rotation),
+					)
+				},
+			),
+			checkerSphere.WithDynamicTransform(
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						// geometry.RotateMatrixX(0.2),
+						geometry.TranslationMatrix(geometry.V3(3, 0, -5)),
+						// geometry.ScaleMatrix(1),
+						geometry.RotateMatrixX(4*t*maths.Rotation),
+					)
+				},
+			),
+		},
+		Background: background,
+		// CameraPath: path,
 	}
 }

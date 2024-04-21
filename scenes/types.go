@@ -13,7 +13,7 @@ type DynamicScene interface {
 }
 
 type StaticScene interface {
-	Flatten() ([]objects.BasicObject, Background)
+	Flatten() ([]objects.StaticBasicObject, Background)
 }
 
 type Background interface {
@@ -30,14 +30,14 @@ type ObjectScene struct {
 	CameraDirection geometry.Direction
 }
 
-func (s ObjectScene) Flatten() ([]objects.BasicObject, Background) {
-	tris := []objects.BasicObject{}
+func (s ObjectScene) Flatten() ([]objects.StaticBasicObject, Background) {
+	tris := []objects.StaticBasicObject{}
 	inverseMatrix := s.CameraDirection.InverseHomoMatrix()
 	fmt.Printf("Inverse camera matrix: %s\n", inverseMatrix)
 	for _, obj := range s.Objects {
 		// obj = obj.ApplyMatrix(inverseMatrix)
 		basics := obj.Flatten()
-		movedBasics := []objects.BasicObject{}
+		movedBasics := []objects.StaticBasicObject{}
 		for _, b := range basics {
 			movedBasics = append(movedBasics, b.ApplyMatrix(inverseMatrix))
 		}

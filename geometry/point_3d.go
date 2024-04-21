@@ -45,6 +45,7 @@ func (p Point) IsInFrontOfCamera(minDepth float64) bool {
 	return p.Z < minDepth
 }
 
+// return Screen pixel, as well as the z-depth (not actual depth)
 func (p Point) ToPixel() (*Pixel, float64) {
 	if p.Z > 0 {
 		return nil, 0

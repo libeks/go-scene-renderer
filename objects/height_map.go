@@ -18,7 +18,7 @@ func (o HeightMap) getAt(x, y, t float64) float64 {
 }
 
 func (o HeightMap) Frame(t float64) StaticObject {
-	triangles := []BasicObject{}
+	triangles := []StaticBasicObject{}
 	zMult := 1.0
 	for xd := range o.N {
 		for yd := range o.N {
@@ -27,8 +27,8 @@ func (o HeightMap) Frame(t float64) StaticObject {
 
 			a, b, c, d := o.getAt(x, y, t), o.getAt(x, y+dy, t), o.getAt(x+dx, y, t), o.getAt(x+dx, y+dy, t)
 			triangles = append(triangles,
-				StaticTriangle(
-					Triangle{
+				NewStaticBasicObject(
+					&Triangle{
 						A: geometry.Pt(x, zMult*a, y),
 						B: geometry.Pt(x, zMult*b, y+dy),
 						C: geometry.Pt(x+dx, zMult*c, y),
@@ -41,8 +41,8 @@ func (o HeightMap) Frame(t float64) StaticObject {
 				),
 			)
 			triangles = append(triangles,
-				StaticTriangle(
-					Triangle{
+				NewStaticBasicObject(
+					&Triangle{
 						A: geometry.Pt(x+dx, zMult*d, y+dy),
 						B: geometry.Pt(x, zMult*b, y+dy),
 						C: geometry.Pt(x+dx, zMult*c, y),
@@ -57,7 +57,7 @@ func (o HeightMap) Frame(t float64) StaticObject {
 		}
 	}
 	return StaticObject{
-		triangles: triangles,
+		basics: triangles,
 	}
 }
 
@@ -73,7 +73,7 @@ func (o HeightMapCircle) getAt(x, y, t float64) float64 {
 }
 
 func (o HeightMapCircle) Frame(t float64) StaticObject {
-	triangles := []BasicObject{}
+	triangles := []StaticBasicObject{}
 	zMult := 1.0
 	for xd := range o.N {
 		for yd := range o.N {
@@ -82,8 +82,8 @@ func (o HeightMapCircle) Frame(t float64) StaticObject {
 
 			if inCircle(x, y) && inCircle(x+dx, y) && inCircle(x, y+dy) {
 				triangles = append(triangles,
-					StaticTriangle(
-						Triangle{
+					NewStaticBasicObject(
+						&Triangle{
 							A: geometry.Pt(x, zMult*o.getAt(x, y, t), y),
 							B: geometry.Pt(x, zMult*o.getAt(x, y+dy, t), y+dy),
 							C: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y, t), y),
@@ -99,8 +99,8 @@ func (o HeightMapCircle) Frame(t float64) StaticObject {
 			}
 			if inCircle(x+dx, y+dy) && inCircle(x+dx, y) && inCircle(x, y+dy) {
 				triangles = append(triangles,
-					StaticTriangle(
-						Triangle{
+					NewStaticBasicObject(
+						&Triangle{
 							A: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y+dy, t), y+dy),
 							B: geometry.Pt(x, zMult*o.getAt(x, y+dx, t), y+dy),
 							C: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y, t), y),
@@ -116,7 +116,7 @@ func (o HeightMapCircle) Frame(t float64) StaticObject {
 		}
 	}
 	return StaticObject{
-		triangles: triangles,
+		basics: triangles,
 	}
 }
 

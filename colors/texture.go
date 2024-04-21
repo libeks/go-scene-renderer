@@ -183,3 +183,11 @@ func (r rotatedDynamicTexture) GetFrame(t float64) TransparentTexture {
 func RotateDynamicTexture180(texture DynamicTransparentTexture) DynamicTransparentTexture {
 	return rotatedDynamicTexture{texture}
 }
+
+type VerticalGradientTexture struct {
+	Gradient
+}
+
+func (g VerticalGradientTexture) GetTextureColor(b, c float64) Color {
+	return g.Gradient.Interpolate(c)
+}

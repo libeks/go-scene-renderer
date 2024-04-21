@@ -9,17 +9,17 @@ import (
 func GradientParallelogram(a, b, c geometry.Point, colorA, colorB, colorC, colorD colors.Color) DynamicObject {
 	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
 
-	return DynamicObjectFromTriangles(
-		DynamicTriangle(
-			Triangle{
+	return DynamicObjectFromBasics(
+		DynamicBasicObject(
+			&Triangle{
 				A: a,
 				B: b,
 				C: c,
 			},
 			colors.OpaqueDynamicTexture(colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC))),
 		),
-		DynamicTriangle(
-			Triangle{
+		DynamicBasicObject(
+			&Triangle{
 				A: d,
 				B: c,
 				C: b,
@@ -32,17 +32,17 @@ func GradientParallelogram(a, b, c geometry.Point, colorA, colorB, colorC, color
 func Parallelogram(a, b, c geometry.Point, texture colors.DynamicTransparentTexture) DynamicObject {
 	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
 
-	return DynamicObjectFromTriangles(
-		DynamicTriangle(
-			Triangle{
+	return DynamicObjectFromBasics(
+		DynamicBasicObject(
+			&Triangle{
 				A: a,
 				B: b,
 				C: c,
 			},
 			texture,
 		),
-		DynamicTriangle(
-			Triangle{
+		DynamicBasicObject(
+			&Triangle{
 				A: d,
 				B: c,
 				C: b,

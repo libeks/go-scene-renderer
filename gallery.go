@@ -184,5 +184,6 @@ var (
 	Noise                      = scenes.NoiseTest()
 	SquaresAlongPath           = scenes.SquaresAlongPath(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
 	SquaresAlongPathWithCamera = scenes.CameraThroughSquaresAlongPath(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
+	ThreeSpheres               = scenes.ThreeSpheres(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
 	// Perlin = scenes.NewPerlinNoise(color.Grayscale)
 )

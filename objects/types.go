@@ -3,7 +3,6 @@ package objects
 import (
 	"fmt"
 
-	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 )
 
@@ -11,6 +10,8 @@ var (
 	identityTransform = func(t float64) geometry.HomogeneusMatrix {
 		return geometry.HomogeneusIdentity
 	}
+
+	EmptyBB = BoundingBox{empty: true}
 )
 
 type DynamicObjectInt interface {
@@ -18,23 +19,24 @@ type DynamicObjectInt interface {
 }
 
 type BasicObject interface {
-	GetColorDepth(x, y float64) (*colors.Color, float64)
+	// GetColorDepth(x, y float64) (*colors.Color, float64)
 	ApplyMatrix(m geometry.HomogeneusMatrix) BasicObject
 	GetBoundingBox() BoundingBox
 	GetWireframe() []geometry.RasterLine
+	RayIntersectLocalCoords(ray) []intersection
 }
 
 type StaticObject struct {
-	triangles []BasicObject
+	basics []StaticBasicObject
 }
 
-func (ob StaticObject) Flatten() []BasicObject {
-	return ob.triangles
+func (ob StaticObject) Flatten() []StaticBasicObject {
+	return ob.basics
 }
 
-func DynamicObjectFromTriangles(tris ...dynamicTriangle) DynamicObject {
-	newObjs := make([]objWithTransform, len(tris))
-	for i, tri := range tris {
+func DynamicObjectFromBasics(basics ...dynamicBasicObject) DynamicObject {
+	newObjs := make([]objWithTransform, len(basics))
+	for i, tri := range basics {
 		newObjs[i] = objWithTransform{
 			obj: dynamicTriangleWrapper{tri},
 			fn:  identityTransform,
@@ -57,11 +59,11 @@ func CombineDynamicObjects(objs ...DynamicObject) DynamicObject {
 }
 
 type dynamicTriangleWrapper struct {
-	tri dynamicTriangle
+	tri dynamicBasicObject
 }
 
 func (d dynamicTriangleWrapper) Frame(t float64) StaticObject {
-	return StaticObject{[]BasicObject{d.tri.Frame(t)}}
+	return StaticObject{[]StaticBasicObject{d.tri.Frame(t)}}
 }
 
 type objWithTransform struct {
@@ -78,16 +80,16 @@ type DynamicObject struct {
 }
 
 func (ob DynamicObject) Frame(t float64) StaticObject {
-	staticTriangles := []BasicObject{}
+	staticTriangles := []StaticBasicObject{}
 	for _, dyObj := range ob.objs {
 		staticTris := dyObj.obj.Frame(t)
-		for _, tri := range staticTris.triangles {
+		for _, tri := range staticTris.basics {
 			transformedTriangle := tri.ApplyMatrix(dyObj.fn(t))
 			staticTriangles = append(staticTriangles, transformedTriangle) // set texture to be static
 		}
 	}
 	return StaticObject{
-		triangles: staticTriangles,
+		basics: staticTriangles,
 	}
 }
 
@@ -124,8 +126,8 @@ func (ob DynamicObject) WithDynamicTransform(f func(float64) geometry.Homogeneus
 type BoundingBox struct {
 	TopLeft     geometry.Pixel
 	BottomRight geometry.Pixel
-	MinDepth    float64
-	MaxDepth    float64
+	MinZDepth   float64
+	MaxZDepth   float64
 	empty       bool
 }
 
@@ -134,12 +136,16 @@ func (bb BoundingBox) IsEmpty() bool {
 }
 
 func (bb BoundingBox) String() string {
-	return fmt.Sprintf("BB(%s %s)", bb.TopLeft, bb.BottomRight)
+	return fmt.Sprintf("BB(%s %s zmin:%.3f zmax:%.3f)", bb.TopLeft, bb.BottomRight, bb.MinZDepth, bb.MaxZDepth)
 }
 
 type ray struct {
 	P geometry.Point    // origin point
 	D geometry.Vector3D // direction vector describing the ray
+}
+
+func (r ray) PointAt(t float64) geometry.Point {
+	return geometry.Point(r.P.Vector().AddVector(r.D.ScalarMultiply(t)))
 }
 
 type plane struct {
@@ -160,6 +166,12 @@ func (p plane) IntersectPoint(r ray) (geometry.Point, bool) {
 	if t < 0.0 {
 		return geometry.Point{}, false // ray intersects plane before ray's starting point
 	}
-	point := geometry.Point(r.P.Vector().AddVector(r.D.ScalarMultiply(t)))
+	point := r.PointAt(t)
 	return point, true
+}
+
+type intersection struct {
+	b      float64
+	c      float64
+	zDepth float64
 }

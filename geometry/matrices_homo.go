@@ -57,6 +57,23 @@ func (m HomogeneusMatrix) to3D() Matrix3D {
 	panic(fmt.Sprintf("Cannot extract 3D matrix from Homogenous matrix %s", m))
 }
 
+// slice off the 4th column and row. This is to be used for pure vector math, where position is irrelevant
+func (m HomogeneusMatrix) Slice3DMatrix() Matrix3D {
+	return Matrix3D{
+		m.A1,
+		m.A2,
+		m.A3,
+
+		m.B1,
+		m.B2,
+		m.B3,
+
+		m.C1,
+		m.C2,
+		m.C3,
+	}
+}
+
 func (m HomogeneusMatrix) isHomogenous() bool {
 	return m.D1 == 0 && m.D2 == 0 && m.D3 == 0
 }
