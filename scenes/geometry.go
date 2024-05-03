@@ -707,6 +707,8 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 			{X: 1, Y: 10, Z: 0},
 			{X: -1, Y: 0, Z: 8},
 			{X: 0, Y: 10, Z: 16},
+			{X: 2, Y: 10, Z: 16},
+			// {X: 0, Y: 13, Z: 16},
 		},
 	}
 	outerSphereTexture := colors.GetDynamicTransparentTexture(
@@ -715,7 +717,7 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 				Color: colors.Black,
 			},
 		),
-		colors.StaticTransparency(colors.MiddleBand{Min: 0.0, Max: 0.6}),
+		colors.StaticTransparency(colors.MiddleBand{Min: 0.0, Max: 0.7}),
 	)
 	middleSphereTexture := colors.GetDynamicTransparentTexture(
 		colors.StaticTexture(
@@ -739,7 +741,7 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 	).WithTransform(geometry.ScaleMatrix(0.6))
 	cameraPath := geometry.SamplePath(path, 0, 0.8)
 	spherePath := geometry.SamplePath(path, 0.2, 1)
-	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 360}))
+	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 100}))
 	texture := colors.GetDynamicTransparentTexture(
 		checkerTexture,
 		colors.DynamicFromAnimatedTransparency(
@@ -749,19 +751,67 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
-			objects.RectanglesAlongPath(path, 20, 5, texture),
+			objects.RectanglesAlongPath(path, 50, 5, texture),
 			spheres.WithDynamicTransform(
 				func(t float64) geometry.HomogeneusMatrix {
+					sphereLocation := spherePath.GetDirection(t).Origin
+					cameraLocation := cameraPath.GetDirection(t).Origin
 					return geometry.MatrixProduct(
-						geometry.TranslationMatrix(geometry.Vector3D(spherePath.GetDirection(t).Origin)),
-						// geometry.PointTowards(cameraPath.GetDirection(t).Origin),
-						geometry.RotatePitch(math.Pi/2),
+						geometry.TranslationMatrix(geometry.Vector3D(sphereLocation)),
+						geometry.PointTowards(geometry.Point(sphereLocation.Subtract(cameraLocation))),
+						geometry.RotatePitch(-math.Pi/2),
 					)
 				},
 			),
 		},
 		Background: background,
 		CameraPath: cameraPath,
+	}
+}
+
+func CameraWithAxisTriangles(background DynamicBackground) DynamicScene {
+	path := geometry.BezierPath{
+		Points: []geometry.Point{
+			{X: 0, Y: 0, Z: 0},
+			{X: 1, Y: 10, Z: 0},
+			{X: -1, Y: 0, Z: 8},
+			{X: 0, Y: 10, Z: 16},
+		},
+	}
+
+	cameraPath := geometry.SamplePath(path, 0, 0.8)
+	spherePath := geometry.SamplePath(path, 0.2, 1)
+
+	actualCameraPath := geometry.BezierPath{
+		Points: []geometry.Point{
+			{X: 0, Y: 0, Z: -4},
+			{X: 0, Y: 0, Z: -3},
+		},
+	}
+
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObjectInt{
+			objects.AxisAlignedPointer().WithDynamicTransform(
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D(spherePath.GetDirection(t).Origin)),
+						geometry.PointTowards(cameraPath.GetDirection(t).Origin),
+						geometry.RotateYaw(math.Pi/2),
+					)
+				},
+			),
+			objects.AxisAlignedPointer().WithDynamicTransform(
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D(cameraPath.GetDirection(t).Origin)),
+						// geometry.PointTowards(cameraPath.GetDirection(t).Origin),
+						// geometry.RotateYaw(math.Pi/2),
+					)
+				},
+			),
+		},
+		Background: background,
+		CameraPath: actualCameraPath,
 	}
 }
 

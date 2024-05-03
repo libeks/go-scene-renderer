@@ -134,7 +134,7 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 		params = append(params,
 			"-c:v", "libx265",
 			// "-pix_fmt", "yu v420p",
-			"-pix_fmt", "p010le",
+			"-pix_fmt", "yuv420p10le",
 			// "-profile:v", "main",
 			"-level", "3.1",
 			"-preset", "medium",

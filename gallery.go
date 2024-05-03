@@ -11,6 +11,8 @@ import (
 )
 
 var (
+	blackBackground = scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black}))
+
 	EinsteinOnTheBeach = scenes.BackgroundScene(
 		scenes.BackgroundFromTexture(colors.FuzzyDynamic{
 			Texture: colors.StaticTexture(
@@ -164,7 +166,7 @@ var (
 	Checkckerboard   = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
 	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
 	SpinningHolyCube = scenes.SpinningIndividualMulticubeWithHoles(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
-	HeightMap        = scenes.HeightMap(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
+	HeightMap        = scenes.HeightMap(blackBackground)
 
 	SpinningTriangleWithHole = scenes.CheckerboardSquareWithRoundHole(
 		scenes.BackgroundFromTexture(
@@ -182,10 +184,11 @@ var (
 	)
 
 	Noise                      = scenes.NoiseTest()
-	SquaresAlongPath           = scenes.SquaresAlongPath(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
-	SquaresAlongPathWithCamera = scenes.CameraThroughSquaresAlongPath(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
-	ThreeSpheres               = scenes.ThreeSpheres(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
-	NineSpheres                = scenes.NineSpheres(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
-	OneBigSphere               = scenes.OneBigSphere(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black})))
+	SquaresAlongPath           = scenes.SquaresAlongPath(blackBackground)
+	SquaresAlongPathWithCamera = scenes.CameraThroughSquaresAlongPath(blackBackground)
+	ThreeSpheres               = scenes.ThreeSpheres(blackBackground)
+	NineSpheres                = scenes.NineSpheres(blackBackground)
+	OneBigSphere               = scenes.OneBigSphere(blackBackground)
+	CameraWithAxisTriangles    = scenes.CameraWithAxisTriangles(blackBackground)
 	// Perlin = scenes.NewPerlinNoise(color.Grayscale)
 )

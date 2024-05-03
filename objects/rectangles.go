@@ -75,3 +75,37 @@ func RectanglesAlongPath(path geometry.BezierPath, n int, size float64, texture 
 	}
 	return CombineDynamicObjects(objects...)
 }
+
+// AxisAlignedPointer returns three trianges:
+// green points towards +x
+// red points towards +y
+// blue points towards -z
+func AxisAlignedPointer() DynamicObject {
+	offset := 0.2
+	return DynamicObjectFromBasics(
+		DynamicBasicObject(
+			&Triangle{
+				A: geometry.Pt(0, 0, 0),
+				B: geometry.Pt(1, 0, 0),
+				C: geometry.Pt(0, offset, 0),
+			},
+			colors.OpaqueDynamicTexture(colors.StaticTexture(colors.HorizontalGradient{Gradient: colors.SimpleGradient{Start: colors.Green, End: colors.Green}})),
+		),
+		DynamicBasicObject(
+			&Triangle{
+				A: geometry.Pt(0, 0, 0),
+				B: geometry.Pt(0, 1, 0),
+				C: geometry.Pt(0, 0, -offset),
+			},
+			colors.OpaqueDynamicTexture(colors.StaticTexture(colors.HorizontalGradient{Gradient: colors.SimpleGradient{Start: colors.Red, End: colors.Red}})),
+		),
+		DynamicBasicObject(
+			&Triangle{
+				A: geometry.Pt(0, 0, 0),
+				B: geometry.Pt(0, 0, -1),
+				C: geometry.Pt(offset, 0, 0),
+			},
+			colors.OpaqueDynamicTexture(colors.StaticTexture(colors.HorizontalGradient{Gradient: colors.SimpleGradient{Start: colors.Blue, End: colors.Blue}})),
+		),
+	)
+}

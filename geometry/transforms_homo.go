@@ -1,7 +1,6 @@
 package geometry
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -159,6 +158,6 @@ func PointTowards(p Point) HomogeneusMatrix {
 		up.Z,
 		-forward.Z, // negative since the camera points in negative z-direction
 	}.toHomogenous()
-	fmt.Printf("point towards matrix : %s, det %.3f\n", m, m.Determinant())
+	// fmt.Printf("point towards %s matrix : %s, det %.3f\n", forward, m, m.Determinant())
 	return m
 }
