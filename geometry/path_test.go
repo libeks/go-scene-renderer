@@ -1,23 +1,14 @@
 package geometry
 
 import (
+	"fmt"
 	"math"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 )
 
-var approxFloatOpt = cmp.Comparer(func(x, y float64) bool {
-	if x-y == 0.0 {
-		return true
-	}
-	if x-y < 0.00001 {
-		return true
-	}
-	delta := math.Abs(x - y)
-	mean := math.Abs(x+y) / 2.0
-	return delta/mean < 0.1
-})
+var approxFloatOpt = cmp.Comparer(comparator)
 
 func TestBinomial(t *testing.T) {
 	tests := []struct {
@@ -171,47 +162,63 @@ func TestBezier(t *testing.T) {
 	}
 }
 
-// func TestRollPitchYawFactor(t *testing.T) {
-// 	tests := []struct {
-// 		name  string
-// 		roll  float64
-// 		pitch float64
-// 		yaw   float64
-// 	}{
-// 		{"roll", 0.5, 0, 0},
-// 		{"pitch", 0, 0.5, 0},
-// 		{"yaw", 0, 0, 0.5},
-// 		{"roll_pitch", 0.5, 0.75, 0},
-// 		{"roll_yaw", 0.25, 0, 0.33},
-// 		{"pitch_yaw", 0, 0.1, 0.5},
-// 		{"roll_pitch_yaw", -.4, 0.1, 0.5},
-// 	}
+func TestInverseDirectionMatrix(t *testing.T) {
+	t.Parallel()
+	standardOr := OriginPosition.Orientation
+	yawLeftOr := OriginPosition.Orientation.ApplyMatrix(
+		RotateYaw3D(math.Pi / 2),
+	)
+	yawRightOr := OriginPosition.Orientation.ApplyMatrix(
+		RotateYaw3D(-math.Pi / 2),
+	)
+	pitchUpOr := OriginPosition.Orientation.ApplyMatrix(
+		RotatePitch3D(-math.Pi / 2),
+	)
+	// pitchDownOr := OriginPosition.Orientation.ApplyMatrix(
+	// 	RotatePitch3D(-math.Pi / 2),
+	// )
+	// fmt.Printf("left %s\n", yawLeftOr)
+	sq3 := math.Sqrt(3)
+	sq2 := math.Sqrt(2)
+	towards111 := standardOr.ApplyMatrix(
+		// geometry.RotateMatrixX(-0.615),
+		// geometry.RotateMatrixZ(math.Pi/4)
+		// RotateYaw3D(math.Asin(1 / sq3)).MatrixMult(RotatePitch3D(-math.Asin(1 / sq2))),
+		RotateYaw3D(-math.Asin(1 / sq2)).MatrixMult(RotatePitch3D(-math.Asin(1 / sq3))),
+	)
+	fmt.Printf("Towards 111: %s\n", towards111)
+	// inv, _ := towards111.Inverse3DMatrix().Inverse()
+	// fmt.Printf("Towards 111 ^-1: %s\n", inv)
+	tests := []struct {
+		name        string
+		orientation EulerDirection
+		in          Vector3D
+		want        Vector3D
+	}{
+		{"origin_x", standardOr, V3(1, 0, 0), V3(1, 0, 0)},
+		{"origin_y", standardOr, V3(0, 1, 0), V3(0, 1, 0)},
+		{"origin_z", standardOr, V3(0, 0, -1), V3(0, 0, -1)},
+		{"111_z", towards111, V3(1/sq3, 1/sq3, -1/sq3), V3(0, 0, -1)},
+		{"left_x", yawLeftOr, V3(-1, 0, 0), V3(0, 0, -1)},
+		{"left_x2", yawLeftOr, V3(1, 0, 0), V3(0, 0, 1)},
+		{"left_z", yawLeftOr, V3(0, 0, 1), V3(-1, 0, 0)},
+		{"left_y", yawLeftOr, V3(0, 1, 0), V3(0, 1, 0)},
+		{"right_x", yawRightOr, V3(1, 0, 0), V3(0, 0, -1)},
+		{"right_z", yawRightOr, V3(0, 0, 1), V3(1, 0, 0)},
+		{"right_y", yawRightOr, V3(0, 1, 0), V3(0, 1, 0)},
+		{"up_x", pitchUpOr, V3(1, 0, 0), V3(1, 0, 0)},
+		{"up_z", pitchUpOr, V3(0, 0, 1), V3(0, 1, 0)},
+		{"up_y", pitchUpOr, V3(0, 1, 0), V3(0, 0, -1)},
+	}
 
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			d := EulerDirection{
-// 				ForwardVector: Vector3D{0, 0, 1},
-// 				UpVector:      Vector3D{0, 1, 0},
-// 				RightVector:   Vector3D{1, 0, 0},
-// 			}
-// 			wantRPY := RollPitchYaw{
-// 				tt.roll,
-// 				tt.pitch,
-// 				tt.yaw,
-// 			}
-// 			// apply the three rotations to initial vector:
-// 			t.Logf("D starts with %s \n", d)
-// 			d = d.ApplyMatrix(RotateRoll3D(tt.roll))
-// 			t.Logf("After roll of %.3f we have %s\n", tt.roll, d)
-// 			d = d.ApplyMatrix(RotatePitch3D(tt.pitch))
-// 			t.Logf("After pitch of %.3f we have %s\n", tt.pitch, d)
-// 			d = d.ApplyMatrix(RotateYaw3D(tt.yaw))
-// 			t.Logf("After yaw of %.3f we have %s\n", tt.yaw, d)
-// 			rpy := d.GetRollPitchYaw()
-// 			if diff := cmp.Diff(wantRPY, rpy); diff != "" {
-// 				t.Errorf("failure, diff: %s", diff)
-// 			}
-
-// 		})
-// 	}
-// }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := tt.orientation.Inverse3DMatrix()
+			got := m.MultVect(tt.in)
+			fmt.Printf("m %s, got %s, in %s\n", m, got, tt.in)
+			if diff := cmp.Diff(tt.want, got, approxFloatOpt); diff != "" {
+				t.Errorf("failure, diff: %s", diff)
+			}
+		})
+	}
+}

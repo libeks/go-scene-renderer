@@ -2,6 +2,7 @@ package geometry
 
 import (
 	"fmt"
+	"math"
 )
 
 type tuple struct {
@@ -18,8 +19,12 @@ var (
 			V3(1, 0, 0)},
 	}
 
-	binomialCache = make(map[tuple]int)
+	binomialCache map[tuple]int
 )
+
+func init() {
+	binomialCache = make(map[tuple]int)
+}
 
 type Path interface {
 	// at every frame, get a camera position and direction it's pointing in
@@ -38,9 +43,9 @@ func (d EulerDirection) String() string {
 
 func (d EulerDirection) ApplyMatrix(m Matrix3D) EulerDirection {
 	return EulerDirection{
-		m.MultVect(d.ForwardVector),
-		m.MultVect(d.UpVector),
-		m.MultVect(d.RightVector),
+		m.MultVect(d.ForwardVector).Unit(),
+		m.MultVect(d.UpVector).Unit(),
+		m.MultVect(d.RightVector).Unit(),
 	}
 }
 
@@ -49,23 +54,26 @@ func (d EulerDirection) Inverse3DMatrix() Matrix3D {
 
 	m := Matrix3D{
 		d.RightVector.X,
-		d.RightVector.Y,
-		d.RightVector.Z, // negative since the camera points in negative z-direction
-
 		d.UpVector.X,
-		d.UpVector.Y,
-		d.UpVector.Z, // negative since the camera points in negative z-direction
+		-d.ForwardVector.X, // negative since the camera points in negative z-direction
 
-		d.ForwardVector.X,
-		d.ForwardVector.Y,
-		d.ForwardVector.Z, // negative since the camera points in negative z-direction
+		d.RightVector.Y,
+		d.UpVector.Y,
+		-d.ForwardVector.Y, // negative since the camera points in negative z-direction
+
+		d.RightVector.Z,
+		d.UpVector.Z,
+		-d.ForwardVector.Z, // negative since the camera points in negative z-direction
 	}
-	// ret, valid := m.Inverse()
-	// if !valid {
-	// 	return Identity3D
-	// }
-	ret := m.ScalarMult(-1)
-	return ret
+	if !comparator(m.Determinant(), 1) {
+		fmt.Printf("ALERT! CAMERA TRANSFORMATION MATRIX HAS DETERMINANT %v\n", m.Determinant())
+	}
+	m, valid := m.Inverse()
+	if !valid {
+		return Identity3D
+	}
+	// m = m.ScalarMult(-1)
+	return m
 }
 
 func (d EulerDirection) InverseHomoMatrix() HomogeneusMatrix {
@@ -155,6 +163,26 @@ func (p BezierPath) direction(t float64) Vector3D {
 	return retVector.ScalarMultiply(float64(nPoints)).Unit()
 }
 
+func SamplePath(path BezierPath, start, end float64) sampledPath {
+	return sampledPath{
+		BezierPath: path,
+		start:      start,
+		end:        end,
+	}
+}
+
+type sampledPath struct {
+	BezierPath
+	start float64
+	end   float64
+}
+
+func (s sampledPath) GetDirection(t float64) Direction {
+	delta := s.end - s.start
+	newT := (t * delta) + s.start
+	return s.BezierPath.GetDirection(newT)
+}
+
 func tFactor(n, i int, t float64) float64 {
 	res := 1.0
 	for range i {
@@ -177,4 +205,11 @@ func binomial(n, k int) int {
 	res := binomial(n-1, k-1) + binomial(n-1, k)
 	binomialCache[a] = res
 	return res
+}
+
+func comparator(a, b float64) bool {
+	// adapted from https://stackoverflow.com/a/33024979, algo used in Python 3.5
+	relativeTolerance := 1e-9
+	absTolerance := 1e-9
+	return math.Abs(a-b) <= max(relativeTolerance*max(math.Abs(a), math.Abs(b)), absTolerance)
 }

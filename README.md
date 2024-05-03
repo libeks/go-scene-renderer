@@ -80,7 +80,17 @@ Ideally there would be boilerplate that would accomplish this out of the box, wi
 - Add other primitives besides triangles, such as  spheres
 - Add pixel size to rendering, to allow for primitives like point and line, etc
 - Move ray calculation to the rendering engine, allow for zooming in/out of the scene
-- Create different render methods, generalize the wireframe render
+- Create different render methods, generalize the wireframe render. Of course, this would also affect the math to map an image point back onto the pixel value, as well as the code for estimating bounding boxes and wireframes. The current renderer is hardcoded to only handle planar point-based rendering.
+  - Planar point-based rendering necessarily renders constant angles onto more pixels closer to the edge, this is why spheres are elongated towards the edge
+  - Flat projection would fix this, the rays would be emitted not from one point, but from an image plane, all in the same direction
+  - spherical point-based projection would hold the angle constant everywhere. first, estimate the angle covered by the angle, then divide that (not pixels) into equal parts, then create rays
+- Figure out why sphere bounding box and wireframe are both wrong, something is very off
+- Explore using OpenGL bindings (they should work for 1.14, not sure about higher versions)
+- Fix homo matrix multiplication to work differently on points vs vectors:
+ - points get the full matrix
+ - vectors get Mv - M0, i.e. the matrix also needs to be applied to the origin point, for consistency's sake
+ - unit vectors get the same handling as vectors, but get normalized after
+- Add separate UnitVector type? (would this make math too complex? Do we need to handle the various combinations for adding, etc)
 
 ## Ideas from Insta:
 

@@ -24,8 +24,8 @@ const (
 	minWindowWidth         = 3
 	minWindowCount         = 1
 	wireframeTriangleDepth = false
-	applyWireframe         = false // draw wireframes on top of rendered objects
-	render_h265            = true  // if false, will render with h264
+	applyWireframe         = true // draw wireframes on top of rendered objects
+	render_h265            = true // if false, will render with h264
 )
 
 var (
@@ -320,7 +320,7 @@ func (r Renderer) applyWireframeToImage(img *Image, scene scenes.StaticScene, ip
 			}
 			greenBlack := colors.SimpleGradient{
 				Start: colors.Green,
-				End:   colors.Black,
+				End:   colors.Green,
 			}
 			ratio := 8.0
 			colorA := greenBlack.Interpolate(2*maths.Sigmoid(line.ADepth/ratio) - 1)

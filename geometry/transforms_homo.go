@@ -31,25 +31,25 @@ func ScaleMatrix(t float64) HomogeneusMatrix {
 		panic("Cannot scale by 0.0")
 	}
 	return HomogeneusMatrix{
-		1,
+		t,
 		0,
 		0,
 		0,
 
 		0,
-		1,
+		t,
 		0,
 		0,
 
 		0,
 		0,
-		1,
+		t,
 		0,
 
 		0,
 		0,
 		0,
-		1 / t,
+		1,
 	}
 }
 

@@ -15,7 +15,7 @@ const (
 	PNG_FORMAT      = "png"
 	MP4_FORMAT      = "mp4"
 	do_pprof        = true
-	image_timestamp = 0.0
+	image_timestamp = 0.3
 )
 
 func main() {

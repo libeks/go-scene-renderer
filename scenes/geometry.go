@@ -706,25 +706,34 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 	path := geometry.BezierPath{
 		Points: []geometry.Point{
 			{X: 0, Y: 0, Z: 0},
-			{X: 0, Y: 10, Z: 0},
-			{X: 0, Y: 0, Z: 8},
+			{X: 1, Y: 10, Z: 0},
+			{X: -1, Y: 0, Z: 8},
 			{X: 0, Y: 10, Z: 16},
 		},
 	}
-	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 8}))
-	texture := colors.GetDynamicTransparentTexture(
-		checkerTexture,
-		colors.DynamicFromAnimatedTransparency(
-			colors.CircleCutout{Radius: 0.6},
-		),
-	)
+	redTexture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.VerticalGradientTexture{colors.LinearGradient{[]colors.Color{colors.Black, colors.Red, colors.Red, colors.Black}}}))
+	redSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), redTexture)).WithTransform(geometry.ScaleMatrix(0.8))
+	cameraPath := geometry.SamplePath(path, 0, 0.8)
+	spherePath := geometry.SamplePath(path, 0.2, 1)
+	// checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 8}))
+	// texture := colors.GetDynamicTransparentTexture(
+	// 	checkerTexture,
+	// 	colors.DynamicFromAnimatedTransparency(
+	// 		colors.CircleCutout{Radius: 0.8},
+	// 	),
+	// )
 
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
-			objects.RectanglesAlongPath(path, 20, 1, texture),
+			// objects.RectanglesAlongPath(path, 20, 1, texture),
+			redSphere.WithDynamicTransform(
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.TranslationMatrix(geometry.Vector3D(spherePath.GetDirection(t).Origin))
+				},
+			),
 		},
 		Background: background,
-		CameraPath: path,
+		CameraPath: cameraPath,
 	}
 }
 
@@ -746,7 +755,7 @@ func ThreeSpheres(background DynamicBackground) DynamicScene {
 	dynamicSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), texture))
 	checkerSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), transparentCheckerTexture))
 	redSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), redTexture))
-	fmt.Printf("Checker Sphere %s\n", checkerSphere)
+	fmt.Printf("Checker Sphere %v\n", checkerSphere)
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
 			dynamicSphere.WithDynamicTransform(
@@ -780,6 +789,187 @@ func ThreeSpheres(background DynamicBackground) DynamicScene {
 				},
 			),
 		},
+		Background: background,
+		// CameraPath: path,
+	}
+}
+
+func NineSpheres(background DynamicBackground) DynamicScene {
+	redTexture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform{Color: colors.Red}))
+	yellowSquare := objects.Parallelogram(geometry.Pt(-1, -1, 0), geometry.Pt(1, -1, 0), geometry.Pt(-1, 1, 0),
+		colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform{Color: colors.Yellow})),
+	)
+
+	redSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), redTexture))
+	objects := []objects.DynamicObjectInt{}
+	objects = append(objects,
+		redSphere.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(3, 3, -5)),
+				)
+			},
+		),
+		redSphere.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(0, 3, -5)),
+				)
+			},
+		),
+		redSphere.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(-3, 3, -5)),
+				)
+			},
+		),
+
+		redSphere.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(3, 0, -5)),
+				)
+			},
+		),
+		redSphere.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(0, 0, -5)),
+				)
+			},
+		),
+		redSphere.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(-3, 0, -5)),
+				)
+			},
+		),
+
+		redSphere.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(3, -3, -5)),
+				)
+			},
+		),
+		redSphere.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(0, -3, -5)),
+				)
+			},
+		),
+		redSphere.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(-3, -3, -5)),
+				)
+			},
+		),
+	)
+	objects = append(objects,
+		yellowSquare.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(3, 3, -5)),
+				)
+			},
+		),
+		yellowSquare.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(0, 3, -5)),
+				)
+			},
+		),
+		yellowSquare.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(-3, 3, -5)),
+				)
+			},
+		),
+
+		yellowSquare.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(3, 0, -5)),
+				)
+			},
+		),
+		yellowSquare.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(0, 0, -5)),
+				)
+			},
+		),
+		yellowSquare.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(-3, 0, -5)),
+				)
+			},
+		),
+
+		yellowSquare.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(3, -3, -5)),
+				)
+			},
+		),
+		yellowSquare.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(0, -3, -5)),
+				)
+			},
+		),
+		yellowSquare.WithDynamicTransform(
+			func(t float64) geometry.HomogeneusMatrix {
+				return geometry.MatrixProduct(
+					geometry.TranslationMatrix(geometry.V3(-3, -3, -5)),
+				)
+			},
+		),
+	)
+	return CombinedDynamicScene{
+		Objects:    objects,
+		Background: background,
+		// CameraPath: path,
+	}
+}
+
+func OneBigSphere(background DynamicBackground) DynamicScene {
+	redTexture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform{Color: colors.Red}))
+	// yellowSquare := objects.Parallelogram(geometry.Pt(-1, -1, 0), geometry.Pt(1, -1, 0), geometry.Pt(-1, 1, 0),
+	// 	colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform{Color: colors.Yellow})),
+	// )
+	location := func(t float64) geometry.HomogeneusMatrix {
+		return geometry.MatrixProduct(
+			geometry.RotateRoll(t*maths.Rotation),
+			geometry.TranslationMatrix(geometry.V3(3, 0, -5)),
+		)
+	}
+
+	redSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), redTexture))
+	objects := []objects.DynamicObjectInt{}
+	objects = append(objects,
+
+		redSphere.WithDynamicTransform(
+			location,
+		),
+	)
+	// objects = append(objects,
+	// 	// yellowSquare.WithDynamicTransform(
+	// 	// 	location,
+	// 	// ),
+	// )
+	return CombinedDynamicScene{
+		Objects:    objects,
 		Background: background,
 		// CameraPath: path,
 	}
