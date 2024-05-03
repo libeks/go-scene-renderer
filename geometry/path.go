@@ -81,31 +81,6 @@ func (d EulerDirection) InverseHomoMatrix() HomogeneusMatrix {
 	return d.Inverse3DMatrix().toHomogenous()
 }
 
-// func (d EulerDirection) GetRollPitchYaw() RollPitchYaw {
-// 	fmt.Printf("Initially we have %s\n", d)
-// 	// zero out the forward vector's X-coord by yawing
-// 	yaw := math.Atan2(d.ForwardVector.X, d.ForwardVector.Z)
-// 	fmt.Printf("Yaw at %.3f %.3f is %.3f\n", d.ForwardVector.X, d.ForwardVector.Z, yaw)
-// 	newDirection := d.ApplyMatrix(RotateYaw3D(-yaw))
-// 	// forward vector's Z-coord is now 0
-// 	// now pitch the forward vector to have a zero Y-coord
-// 	fmt.Printf("After un-yaw, we have %s\n", newDirection)
-// 	pitch := math.Atan2(newDirection.ForwardVector.Y, newDirection.ForwardVector.Z)
-// 	fmt.Printf("Pitch at %.3f %.3f is %.3f\n", newDirection.ForwardVector.Y, newDirection.ForwardVector.X, pitch)
-// 	newDirection = d.ApplyMatrix(RotatePitch3D(-pitch))
-// 	fmt.Printf("After un-pitching, we have %s\n", newDirection)
-// 	// now Forward vector points along the Z axis (perpendicularly into the image plane)
-// 	roll := math.Atan2(newDirection.RightVector.Y, newDirection.RightVector.X)
-// 	fmt.Printf("Roll at %.3f %.3f is %.3f\n", newDirection.RightVector.Y, newDirection.RightVector.X, roll)
-// 	newDirection = d.ApplyMatrix(RotateRoll3D(-roll))
-// 	fmt.Printf("After a full unroll we have %s\n", newDirection)
-// 	return RollPitchYaw{
-// 		Roll:  roll,
-// 		Pitch: pitch,
-// 		Yaw:   yaw,
-// 	}
-// }
-
 type Direction struct {
 	// ForwardVector and UpVector should be orthogonal
 	Origin      Point

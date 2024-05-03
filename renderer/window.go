@@ -24,7 +24,6 @@ type Window struct {
 
 // GetColor returns the color at the pixel, as well as the number of triangles, and comparisons before a match was made
 func (w Window) GetColor(x, y float64) (colors.Color, int, int) {
-	// fmt.Printf("Rendering window %s\n", w)
 	minZ := math.MaxFloat64
 	checks := 0
 	var closestColor *colors.Color
@@ -63,7 +62,6 @@ func (w Window) Bisect(ip ImagePreset) []Window {
 	if w.xMax-w.xMin < minWindowWidth {
 		return nil
 	}
-	// fmt.Printf("Bisecting window %s\n", w)
 	// window doesn't have enough triangles to be divided further
 	if len(w.triangles) <= minWindowCount {
 		return nil
@@ -71,7 +69,6 @@ func (w Window) Bisect(ip ImagePreset) []Window {
 	xMid := (w.xMax-w.xMin)/2 + w.xMin
 	yMid := (w.yMax-w.yMin)/2 + w.yMin
 	midXImg, midYImg := getImageSpace(xMid, ip.width), getImageSpace(yMid, ip.height)
-	// fmt.Printf("mids  :%.3f %.3f %.3f %.3f\n", midXImg, midYImg, xMid, yMid)
 	tlW := []objects.StaticBasicObject{}
 	trW := []objects.StaticBasicObject{}
 	blW := []objects.StaticBasicObject{}
@@ -98,7 +95,6 @@ func (w Window) Bisect(ip ImagePreset) []Window {
 		{w.xMin, xMid, yMid, w.yMax, blW, w.background},
 		{xMid, w.xMax, yMid, w.yMax, brW, w.background},
 	}
-	// fmt.Printf("Returning windows %v\n", retWins)
 	return retWins
 }
 
@@ -130,7 +126,6 @@ func initiateWindow(scene scenes.StaticScene, ip ImagePreset) []Window {
 func subdivideSceneIntoWindows(scene scenes.StaticScene, ip ImagePreset) []Window {
 	// start with one window for the whole image. Assume that all objects fall within the image
 	windows := initiateWindow(scene, ip)
-	// fmt.Printf("Initial windows: %v\n", windows)
 	maxTriangles := 0
 	totalWork := 0
 	finalWindows := []Window{}
@@ -151,6 +146,5 @@ func subdivideSceneIntoWindows(scene scenes.StaticScene, ip ImagePreset) []Windo
 			}
 		}
 	}
-	// fmt.Printf("Final windows: %v\n", finalWindows)
 	return finalWindows
 }

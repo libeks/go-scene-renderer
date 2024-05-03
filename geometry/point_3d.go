@@ -55,3 +55,15 @@ func (p Point) ToPixel() (*Pixel, float64) {
 		p.Y / -p.Z,
 	}, -p.Z
 }
+
+func (p Point) LinesAroundPoint() []Line {
+	uD := V3(0, .2, 0)
+	rD := V3(.2, 0, 0)
+	bD := V3(0, 0, .2)
+
+	return []Line{
+		{A: p, B: Point(p.Vector().AddVector(uD))},
+		{A: p, B: Point(p.Vector().AddVector(rD))},
+		{A: p, B: Point(p.Vector().AddVector(bD))},
+	}
+}

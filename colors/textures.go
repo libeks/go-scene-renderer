@@ -74,6 +74,15 @@ func (d Random) GetTextureColor(x, y float64) Color {
 	return White
 }
 
+type MiddleBand struct {
+	Min float64
+	Max float64
+}
+
+func (c MiddleBand) GetAlpha(x, y float64) bool {
+	return y > c.Min && y < c.Max
+}
+
 type Checkerboard struct {
 	Squares int
 }

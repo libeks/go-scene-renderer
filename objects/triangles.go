@@ -28,100 +28,6 @@ func Tri(a, b, c geometry.Point) *Triangle {
 	}
 }
 
-// func DynamicTriangle(t Triangle, colorer colors.DynamicTransparentTexture) dynamicTriangle {
-// 	return dynamicTriangle{
-// 		Triangle: t,
-// 		Colorer:  colorer,
-// 	}
-// }
-
-// // DynamicTriangle is a Triangle with a DynamicTexture, which can be evaluated for a specific frame
-// type dynamicTriangle struct {
-// 	Triangle
-// 	Colorer colors.DynamicTransparentTexture
-// }
-
-// func (t dynamicTriangle) Frame(f float64) staticTriangle {
-// 	// fmt.Printf("Colorer %v\n", t.Colorer)
-// 	return staticTriangle{
-// 		Triangle: &t.Triangle,
-// 		Colorer:  t.Colorer.GetFrame(f),
-// 	}
-// }
-
-// func (t dynamicTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) dynamicTriangle {
-// 	newTriangle := t.Triangle.ApplyMatrix(m)
-// 	return dynamicTriangle{
-// 		Triangle: newTriangle,
-// 		Colorer:  t.Colorer,
-// 	}
-// }
-
-// func (t dynamicTriangle) GetBoundingBox() BoundingBox {
-// 	return t.Triangle.GetBoundingBox()
-// }
-
-// func (t dynamicTriangle) String() string {
-// 	return fmt.Sprintf("DynamicTriangle: %s with %s", t.Triangle, t.Colorer)
-// }
-
-// // return all the lines that describe the triangle, without any fill, used to generate wireframe images
-// func (t dynamicTriangle) GetWireframe() []geometry.RasterLine {
-// 	return t.Triangle.GetWireframe()
-// }
-
-// func StaticTriangle(t Triangle, colorer colors.TransparentTexture) staticTriangle {
-// 	return staticTriangle{
-// 		Triangle: &t,
-// 		Colorer:  colorer,
-// 	}
-// }
-
-// // StaticTriangle is a Triangle with a Texture applied to it
-// type staticTriangle struct {
-// 	*Triangle
-// 	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but b+c<1.0
-// 	// it describes the coordinates on the triangle from A towards B and C, respectively
-// 	Colorer colors.TransparentTexture
-// }
-
-// // returns the color of the triangle at a ray
-// // emanating from the camera at (0,0,0), pointed in the direction
-// // (x,y, -1), with perspective
-// // and a z-index. The bigger the index, the farther the object.
-// func (t staticTriangle) GetColorDepth(x, y float64) (*colors.Color, float64) {
-// 	b, c, zDepth, intersect := t.RayIntersectLocalCoords(ray{geometry.OriginPoint, geometry.V3(x, y, -1)})
-// 	if !intersect {
-// 		return nil, 0
-// 	}
-// 	colorPtr := t.Colorer.GetTextureColor(b, c)
-// 	if colorPtr == nil {
-// 		return nil, 0
-// 	}
-// 	return colorPtr, zDepth
-// }
-
-// func (t staticTriangle) ApplyMatrix(m geometry.HomogeneusMatrix) BasicObject {
-// 	newTriangle := t.Triangle.ApplyMatrix(m)
-// 	return staticTriangle{
-// 		Triangle: newTriangle,
-// 		Colorer:  t.Colorer,
-// 	}
-// }
-
-// func (t staticTriangle) GetBoundingBox() BoundingBox {
-// 	return t.Triangle.GetBoundingBox()
-// }
-
-// // return all the lines that describe the triangle, without any fill, used to generate wireframe images
-// func (t staticTriangle) GetWireframe() []geometry.RasterLine {
-// 	return t.Triangle.GetWireframe()
-// }
-
-// func (t staticTriangle) String() string {
-// 	return fmt.Sprintf("StaticTriangle: %s with %s", t.Triangle, t.Colorer)
-// }
-
 // A Triangle describes an uncolored object in the space
 type Triangle struct {
 	A geometry.Point
@@ -164,7 +70,6 @@ func (t Triangle) Flatten() []*Triangle {
 
 func (t *Triangle) GetBoundingBox() BoundingBox {
 	if t.cachedBoundingBox {
-		// fmt.Printf("bbox: %s\n", t.bbox)
 		return t.bbox
 	}
 	wireframe := t.getSceneWireframe()
@@ -207,7 +112,6 @@ func (t *Triangle) GetBoundingBox() BoundingBox {
 	}
 	t.bbox = bb
 	t.cachedBoundingBox = true
-	// fmt.Printf("bounding box %s\n", bb)
 	return bb
 }
 

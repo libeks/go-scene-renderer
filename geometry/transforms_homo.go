@@ -1,6 +1,9 @@
 package geometry
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 func TranslationMatrix(v Vector3D) HomogeneusMatrix {
 	return HomogeneusMatrix{
@@ -135,4 +138,27 @@ func RotateMatrixZ(t float64) HomogeneusMatrix {
 		0,
 		1,
 	}
+}
+
+func PointTowards(p Point) HomogeneusMatrix {
+	// make it so the -z vector points towards point p
+	// assume the object is at 0,0,0
+	forward := p.Vector().Unit()
+	right := forward.CrossProduct(V3(0, 1, 0)).Unit()
+	up := right.CrossProduct(forward)
+	m := Matrix3D{
+		right.X,
+		up.X,
+		-forward.X, // negative since the camera points in negative z-direction
+
+		right.Y,
+		up.Y,
+		-forward.Y, // negative since the camera points in negative z-direction
+
+		right.Z,
+		up.Z,
+		-forward.Z, // negative since the camera points in negative z-direction
+	}.toHomogenous()
+	fmt.Printf("point towards matrix : %s, det %.3f\n", m, m.Determinant())
+	return m
 }

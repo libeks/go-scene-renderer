@@ -120,7 +120,6 @@ type Wiggle struct {
 }
 
 func (s Wiggle) GetFrameValue(x, y, t float64) float64 {
-	// fmt.Printf("Angle %.3f %.3f\n", t, math.Sin(2*t*s.NWiggles*math.Pi)*s.Angle)
 	return Rotated{s.Sampler, math.Sin(2*t*s.NWiggles*math.Pi) * s.Angle}.GetFrameValue(x, y, t)
 }
 

@@ -690,9 +690,7 @@ func SquaresAlongPath(background DynamicBackground) DynamicScene {
 				WithDynamicTransform(
 					func(t float64) geometry.HomogeneusMatrix {
 						return geometry.MatrixProduct(
-							// geometry.RotateMatrixX(0.2),
 							geometry.TranslationMatrix(geometry.V3(0, 0, -5)),
-							// geometry.ScaleMatrix(1),
 							geometry.RotateMatrixY(-t*maths.Rotation),
 						)
 					},
@@ -711,24 +709,54 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 			{X: 0, Y: 10, Z: 16},
 		},
 	}
-	redTexture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.VerticalGradientTexture{colors.LinearGradient{[]colors.Color{colors.Black, colors.Red, colors.Red, colors.Black}}}))
-	redSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), redTexture)).WithTransform(geometry.ScaleMatrix(0.8))
+	outerSphereTexture := colors.GetDynamicTransparentTexture(
+		colors.StaticTexture(
+			colors.Uniform{
+				Color: colors.Black,
+			},
+		),
+		colors.StaticTransparency(colors.MiddleBand{Min: 0.0, Max: 0.6}),
+	)
+	middleSphereTexture := colors.GetDynamicTransparentTexture(
+		colors.StaticTexture(
+			colors.Uniform{
+				Color: colors.Hex("#ff4500"),
+			},
+		),
+		colors.StaticTransparency(colors.MiddleBand{Min: 0.0, Max: 0.6}),
+	)
+	innerSphereTexture := colors.OpaqueDynamicTexture(
+		colors.StaticTexture(
+			colors.Uniform{
+				Color: colors.White,
+			},
+		),
+	)
+	spheres := objects.DynamicObjectFromBasics(
+		objects.DynamicSphere(objects.UnitSphere(), outerSphereTexture),
+		*objects.DynamicSphere(objects.UnitSphere(), middleSphereTexture).ApplyMatrix(geometry.ScaleMatrix(0.98)),
+		*objects.DynamicSphere(objects.UnitSphere(), innerSphereTexture).ApplyMatrix(geometry.ScaleMatrix(0.60)),
+	).WithTransform(geometry.ScaleMatrix(0.6))
 	cameraPath := geometry.SamplePath(path, 0, 0.8)
 	spherePath := geometry.SamplePath(path, 0.2, 1)
-	// checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 8}))
-	// texture := colors.GetDynamicTransparentTexture(
-	// 	checkerTexture,
-	// 	colors.DynamicFromAnimatedTransparency(
-	// 		colors.CircleCutout{Radius: 0.8},
-	// 	),
-	// )
+	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 360}))
+	texture := colors.GetDynamicTransparentTexture(
+		checkerTexture,
+		colors.DynamicFromAnimatedTransparency(
+			colors.CircleCutout{Radius: 0.12},
+		),
+	)
 
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
-			// objects.RectanglesAlongPath(path, 20, 1, texture),
-			redSphere.WithDynamicTransform(
+			objects.RectanglesAlongPath(path, 20, 5, texture),
+			spheres.WithDynamicTransform(
 				func(t float64) geometry.HomogeneusMatrix {
-					return geometry.TranslationMatrix(geometry.Vector3D(spherePath.GetDirection(t).Origin))
+					return geometry.MatrixProduct(
+						geometry.TranslationMatrix(geometry.Vector3D(spherePath.GetDirection(t).Origin)),
+						// geometry.PointTowards(cameraPath.GetDirection(t).Origin),
+						geometry.RotatePitch(math.Pi/2),
+					)
 				},
 			),
 		},
@@ -750,7 +778,15 @@ func ThreeSpheres(background DynamicBackground) DynamicScene {
 		whiteTexture,
 		colors.StaticTransparency(colors.Checkerboard{Squares: 16}),
 	)
-	redTexture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.VerticalGradientTexture{colors.LinearGradient{[]colors.Color{colors.Black, colors.Red, colors.Red, colors.Black}}}))
+	redTexture := colors.OpaqueDynamicTexture(
+		colors.StaticTexture(
+			colors.VerticalGradientTexture{
+				Gradient: colors.LinearGradient{
+					Points: []colors.Color{colors.Black, colors.Red, colors.Red, colors.Black},
+				},
+			},
+		),
+	)
 
 	dynamicSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), texture))
 	checkerSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), transparentCheckerTexture))
@@ -761,9 +797,7 @@ func ThreeSpheres(background DynamicBackground) DynamicScene {
 			dynamicSphere.WithDynamicTransform(
 				func(t float64) geometry.HomogeneusMatrix {
 					return geometry.MatrixProduct(
-						// geometry.RotateMatrixX(0.2),
 						geometry.TranslationMatrix(geometry.V3(-3, 0, -5)),
-						// geometry.ScaleMatrix(1),
 						geometry.RotateMatrixY(-2*t*maths.Rotation),
 					)
 				},
@@ -771,9 +805,7 @@ func ThreeSpheres(background DynamicBackground) DynamicScene {
 			redSphere.WithDynamicTransform(
 				func(t float64) geometry.HomogeneusMatrix {
 					return geometry.MatrixProduct(
-						// geometry.RotateMatrixX(0.2),
 						geometry.TranslationMatrix(geometry.V3(0, 0, -5)),
-						// geometry.ScaleMatrix(1),
 						geometry.RotateMatrixZ(-3*t*maths.Rotation),
 					)
 				},
@@ -781,9 +813,7 @@ func ThreeSpheres(background DynamicBackground) DynamicScene {
 			checkerSphere.WithDynamicTransform(
 				func(t float64) geometry.HomogeneusMatrix {
 					return geometry.MatrixProduct(
-						// geometry.RotateMatrixX(0.2),
 						geometry.TranslationMatrix(geometry.V3(3, 0, -5)),
-						// geometry.ScaleMatrix(1),
 						geometry.RotateMatrixX(4*t*maths.Rotation),
 					)
 				},
@@ -945,9 +975,6 @@ func NineSpheres(background DynamicBackground) DynamicScene {
 
 func OneBigSphere(background DynamicBackground) DynamicScene {
 	redTexture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform{Color: colors.Red}))
-	// yellowSquare := objects.Parallelogram(geometry.Pt(-1, -1, 0), geometry.Pt(1, -1, 0), geometry.Pt(-1, 1, 0),
-	// 	colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform{Color: colors.Yellow})),
-	// )
 	location := func(t float64) geometry.HomogeneusMatrix {
 		return geometry.MatrixProduct(
 			geometry.RotateRoll(t*maths.Rotation),
@@ -963,14 +990,8 @@ func OneBigSphere(background DynamicBackground) DynamicScene {
 			location,
 		),
 	)
-	// objects = append(objects,
-	// 	// yellowSquare.WithDynamicTransform(
-	// 	// 	location,
-	// 	// ),
-	// )
 	return CombinedDynamicScene{
 		Objects:    objects,
 		Background: background,
-		// CameraPath: path,
 	}
 }

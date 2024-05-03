@@ -26,6 +26,5 @@ func NewPerlinNoise() PerlinNoise {
 // returns a value from -1 to 1, based on Perlin Noise
 func (p PerlinNoise) GetFrameValue(x, y, t float64) float64 {
 	val := p.noise.Noise3D(x+p.offsetX, y+p.offsetY, t)
-	// fmt.Printf("Perlin value %.3f\n", val)
 	return val
 }

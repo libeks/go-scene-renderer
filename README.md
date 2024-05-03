@@ -82,7 +82,7 @@ Ideally there would be boilerplate that would accomplish this out of the box, wi
 - Move ray calculation to the rendering engine, allow for zooming in/out of the scene
 - Create different render methods, generalize the wireframe render. Of course, this would also affect the math to map an image point back onto the pixel value, as well as the code for estimating bounding boxes and wireframes. The current renderer is hardcoded to only handle planar point-based rendering.
   - Planar point-based rendering necessarily renders constant angles onto more pixels closer to the edge, this is why spheres are elongated towards the edge
-  - Flat projection would fix this, the rays would be emitted not from one point, but from an image plane, all in the same direction
+  - Flat projection would fix this, the rays would be emitted not from one point, but from an image plane, all in the same direction. Equivalent to planar point-based, but with infinite focal length.
   - spherical point-based projection would hold the angle constant everywhere. first, estimate the angle covered by the angle, then divide that (not pixels) into equal parts, then create rays
 - Figure out why sphere bounding box and wireframe are both wrong, something is very off
 - Explore using OpenGL bindings (they should work for 1.14, not sure about higher versions)

@@ -1,8 +1,6 @@
 package scenes
 
 import (
-	"fmt"
-
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 	"github.com/libeks/go-scene-renderer/objects"
@@ -33,9 +31,7 @@ type ObjectScene struct {
 func (s ObjectScene) Flatten() ([]objects.StaticBasicObject, Background) {
 	tris := []objects.StaticBasicObject{}
 	inverseMatrix := s.CameraDirection.InverseHomoMatrix()
-	fmt.Printf("Inverse camera matrix: %s\n", inverseMatrix)
 	for _, obj := range s.Objects {
-		// obj = obj.ApplyMatrix(inverseMatrix)
 		basics := obj.Flatten()
 		movedBasics := []objects.StaticBasicObject{}
 		for _, b := range basics {
@@ -65,14 +61,6 @@ func (s CombinedDynamicScene) GetFrame(t float64) StaticScene {
 	if s.CameraPath != nil {
 		direction = s.CameraPath.GetDirection(t)
 	}
-	// direction = geometry.Direction{
-	// 	Origin: geometry.Point{0, 0, 4},
-	// 	Orientation: geometry.EulerDirection{
-	// 		geometry.V3(0, 0, -1),
-	// 		geometry.V3(0, 1, 0),
-	// 		geometry.V3(1, 0, 0)},
-	// }
-	fmt.Printf("%.3f direction: %v\n", t, direction)
 	return ObjectScene{
 		Objects:         frameObjects,
 		Background:      s.Background.GetFrame(t),

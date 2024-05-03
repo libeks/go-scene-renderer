@@ -108,7 +108,6 @@ func (m Matrix3D) Inverse() (Matrix3D, bool) {
 	if d == 0 {
 		return Matrix3D{}, false
 	}
-	fmt.Printf("got %.3f, %.3f = %.3f \n", m.B1, m.C2, m.B1*m.C2)
 	k := Matrix3D{
 		m.B2*m.C3 - m.B3*m.C2,
 		-m.B1*m.C3 + m.B3*m.C1,

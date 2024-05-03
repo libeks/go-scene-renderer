@@ -47,7 +47,6 @@ type RasterLine struct {
 }
 
 func newRasterLine(aP, bP Point) *RasterLine {
-	// fmt.Printf("newRasterLine %s %s\n", aP, bP)
 	a, aDepth := aP.ToPixel()
 	b, bDepth := bP.ToPixel()
 	if a == nil || b == nil {
@@ -58,7 +57,6 @@ func newRasterLine(aP, bP Point) *RasterLine {
 	}
 	var txmin, txmax, tymin, tymax float64
 	if a.X == b.X {
-		// fmt.Printf("Xs are the same\n")
 		if a.X > 1 || a.X < -1 {
 			return nil
 		}
@@ -69,25 +67,20 @@ func newRasterLine(aP, bP Point) *RasterLine {
 		txmin, txmax = min(txleft, txright), max(txleft, txright)
 	}
 	if a.Y == b.Y {
-		// fmt.Printf("Ys are the same\n")
 		if a.Y > 1 || a.Y < -1 {
 			return nil
 		}
 		tymin, tymax = 0, 1
-		// fmt.Printf("newRasterLine ty %.3f %.3f\n", tymin, tymax)
 	} else {
 		tyleft := (-1 - a.Y) / (b.Y - a.Y)
 		tyright := (1 - a.Y) / (b.Y - a.Y)
-		// fmt.Printf("newRasterLine ty %.3f %.3f\n", tyleft, tyright)
 		tymin, tymax = min(tyleft, tyright), max(tyleft, tyright)
 	}
-	// fmt.Printf("newRasterLine tx %.3f %.3f ty %.3f %.3f\n", txmin, txmax, tymin, tymax)
 
 	// clip pixels to window
 	tmin := max(0, txmin, tymin)
 	tmax := min(1, txmax, tymax)
 
-	// fmt.Printf("newRasterLine ts %.3f %.3f\n", tmin, tmax)
 	if tmin == 0 && tmax == 1 {
 		return &RasterLine{
 			A: *a, B: *b,

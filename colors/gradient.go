@@ -170,7 +170,6 @@ type sampledGradient struct {
 
 func (g sampledGradient) Interpolate(t float64) Color {
 	newT := (t * (g.b - g.a)) + g.a
-	// fmt.Printf("interpolate sampled %.3f -> %.3f from (%.3f, %.3f) %s\n", t, newT, g.a, g.b, g.Gradient)
 	return g.Gradient.Interpolate(newT)
 }
 
@@ -182,7 +181,6 @@ func Subsample(g Gradient, a, b float64) Gradient {
 			b:        1 - a,
 		}
 	}
-	// fmt.Printf("subsample %s %.3f %.3f %.6f\n", g, a, b, b-a)
 	return sampledGradient{
 		g,
 		a,

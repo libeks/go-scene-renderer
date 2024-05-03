@@ -24,8 +24,8 @@ const (
 	minWindowWidth         = 3
 	minWindowCount         = 1
 	wireframeTriangleDepth = false
-	applyWireframe         = true // draw wireframes on top of rendered objects
-	render_h265            = true // if false, will render with h264
+	applyWireframe         = false // draw wireframes on top of rendered objects
+	render_h265            = true  // if false, will render with h264
 )
 
 var (

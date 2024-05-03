@@ -174,21 +174,12 @@ func TestInverseDirectionMatrix(t *testing.T) {
 	pitchUpOr := OriginPosition.Orientation.ApplyMatrix(
 		RotatePitch3D(-math.Pi / 2),
 	)
-	// pitchDownOr := OriginPosition.Orientation.ApplyMatrix(
-	// 	RotatePitch3D(-math.Pi / 2),
-	// )
-	// fmt.Printf("left %s\n", yawLeftOr)
 	sq3 := math.Sqrt(3)
 	sq2 := math.Sqrt(2)
 	towards111 := standardOr.ApplyMatrix(
-		// geometry.RotateMatrixX(-0.615),
-		// geometry.RotateMatrixZ(math.Pi/4)
-		// RotateYaw3D(math.Asin(1 / sq3)).MatrixMult(RotatePitch3D(-math.Asin(1 / sq2))),
 		RotateYaw3D(-math.Asin(1 / sq2)).MatrixMult(RotatePitch3D(-math.Asin(1 / sq3))),
 	)
 	fmt.Printf("Towards 111: %s\n", towards111)
-	// inv, _ := towards111.Inverse3DMatrix().Inverse()
-	// fmt.Printf("Towards 111 ^-1: %s\n", inv)
 	tests := []struct {
 		name        string
 		orientation EulerDirection
@@ -215,7 +206,6 @@ func TestInverseDirectionMatrix(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := tt.orientation.Inverse3DMatrix()
 			got := m.MultVect(tt.in)
-			fmt.Printf("m %s, got %s, in %s\n", m, got, tt.in)
 			if diff := cmp.Diff(tt.want, got, approxFloatOpt); diff != "" {
 				t.Errorf("failure, diff: %s", diff)
 			}
