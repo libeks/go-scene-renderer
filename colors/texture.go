@@ -1,5 +1,9 @@
 package colors
 
+import (
+	"github.com/libeks/go-scene-renderer/sampler"
+)
+
 type Texture interface {
 	// a,b range from (0,1), when used for triangles, only the lower triangluar values will be called
 	GetTextureColor(b, c float64) Color
@@ -141,6 +145,73 @@ func SquareGradientTexture(A, B, C, D Color) Texture {
 		triangleGradientTexture{
 			D, C, B,
 		},
+	}
+}
+
+func GenerateDynamicFromAnimatedTexture(f func(b float64, c float64, t float64) Color) genericDynamicSampler {
+	return genericDynamicSampler{f}
+}
+
+type genericDynamicSampler struct {
+	f func(b, c, t float64) Color
+}
+
+func (g genericDynamicSampler) GetFrame(t float64) Texture {
+	return genericStaticSampler{g, t}
+}
+
+type genericStaticSampler struct {
+	genericDynamicSampler
+	t float64
+}
+
+func (g genericStaticSampler) GetTextureColor(b, c float64) Color {
+	return g.genericDynamicSampler.f(b, c, g.t)
+}
+
+func RBGSamplerTexture(R, G, B sampler.Sampler) DynamicTexture {
+	return GenerateDynamicFromAnimatedTexture(func(b, c, t float64) Color {
+		return Color{
+			R.GetFrameValue(b, c, t),
+			G.GetFrameValue(b, c, t),
+			B.GetFrameValue(b, c, t),
+		}
+	})
+}
+
+func RBGSamplerDynamicTexture(R, G, B sampler.DynamicSampler) rgbDynamicSampler {
+	return rgbDynamicSampler{
+		R,
+		G,
+		B,
+	}
+}
+
+type rgbDynamicSampler struct {
+	R sampler.DynamicSampler
+	G sampler.DynamicSampler
+	B sampler.DynamicSampler
+}
+
+func (s rgbDynamicSampler) GetFrame(t float64) Texture {
+	return RGBFrame{
+		R: s.R.GetFrame(t),
+		G: s.G.GetFrame(t),
+		B: s.B.GetFrame(t),
+	}
+}
+
+type RGBFrame struct {
+	R sampler.StaticSampler
+	G sampler.StaticSampler
+	B sampler.StaticSampler
+}
+
+func (f RGBFrame) GetTextureColor(b, c float64) Color {
+	return Color{
+		R: f.R.GetValue(b, c),
+		G: f.G.GetValue(b, c),
+		B: f.B.GetValue(b, c),
 	}
 }
 

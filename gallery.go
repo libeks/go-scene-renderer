@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	blackBackground = scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Black}))
+	blackBackground = scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform(colors.Black)))
 
 	EinsteinOnTheBeach = scenes.BackgroundScene(
 		scenes.BackgroundFromTexture(colors.FuzzyDynamic{
@@ -121,12 +121,12 @@ var (
 	RoundedSquare = scenes.BackgroundScene(
 		scenes.BackgroundFromTexture(
 			colors.StaticTexture(
-				colors.RoundedSquare{
-					On:        colors.White,
-					Off:       colors.Black,
-					HalfWidth: 0.9,
-					Radius:    0.1,
-				},
+				colors.RoundedSquare(
+					colors.White,
+					colors.Black,
+					0.9,
+					0.1,
+				),
 			),
 		),
 	)
@@ -163,10 +163,11 @@ var (
 			),
 		),
 	)
-	Checkckerboard   = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
-	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
-	SpinningHolyCube = scenes.SpinningIndividualMulticubeWithHoles(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform{Color: colors.Blue})))
-	HeightMap        = scenes.HeightMap(blackBackground)
+	Checkckerboard   = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform(colors.Blue))))
+	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform(colors.Blue))))
+	SpinningHolyCube = scenes.SpinningIndividualMulticubeWithHoles(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform(colors.Blue))))
+	// TODO: fix
+	// HeightMap        = scenes.HeightMap(blackBackground)
 
 	SpinningTriangleWithHole = scenes.CheckerboardSquareWithRoundHole(
 		scenes.BackgroundFromTexture(
@@ -191,4 +192,7 @@ var (
 	OneBigSphere               = scenes.OneBigSphere(blackBackground)
 	CameraWithAxisTriangles    = scenes.CameraWithAxisTriangles(blackBackground)
 	// Perlin = scenes.NewPerlinNoise(color.Grayscale)
+	PerlinColors   = scenes.PerlinColors()
+	ColorRotation  = scenes.ColorRotation()
+	HeightMapCross = scenes.HeightMapCross(blackBackground)
 )

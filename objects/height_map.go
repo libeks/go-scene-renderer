@@ -9,15 +9,16 @@ import (
 // returns an object bounded by x in (-1,1) and z (-1,1) with y value varying based on Perlin noise source
 type HeightMap struct {
 	Gradient colors.Gradient
-	Height   sampler.Sampler
+	Height   sampler.DynamicSampler
 	N        int
 }
 
-func (o HeightMap) getAt(x, y, t float64) float64 {
-	return o.Height.GetFrameValue(x, y, t)
-}
+// func (o HeightMap) getAt(x, y, t float64) float64 {
+// 	return o.Height.GetFrameValue(x, y, t)
+// }
 
 func (o HeightMap) Frame(t float64) StaticObject {
+	sampler := o.Height.GetFrame(t)
 	triangles := []StaticBasicObject{}
 	zMult := 1.0
 	for xd := range o.N {
@@ -25,7 +26,7 @@ func (o HeightMap) Frame(t float64) StaticObject {
 			dx, dy := 2/float64(o.N-1), 2/float64(o.N-1)
 			x, y := (2*float64(xd)/float64(o.N-1))-1.0, (2*float64(yd)/float64(o.N-1))-1.0
 
-			a, b, c, d := o.getAt(x, y, t), o.getAt(x, y+dy, t), o.getAt(x+dx, y, t), o.getAt(x+dx, y+dy, t)
+			a, b, c, d := sampler.GetValue(x, y), sampler.GetValue(x, y+dy), sampler.GetValue(x+dx, y), sampler.GetValue(x+dx, y+dy)
 			triangles = append(triangles,
 				NewStaticBasicObject(
 					&Triangle{

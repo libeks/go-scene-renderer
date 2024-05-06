@@ -1,6 +1,7 @@
 package colors
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/libeks/go-scene-renderer/sampler"
@@ -136,13 +137,69 @@ func (m StaticMapper) GetFrameColor(x, y, t float64) Color {
 func GetSpecialMapper(on, off Color, thickness float64) StaticMapper {
 	return StaticMapper{
 		Mapping: []TextureValueMapping{
-			{0.9, Square{on, off, 1.0}},
-			{0.8, Square{on, off, max(0.7, 2*thickness)}},
-			{0.7, Cross{on, off, thickness}},
-			{0.5, HorizontalLine{on, off, thickness}},
-			{0.4, VerticalLine{on, off, thickness}},
-			{0.1, Circle{on, off, thickness}},
-			{0.0, Uniform{off}},
+			{0.9, Square(on, off, 1.0)},
+			{0.8, Square(on, off, max(0.7, 2*thickness))},
+			{0.7, Cross(on, off, thickness)},
+			{0.5, HorizontalLine(on, off, thickness)},
+			{0.4, VerticalLine(on, off, thickness)},
+			{0.1, Circle(on, off, thickness)},
+			{0.0, Uniform(off)},
 		},
 	}
+}
+
+// implements AnimatedTexture
+type BinaryAnimatedSamplerWithColors struct {
+	sampler.Sampler
+	On  Color
+	Off Color
+}
+
+func (s BinaryAnimatedSamplerWithColors) GetFrameColor(x, y, t float64) Color {
+	val := s.Sampler.GetFrameValue(x, y, t)
+	if val == 1 {
+		return s.On
+	}
+	if val == 0 {
+		return s.Off
+	}
+	panic(fmt.Errorf("BinarySampler returned value %.3f", val))
+}
+
+// implements AnimatedTexture
+type BinaryDynamicSamplerWithColors struct {
+	sampler.DynamicSampler
+	On  Color
+	Off Color
+}
+
+func (s BinaryDynamicSamplerWithColors) GetFrameColor(x, y, t float64) Color {
+	return s.GetFrame(t).GetTextureColor(x, y)
+}
+
+func (s BinaryDynamicSamplerWithColors) GetFrame(t float64) Texture {
+	frame := s.DynamicSampler.GetFrame(t)
+	return BinarySamplerWithColors{
+		StaticSampler: frame,
+		On:            s.On,
+		Off:           s.Off,
+	}
+}
+
+type BinarySamplerWithColors struct {
+	sampler.StaticSampler
+	On  Color
+	Off Color
+}
+
+// Implements Texture
+func (s BinarySamplerWithColors) GetTextureColor(x, y float64) Color {
+	val := s.StaticSampler.GetValue(x, y)
+	if val == 1 {
+		return s.On
+	}
+	if val == 0 {
+		return s.Off
+	}
+	panic(fmt.Errorf("BinarySampler returned value %.3f", val))
 }

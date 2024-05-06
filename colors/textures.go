@@ -57,17 +57,25 @@ func (g FuzzyDynamic) GetFrame(t float64) Texture {
 	}
 }
 
-type Uniform struct {
+func Uniform(c Color) Texture {
+	return uniform{c}
+}
+
+type uniform struct {
 	Color
 }
 
-func (d Uniform) GetTextureColor(x, y float64) Color {
+func (d uniform) GetTextureColor(x, y float64) Color {
 	return d.Color
 }
 
-type Random struct{}
+func Random() Texture {
+	return random{}
+}
 
-func (d Random) GetTextureColor(x, y float64) Color {
+type random struct{}
+
+func (d random) GetTextureColor(x, y float64) Color {
 	if rand.Float32() > 0.5 {
 		return Black
 	}
