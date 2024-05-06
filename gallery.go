@@ -168,7 +168,7 @@ var (
 	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(textures.StaticTexture(textures.Uniform(colors.Blue))))
 	SpinningHolyCube = scenes.SpinningIndividualMulticubeWithHoles(scenes.BackgroundFromTexture(textures.StaticTexture(textures.Uniform(colors.Blue))))
 	// TODO: fix
-	// HeightMap        = scenes.HeightMap(blackBackground)
+	HeightMap = scenes.HeightMap(blackBackground)
 
 	SpinningTriangleWithHole = scenes.CheckerboardSquareWithRoundHole(
 		scenes.BackgroundFromTexture(

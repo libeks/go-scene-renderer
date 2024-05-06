@@ -29,6 +29,30 @@ func (s RotatingSampler) GetFrameValue(x, y, t float64) float64 {
 	return s.GetFrame(t).GetValue(x, y)
 }
 
+func DynamicFromAnimated(s Sampler) DynamicSampler {
+	return dynamicFromAnimated{s}
+}
+
+type dynamicFromAnimated struct {
+	Sampler
+}
+
+func (s dynamicFromAnimated) GetFrame(t float64) StaticSampler {
+	return animatedAtFrame{
+		Sampler: s.Sampler,
+		t:       t,
+	}
+}
+
+type animatedAtFrame struct {
+	Sampler
+	t float64
+}
+
+func (s animatedAtFrame) GetValue(x, y float64) float64 {
+	return s.Sampler.GetFrameValue(x, y, s.t)
+}
+
 // Clamps down all values outside MaxRadius of the origin to 0, using a sigmoid with Decay (>6.0) as factor.
 // See https://www.desmos.com/calculator/gqy2bw9yt1
 type UnitCircleClamper struct {

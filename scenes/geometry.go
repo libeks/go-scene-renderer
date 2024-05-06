@@ -632,41 +632,41 @@ func CheckerboardSquareWithRoundHole(background DynamicBackground) DynamicScene 
 	}
 }
 
-// func HeightMap(background DynamicBackground) DynamicScene {
-// 	return CombinedDynamicScene{
-// 		Objects: []objects.DynamicObjectInt{
-// 			objects.NewDynamicObject(
-// 				objects.HeightMap{
-// 					Height: sampler.UnitCircleClamper{
-// 						DynamicSampler: sampler.RotatingSampler{
-// 							Sampler:   sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5},
-// 							Rotations: 1,
-// 							Radius:    0.25,
-// 							OffsetX:   0.5,
-// 							OffsetY:   0.5,
-// 							OffsetT:   10,
-// 						},
-// 						MaxRadius: 0.95,
-// 						Decay:     9,
-// 					},
-// 					Gradient: colors.LinearGradient{Points: []colors.Color{colors.Black, colors.Grayscale.Interpolate(0.75), colors.White}},
-// 					N:        100,
-// 				},
-// 			).WithDynamicTransform(
+func HeightMap(background DynamicBackground) DynamicScene {
+	return CombinedDynamicScene{
+		Objects: []objects.DynamicObjectInt{
+			objects.NewDynamicObject(
+				objects.HeightMap{
+					Height: sampler.UnitCircleClamper{
+						DynamicSampler: sampler.RotatingSampler{
+							DynamicSampler: sampler.DynamicFromAnimated(sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5}),
+							Rotations:      1,
+							Radius:         0.25,
+							OffsetX:        0.5,
+							OffsetY:        0.5,
+							OffsetT:        10,
+						},
+						MaxRadius: 0.95,
+						Decay:     9,
+					},
+					Gradient: colors.LinearGradient{Points: []colors.Color{colors.Black, colors.Grayscale.Interpolate(0.75), colors.White}},
+					N:        100,
+				},
+			).WithDynamicTransform(
 
-// 				func(t float64) geometry.HomogeneusMatrix {
-// 					return geometry.MatrixProduct(
-// 						geometry.RotateMatrixX(0.2),
-// 						geometry.TranslationMatrix(geometry.V3(0, -0.8, -1.5)),
-// 						geometry.ScaleMatrix(1),
-// 						// geometry.RotateMatrixY(-t*maths.Rotation),
-// 					)
-// 				},
-// 			),
-// 		},
-// 		Background: background,
-// 	}
-// }
+				func(t float64) geometry.HomogeneusMatrix {
+					return geometry.MatrixProduct(
+						geometry.RotateMatrixX(0.2),
+						geometry.TranslationMatrix(geometry.V3(0, -0.8, -1.5)),
+						geometry.ScaleMatrix(1),
+						// geometry.RotateMatrixY(-t*maths.Rotation),
+					)
+				},
+			),
+		},
+		Background: background,
+	}
+}
 
 func SquaresAlongPath(background DynamicBackground) DynamicScene {
 	path := geometry.BezierPath{
