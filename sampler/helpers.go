@@ -39,7 +39,7 @@ type UnitCircleClamper struct {
 
 func (s UnitCircleClamper) GetFrame(t float64) StaticSampler {
 	return UnitCircleClamperStatic{
-		StaticSampler: s.GetFrame(t),
+		StaticSampler: s.DynamicSampler.GetFrame(t),
 		MaxRadius:     s.MaxRadius,
 		Decay:         s.Decay,
 	}
@@ -214,27 +214,27 @@ func (s SineWaveWCrossAnimation) GetFrameValue(x, y float64, t float64) float64 
 	return valZeroOne
 }
 
-func Shifted(s Sampler, x, y float64) Sampler {
+func Shifted(s DynamicSampler, x, y float64) Sampler {
 	return shifted{
-		Sampler: s,
-		xOffset: x,
-		yOffset: y,
+		DynamicSampler: s,
+		xOffset:        x,
+		yOffset:        y,
 	}
 }
 
 type shifted struct {
-	Sampler
+	DynamicSampler
 	xOffset float64
 	yOffset float64
 }
 
 func (s shifted) GetFrameValue(x, y float64, t float64) float64 {
-	return s.Sampler.GetFrameValue(x+s.xOffset, y+s.yOffset, t)
+	return s.GetFrame(t).GetValue(x, y)
 }
 
 func (s shifted) GetFrame(t float64) StaticSampler {
 	return shiftedStatic{
-		StaticSampler: s.GetFrame(t),
+		StaticSampler: s.DynamicSampler.GetFrame(t),
 		xOffset:       s.xOffset,
 		yOffset:       s.yOffset,
 	}

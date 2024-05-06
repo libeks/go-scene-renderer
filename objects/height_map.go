@@ -4,6 +4,7 @@ import (
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 	"github.com/libeks/go-scene-renderer/sampler"
+	"github.com/libeks/go-scene-renderer/textures"
 )
 
 // returns an object bounded by x in (-1,1) and z (-1,1) with y value varying based on Perlin noise source
@@ -34,7 +35,7 @@ func (o HeightMap) Frame(t float64) StaticObject {
 						B: geometry.Pt(x, zMult*b, y+dy),
 						C: geometry.Pt(x+dx, zMult*c, y),
 					},
-					colors.OpaqueTexture(colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueTexture(textures.TriangleGradientInterpolationTexture{
 						Gradient: o.Gradient,
 
 						A: a, B: b, C: c, D: d,
@@ -48,7 +49,7 @@ func (o HeightMap) Frame(t float64) StaticObject {
 						B: geometry.Pt(x, zMult*b, y+dy),
 						C: geometry.Pt(x+dx, zMult*c, y),
 					},
-					colors.OpaqueTexture(colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueTexture(textures.TriangleGradientInterpolationTexture{
 						Gradient: o.Gradient,
 
 						A: d, B: b, C: c, D: a,
@@ -89,7 +90,7 @@ func (o HeightMapCircle) Frame(t float64) StaticObject {
 							B: geometry.Pt(x, zMult*o.getAt(x, y+dy, t), y+dy),
 							C: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y, t), y),
 						},
-						colors.OpaqueTexture(colors.TriangleGradientTexture(
+						textures.OpaqueTexture(textures.TriangleGradientTexture(
 							o.Gradient.Interpolate(o.getAt(x, y, t)),
 							o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
 							o.Gradient.Interpolate(o.getAt(x+dx, y, t)),
@@ -106,7 +107,7 @@ func (o HeightMapCircle) Frame(t float64) StaticObject {
 							B: geometry.Pt(x, zMult*o.getAt(x, y+dx, t), y+dy),
 							C: geometry.Pt(x+dx, zMult*o.getAt(x+dx, y, t), y),
 						},
-						colors.OpaqueTexture(colors.TriangleGradientTexture(
+						textures.OpaqueTexture(textures.TriangleGradientTexture(
 							o.Gradient.Interpolate(o.getAt(x+dx, y+dy, t)),
 							o.Gradient.Interpolate(o.getAt(x, y+dy, t)),
 							o.Gradient.Interpolate(o.getAt(x+dx, y, t)),

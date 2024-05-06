@@ -77,7 +77,6 @@ Ideally there would be boilerplate that would accomplish this out of the box, wi
   - Or color movement is distorted around the edges of the screen
 - Explore partial transparencies
   - try Moire patterns
-- Add other primitives besides triangles, such as  spheres
 - Add pixel size to rendering, to allow for primitives like point and line, etc
 - Move ray calculation to the rendering engine, allow for zooming in/out of the scene
 - Create different render methods, generalize the wireframe render. Of course, this would also affect the math to map an image point back onto the pixel value, as well as the code for estimating bounding boxes and wireframes. The current renderer is hardcoded to only handle planar point-based rendering.

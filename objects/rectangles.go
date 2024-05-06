@@ -3,6 +3,7 @@ package objects
 import (
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
+	"github.com/libeks/go-scene-renderer/textures"
 )
 
 // fourth coordinate is inferred from the first three
@@ -16,7 +17,7 @@ func GradientParallelogram(a, b, c geometry.Point, colorA, colorB, colorC, color
 				B: b,
 				C: c,
 			},
-			colors.OpaqueDynamicTexture(colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC))),
+			textures.OpaqueDynamicTexture(textures.StaticTexture(textures.TriangleGradientTexture(colorA, colorB, colorC))),
 		),
 		DynamicBasicObject(
 			&Triangle{
@@ -24,12 +25,12 @@ func GradientParallelogram(a, b, c geometry.Point, colorA, colorB, colorC, color
 				B: c,
 				C: b,
 			},
-			colors.OpaqueDynamicTexture(colors.StaticTexture(colors.TriangleGradientTexture(colorD, colorC, colorB))),
+			textures.OpaqueDynamicTexture(textures.StaticTexture(textures.TriangleGradientTexture(colorD, colorC, colorB))),
 		),
 	)
 }
 
-func Parallelogram(a, b, c geometry.Point, texture colors.DynamicTransparentTexture) DynamicObject {
+func Parallelogram(a, b, c geometry.Point, texture textures.DynamicTransparentTexture) DynamicObject {
 	d := geometry.Point(c.Add(geometry.Point(b.Subtract(a))))
 
 	return DynamicObjectFromBasics(
@@ -47,12 +48,12 @@ func Parallelogram(a, b, c geometry.Point, texture colors.DynamicTransparentText
 				B: c,
 				C: b,
 			},
-			colors.RotateDynamicTexture180(texture),
+			textures.RotateDynamicTexture180(texture),
 		),
 	)
 }
 
-func RectanglesAlongPath(path geometry.BezierPath, n int, size float64, texture colors.DynamicTransparentTexture) DynamicObject {
+func RectanglesAlongPath(path geometry.BezierPath, n int, size float64, texture textures.DynamicTransparentTexture) DynamicObject {
 	// upVector := geometry.Vector3D{X: 0, Y: 1, Z: 0}
 	objects := []DynamicObject{}
 	for i := range n {
@@ -89,7 +90,7 @@ func AxisAlignedPointer() DynamicObject {
 				B: geometry.Pt(1, 0, 0),
 				C: geometry.Pt(0, offset, 0),
 			},
-			colors.OpaqueDynamicTexture(colors.StaticTexture(colors.HorizontalGradient{Gradient: colors.SimpleGradient{Start: colors.Green, End: colors.Green}})),
+			textures.OpaqueDynamicTexture(textures.StaticTexture(textures.HorizontalGradient{Gradient: colors.SimpleGradient{Start: colors.Green, End: colors.Green}})),
 		),
 		DynamicBasicObject(
 			&Triangle{
@@ -97,7 +98,7 @@ func AxisAlignedPointer() DynamicObject {
 				B: geometry.Pt(0, 1, 0),
 				C: geometry.Pt(0, 0, -offset),
 			},
-			colors.OpaqueDynamicTexture(colors.StaticTexture(colors.HorizontalGradient{Gradient: colors.SimpleGradient{Start: colors.Red, End: colors.Red}})),
+			textures.OpaqueDynamicTexture(textures.StaticTexture(textures.HorizontalGradient{Gradient: colors.SimpleGradient{Start: colors.Red, End: colors.Red}})),
 		),
 		DynamicBasicObject(
 			&Triangle{
@@ -105,7 +106,7 @@ func AxisAlignedPointer() DynamicObject {
 				B: geometry.Pt(0, 0, -1),
 				C: geometry.Pt(offset, 0, 0),
 			},
-			colors.OpaqueDynamicTexture(colors.StaticTexture(colors.HorizontalGradient{Gradient: colors.SimpleGradient{Start: colors.Blue, End: colors.Blue}})),
+			textures.OpaqueDynamicTexture(textures.StaticTexture(textures.HorizontalGradient{Gradient: colors.SimpleGradient{Start: colors.Blue, End: colors.Blue}})),
 		),
 	)
 }

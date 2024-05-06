@@ -1,22 +1,24 @@
-package colors
+package textures
 
 import (
 	"math/rand"
+
+	"github.com/libeks/go-scene-renderer/colors"
 )
 
 type HorizontalGradient struct {
-	Gradient
+	colors.Gradient
 }
 
-func (d HorizontalGradient) GetTextureColor(x, y float64) Color {
+func (d HorizontalGradient) GetTextureColor(x, y float64) colors.Color {
 	return d.Gradient.Interpolate(x)
 }
 
 type VerticalGradient struct {
-	Gradient
+	colors.Gradient
 }
 
-func (d VerticalGradient) GetTextureColor(x, y float64) Color {
+func (d VerticalGradient) GetTextureColor(x, y float64) colors.Color {
 	return d.Gradient.Interpolate(y)
 }
 
@@ -25,7 +27,7 @@ type Fuzzy struct {
 	StdDev  float64
 }
 
-func (g Fuzzy) GetTextureColor(x, y float64) Color {
+func (g Fuzzy) GetTextureColor(x, y float64) colors.Color {
 	dx := rand.NormFloat64() * g.StdDev
 	dy := rand.NormFloat64() * g.StdDev
 	x = x + dx
@@ -57,15 +59,15 @@ func (g FuzzyDynamic) GetFrame(t float64) Texture {
 	}
 }
 
-func Uniform(c Color) Texture {
+func Uniform(c colors.Color) Texture {
 	return uniform{c}
 }
 
 type uniform struct {
-	Color
+	colors.Color
 }
 
-func (d uniform) GetTextureColor(x, y float64) Color {
+func (d uniform) GetTextureColor(x, y float64) colors.Color {
 	return d.Color
 }
 
@@ -75,11 +77,11 @@ func Random() Texture {
 
 type random struct{}
 
-func (d random) GetTextureColor(x, y float64) Color {
+func (d random) GetTextureColor(x, y float64) colors.Color {
 	if rand.Float32() > 0.5 {
-		return Black
+		return colors.Black
 	}
-	return White
+	return colors.White
 }
 
 type MiddleBand struct {
@@ -95,17 +97,17 @@ type Checkerboard struct {
 	Squares int
 }
 
-func (c Checkerboard) GetTextureColor(x, y float64) Color {
+func (c Checkerboard) GetTextureColor(x, y float64) colors.Color {
 	// don't render outside of texture boundaries
 	if x < 0 || x > 1 || y < 0 || y > 1 {
-		return Red
+		return colors.Red
 	}
 	r := 1 / float64(c.Squares)
 	xV, yV := int(x/r), int(y/r)
 	if (xV+yV)%2 == 0 {
-		return Black
+		return colors.Black
 	}
-	return White
+	return colors.White
 }
 
 func (c Checkerboard) GetAlpha(x, y float64) bool {

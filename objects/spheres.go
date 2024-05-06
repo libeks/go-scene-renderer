@@ -5,12 +5,12 @@ import (
 	"math"
 	"slices"
 
-	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
 	"github.com/libeks/go-scene-renderer/maths"
+	"github.com/libeks/go-scene-renderer/textures"
 )
 
-func DynamicSphere(t Sphere, colorer colors.DynamicTransparentTexture) dynamicBasicObject {
+func DynamicSphere(t Sphere, colorer textures.DynamicTransparentTexture) dynamicBasicObject {
 	return dynamicBasicObject{
 		BasicObject: &t,
 		Colorer:     colorer,

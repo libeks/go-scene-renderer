@@ -8,6 +8,7 @@ import (
 	"github.com/libeks/go-scene-renderer/maths"
 	"github.com/libeks/go-scene-renderer/objects"
 	"github.com/libeks/go-scene-renderer/sampler"
+	"github.com/libeks/go-scene-renderer/textures"
 )
 
 func DummySpinningCubes(background DynamicBackground) DynamicScene {
@@ -81,17 +82,17 @@ func SpinningMulticube(background DynamicBackground) DynamicScene {
 }
 
 func NoiseTest() DynamicScene {
-	texture := colors.StaticTexture(colors.NewPerlinNoiseTexture(colors.Grayscale))
+	texture := textures.StaticTexture(textures.NewPerlinNoiseTexture(colors.Grayscale))
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
-			objects.Parallelogram(geometry.Pt(0, 0, -5), geometry.Pt(2, 0, -5), geometry.Pt(0, 2, -5), colors.OpaqueDynamicTexture(texture)),
+			objects.Parallelogram(geometry.Pt(0, 0, -5), geometry.Pt(2, 0, -5), geometry.Pt(0, 2, -5), textures.OpaqueDynamicTexture(texture)),
 		},
 		Background: BackgroundFromTexture(texture),
 	}
 }
 
 func SpinningIndividualMulticube(background DynamicBackground) DynamicScene {
-	texture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.NewPerlinNoiseTexture(colors.Grayscale)))
+	texture := textures.OpaqueDynamicTexture(textures.StaticTexture(textures.NewPerlinNoiseTexture(colors.Grayscale)))
 	initialCube := UnitTextureCube(
 		texture,
 		texture,
@@ -140,7 +141,7 @@ func SpinningIndividualMulticube(background DynamicBackground) DynamicScene {
 }
 
 func SpinningIndividualMulticubeWithHoles(background DynamicBackground) DynamicScene {
-	texture := colors.StaticTexture(colors.NewPerlinNoiseTexture(colors.Grayscale))
+	texture := textures.StaticTexture(textures.NewPerlinNoiseTexture(colors.Grayscale))
 	initialCube := UnitTextureCubeWithTransparency(
 		texture,
 		texture,
@@ -148,8 +149,8 @@ func SpinningIndividualMulticubeWithHoles(background DynamicBackground) DynamicS
 		texture,
 		texture,
 		texture,
-		colors.DynamicFromAnimatedTransparency(
-			colors.CircleCutout{Radius: 0.8},
+		textures.DynamicFromAnimatedTransparency(
+			textures.CircleCutout{Radius: 0.8},
 		),
 	)
 	diagonalCube := initialCube.WithTransform(
@@ -251,7 +252,7 @@ func DummySpinningCube(background DynamicBackground) DynamicScene {
 	}
 }
 
-func DummyTextureSpinningCube(t colors.DynamicTransparentTexture, background DynamicBackground) DynamicScene {
+func DummyTextureSpinningCube(t textures.DynamicTransparentTexture, background DynamicBackground) DynamicScene {
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
 			UnitTextureCube(t, t, t, t, t, t).WithDynamicTransform(func(t float64) geometry.HomogeneusMatrix {
@@ -293,9 +294,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(1, 0, 0),
 						geometry.Pt(0, 1, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a11, B: a10, C: a01, D: a00,
@@ -311,9 +312,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(1, 0, 0),
 						geometry.Pt(0, 1, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a00, B: a10, C: a01, D: a11,
@@ -329,9 +330,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(1, 0, 0),
 						geometry.Pt(0, -1, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a19, B: a10, C: a09, D: a00,
@@ -347,9 +348,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(1, 0, 0),
 						geometry.Pt(0, -1, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a00, B: a10, C: a09, D: a19,
@@ -366,9 +367,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(-1, 0, 0),
 						geometry.Pt(0, 1, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a91, B: a90, C: a01, D: a00,
@@ -384,9 +385,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(-1, 0, 0),
 						geometry.Pt(0, 1, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a00, B: a90, C: a01, D: a91,
@@ -402,9 +403,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(-1, 0, 0),
 						geometry.Pt(0, -1, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a99, B: a90, C: a09, D: a00,
@@ -420,9 +421,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(-1, 0, 0),
 						geometry.Pt(0, -1, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a00, B: a90, C: a09, D: a99,
@@ -440,9 +441,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(-1, -1, 0),
 						geometry.Pt(0, 0, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a90, B: a99, C: a00, D: a09,
@@ -458,9 +459,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(-1, -1, 0),
 						geometry.Pt(0, 0, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a09, B: a99, C: a00, D: a90,
@@ -476,9 +477,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(1, -1, 0),
 						geometry.Pt(0, 0, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a10, B: a19, C: a00, D: a09,
@@ -494,9 +495,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(1, -1, 0),
 						geometry.Pt(0, 0, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a09, B: a19, C: a00, D: a10,
@@ -513,9 +514,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(1, 1, 0),
 						geometry.Pt(0, 0, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a10, B: a11, C: a00, D: a01,
@@ -531,9 +532,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(1, 1, 0),
 						geometry.Pt(0, 0, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a01, B: a11, C: a00, D: a10,
@@ -549,9 +550,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(-1, 1, 0),
 						geometry.Pt(0, 0, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a90, B: a91, C: a00, D: a01,
@@ -567,9 +568,9 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 						geometry.Pt(-1, 1, 0),
 						geometry.Pt(0, 0, 0),
 					),
-					colors.OpaqueDynamicTexture(
-						colors.StaticTexture(
-							colors.TriangleGradientInterpolationTexture{
+					textures.OpaqueDynamicTexture(
+						textures.StaticTexture(
+							textures.TriangleGradientInterpolationTexture{
 								Gradient: gradient,
 
 								A: a01, B: a91, C: a00, D: a90,
@@ -584,7 +585,7 @@ func SingleSpinningTriangle(background DynamicBackground) DynamicScene {
 }
 
 func CheckerboardSquare(background DynamicBackground) DynamicScene {
-	texture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 16}))
+	texture := textures.OpaqueDynamicTexture(textures.StaticTexture(textures.Checkerboard{Squares: 16}))
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
 			objects.Parallelogram(
@@ -605,17 +606,17 @@ func CheckerboardSquare(background DynamicBackground) DynamicScene {
 }
 
 func CheckerboardSquareWithRoundHole(background DynamicBackground) DynamicScene {
-	texture := colors.StaticTexture(colors.Checkerboard{Squares: 16})
+	texture := textures.StaticTexture(textures.Checkerboard{Squares: 16})
 	return CombinedDynamicScene{
 		Objects: []objects.DynamicObjectInt{
 			objects.Parallelogram(
 				geometry.Pt(0, 0, 0),
 				geometry.Pt(2, 0, 0),
 				geometry.Pt(0, 2, 0),
-				colors.GetDynamicTransparentTexture(
+				textures.GetDynamicTransparentTexture(
 					texture,
-					colors.DynamicFromAnimatedTransparency(
-						colors.CircleCutout{Radius: 0.8},
+					textures.DynamicFromAnimatedTransparency(
+						textures.CircleCutout{Radius: 0.8},
 					),
 				),
 			).WithDynamicTransform(
@@ -675,11 +676,11 @@ func SquaresAlongPath(background DynamicBackground) DynamicScene {
 			{X: 3, Y: 3, Z: 0},
 		},
 	}
-	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 8}))
-	texture := colors.GetDynamicTransparentTexture(
+	checkerTexture := textures.DynamicTexture(textures.StaticTexture(textures.Checkerboard{Squares: 8}))
+	texture := textures.GetDynamicTransparentTexture(
 		checkerTexture,
-		colors.DynamicFromAnimatedTransparency(
-			colors.CircleCutout{Radius: 0.8},
+		textures.DynamicFromAnimatedTransparency(
+			textures.CircleCutout{Radius: 0.8},
 		),
 	)
 
@@ -710,21 +711,21 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 			// {X: 0, Y: 13, Z: 16},
 		},
 	}
-	outerSphereTexture := colors.GetDynamicTransparentTexture(
-		colors.StaticTexture(
-			colors.Uniform(colors.Black),
+	outerSphereTexture := textures.GetDynamicTransparentTexture(
+		textures.StaticTexture(
+			textures.Uniform(colors.Black),
 		),
-		colors.StaticTransparency(colors.MiddleBand{Min: 0.0, Max: 0.7}),
+		textures.StaticTransparency(textures.MiddleBand{Min: 0.0, Max: 0.7}),
 	)
-	middleSphereTexture := colors.GetDynamicTransparentTexture(
-		colors.StaticTexture(
-			colors.Uniform(colors.Hex("#ff4500")),
+	middleSphereTexture := textures.GetDynamicTransparentTexture(
+		textures.StaticTexture(
+			textures.Uniform(colors.Hex("#ff4500")),
 		),
-		colors.StaticTransparency(colors.MiddleBand{Min: 0.0, Max: 0.6}),
+		textures.StaticTransparency(textures.MiddleBand{Min: 0.0, Max: 0.6}),
 	)
-	innerSphereTexture := colors.OpaqueDynamicTexture(
-		colors.StaticTexture(
-			colors.Uniform(colors.White),
+	innerSphereTexture := textures.OpaqueDynamicTexture(
+		textures.StaticTexture(
+			textures.Uniform(colors.White),
 		),
 	)
 	spheres := objects.DynamicObjectFromBasics(
@@ -734,11 +735,11 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 	).WithTransform(geometry.ScaleMatrix(0.6))
 	cameraPath := geometry.SamplePath(path, 0, 0.8)
 	spherePath := geometry.SamplePath(path, 0.2, 1)
-	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 100}))
-	texture := colors.GetDynamicTransparentTexture(
+	checkerTexture := textures.DynamicTexture(textures.StaticTexture(textures.Checkerboard{Squares: 100}))
+	texture := textures.GetDynamicTransparentTexture(
 		checkerTexture,
-		colors.DynamicFromAnimatedTransparency(
-			colors.CircleCutout{Radius: 0.12},
+		textures.DynamicFromAnimatedTransparency(
+			textures.CircleCutout{Radius: 0.12},
 		),
 	)
 
@@ -809,21 +810,21 @@ func CameraWithAxisTriangles(background DynamicBackground) DynamicScene {
 }
 
 func ThreeSpheres(background DynamicBackground) DynamicScene {
-	checkerTexture := colors.DynamicTexture(colors.StaticTexture(colors.Checkerboard{Squares: 16}))
-	whiteTexture := colors.StaticTexture(colors.Uniform(colors.White))
-	texture := colors.GetDynamicTransparentTexture(
+	checkerTexture := textures.DynamicTexture(textures.StaticTexture(textures.Checkerboard{Squares: 16}))
+	whiteTexture := textures.StaticTexture(textures.Uniform(colors.White))
+	texture := textures.GetDynamicTransparentTexture(
 		checkerTexture,
-		colors.DynamicFromAnimatedTransparency(
-			colors.CircleCutout{Radius: 0.6},
+		textures.DynamicFromAnimatedTransparency(
+			textures.CircleCutout{Radius: 0.6},
 		),
 	)
-	transparentCheckerTexture := colors.GetDynamicTransparentTexture(
+	transparentCheckerTexture := textures.GetDynamicTransparentTexture(
 		whiteTexture,
-		colors.StaticTransparency(colors.Checkerboard{Squares: 16}),
+		textures.StaticTransparency(textures.Checkerboard{Squares: 16}),
 	)
-	redTexture := colors.OpaqueDynamicTexture(
-		colors.StaticTexture(
-			colors.VerticalGradientTexture{
+	redTexture := textures.OpaqueDynamicTexture(
+		textures.StaticTexture(
+			textures.VerticalGradientTexture{
 				Gradient: colors.LinearGradient{
 					Points: []colors.Color{colors.Black, colors.Red, colors.Red, colors.Black},
 				},
@@ -867,9 +868,9 @@ func ThreeSpheres(background DynamicBackground) DynamicScene {
 }
 
 func NineSpheres(background DynamicBackground) DynamicScene {
-	redTexture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform(colors.Red)))
+	redTexture := textures.OpaqueDynamicTexture(textures.StaticTexture(textures.Uniform(colors.Red)))
 	yellowSquare := objects.Parallelogram(geometry.Pt(-1, -1, 0), geometry.Pt(1, -1, 0), geometry.Pt(-1, 1, 0),
-		colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform(colors.Yellow))),
+		textures.OpaqueDynamicTexture(textures.StaticTexture(textures.Uniform(colors.Yellow))),
 	)
 
 	redSphere := objects.DynamicObjectFromBasics(objects.DynamicSphere(objects.UnitSphere(), redTexture))
@@ -1016,7 +1017,7 @@ func NineSpheres(background DynamicBackground) DynamicScene {
 }
 
 func OneBigSphere(background DynamicBackground) DynamicScene {
-	redTexture := colors.OpaqueDynamicTexture(colors.StaticTexture(colors.Uniform(colors.Red)))
+	redTexture := textures.OpaqueDynamicTexture(textures.StaticTexture(textures.Uniform(colors.Red)))
 	location := func(t float64) geometry.HomogeneusMatrix {
 		return geometry.MatrixProduct(
 			geometry.RotateRoll(t*maths.Rotation),

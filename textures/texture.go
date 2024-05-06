@@ -1,16 +1,17 @@
-package colors
+package textures
 
 import (
+	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/sampler"
 )
 
 type Texture interface {
 	// a,b range from (0,1), when used for triangles, only the lower triangluar values will be called
-	GetTextureColor(b, c float64) Color
+	GetTextureColor(b, c float64) colors.Color
 }
 
 type TransparentTexture interface {
-	GetTextureColor(b, c float64) *Color
+	GetTextureColor(b, c float64) *colors.Color
 }
 
 type DynamicTexture interface {
@@ -31,7 +32,7 @@ type transparentTexture struct {
 	transparency Transparency
 }
 
-func (t transparentTexture) GetTextureColor(b, c float64) *Color {
+func (t transparentTexture) GetTextureColor(b, c float64) *colors.Color {
 	if !t.transparency.GetAlpha(b, c) {
 		return nil
 	}
@@ -61,7 +62,7 @@ type opaqueTexture struct {
 	texture Texture
 }
 
-func (t opaqueTexture) GetTextureColor(b, c float64) *Color {
+func (t opaqueTexture) GetTextureColor(b, c float64) *colors.Color {
 	color := t.texture.GetTextureColor(b, c)
 	return &color
 }
@@ -90,7 +91,7 @@ func StaticTexture(t Texture) DynamicTexture {
 	return staticTexture{t}
 }
 
-func TriangleGradientTexture(A, B, C Color) Texture {
+func TriangleGradientTexture(A, B, C colors.Color) Texture {
 	return triangleGradientTexture{
 		A, B, C,
 	}
@@ -98,33 +99,33 @@ func TriangleGradientTexture(A, B, C Color) Texture {
 
 // returns a color gradient for the lower triangle of a unit square
 type triangleGradientTexture struct {
-	ColorA Color
-	ColorB Color
-	ColorC Color
+	ColorA colors.Color
+	ColorB colors.Color
+	ColorC colors.Color
 }
 
 // given coordinates from the A point towards B and C (each in the range of (0,1))
 // return what color it should be
-func (t triangleGradientTexture) GetTextureColor(b, c float64) Color {
+func (t triangleGradientTexture) GetTextureColor(b, c float64) colors.Color {
 	if c == 1 {
 		return t.ColorB
 	}
-	abGradient := SimpleGradient{t.ColorA, t.ColorB}
+	abGradient := colors.SimpleGradient{Start: t.ColorA, End: t.ColorB}
 	abColor := abGradient.Interpolate(b / (1 - c))
-	triangleGradient := SimpleGradient{abColor, t.ColorC}
+	triangleGradient := colors.SimpleGradient{Start: abColor, End: t.ColorC}
 	cColor := triangleGradient.Interpolate(c)
 	return cColor
 }
 
 type TriangleGradientInterpolationTexture struct {
-	Gradient
+	colors.Gradient
 	A float64
 	B float64
 	C float64
 	D float64
 }
 
-func (g TriangleGradientInterpolationTexture) GetTextureColor(b, c float64) Color {
+func (g TriangleGradientInterpolationTexture) GetTextureColor(b, c float64) colors.Color {
 	if b == 1 {
 		return g.Gradient.Interpolate(g.B)
 	}
@@ -137,7 +138,7 @@ func (g TriangleGradientInterpolationTexture) GetTextureColor(b, c float64) Colo
 	return cColor
 }
 
-func SquareGradientTexture(A, B, C, D Color) Texture {
+func SquareGradientTexture(A, B, C, D colors.Color) Texture {
 	return squareGradientTexture{
 		triangleGradientTexture{
 			A, B, C,
@@ -148,12 +149,12 @@ func SquareGradientTexture(A, B, C, D Color) Texture {
 	}
 }
 
-func GenerateDynamicFromAnimatedTexture(f func(b float64, c float64, t float64) Color) genericDynamicSampler {
+func GenerateDynamicFromAnimatedTexture(f func(b float64, c float64, t float64) colors.Color) genericDynamicSampler {
 	return genericDynamicSampler{f}
 }
 
 type genericDynamicSampler struct {
-	f func(b, c, t float64) Color
+	f func(b, c, t float64) colors.Color
 }
 
 func (g genericDynamicSampler) GetFrame(t float64) Texture {
@@ -165,16 +166,16 @@ type genericStaticSampler struct {
 	t float64
 }
 
-func (g genericStaticSampler) GetTextureColor(b, c float64) Color {
+func (g genericStaticSampler) GetTextureColor(b, c float64) colors.Color {
 	return g.genericDynamicSampler.f(b, c, g.t)
 }
 
 func RBGSamplerTexture(R, G, B sampler.Sampler) DynamicTexture {
-	return GenerateDynamicFromAnimatedTexture(func(b, c, t float64) Color {
-		return Color{
-			R.GetFrameValue(b, c, t),
-			G.GetFrameValue(b, c, t),
-			B.GetFrameValue(b, c, t),
+	return GenerateDynamicFromAnimatedTexture(func(b, c, t float64) colors.Color {
+		return colors.Color{
+			R: R.GetFrameValue(b, c, t),
+			G: G.GetFrameValue(b, c, t),
+			B: B.GetFrameValue(b, c, t),
 		}
 	})
 }
@@ -207,8 +208,8 @@ type RGBFrame struct {
 	B sampler.StaticSampler
 }
 
-func (f RGBFrame) GetTextureColor(b, c float64) Color {
-	return Color{
+func (f RGBFrame) GetTextureColor(b, c float64) colors.Color {
+	return colors.Color{
 		R: f.R.GetValue(b, c),
 		G: f.G.GetValue(b, c),
 		B: f.B.GetValue(b, c),
@@ -222,7 +223,7 @@ type squareGradientTexture struct {
 	upper triangleGradientTexture
 }
 
-func (g squareGradientTexture) GetTextureColor(b, c float64) Color {
+func (g squareGradientTexture) GetTextureColor(b, c float64) colors.Color {
 	if b+c < 1.0 {
 		return g.lower.GetTextureColor(b, c)
 	}
@@ -235,7 +236,7 @@ type rotatedTexture struct {
 	t TransparentTexture
 }
 
-func (t rotatedTexture) GetTextureColor(b, c float64) *Color {
+func (t rotatedTexture) GetTextureColor(b, c float64) *colors.Color {
 	return t.t.GetTextureColor(1-b, 1-c)
 }
 
@@ -256,9 +257,9 @@ func RotateDynamicTexture180(texture DynamicTransparentTexture) DynamicTranspare
 }
 
 type VerticalGradientTexture struct {
-	Gradient
+	colors.Gradient
 }
 
-func (g VerticalGradientTexture) GetTextureColor(b, c float64) Color {
+func (g VerticalGradientTexture) GetTextureColor(b, c float64) colors.Color {
 	return g.Gradient.Interpolate(c)
 }

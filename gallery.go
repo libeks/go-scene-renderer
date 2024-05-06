@@ -8,15 +8,16 @@ import (
 	"github.com/libeks/go-scene-renderer/objects"
 	"github.com/libeks/go-scene-renderer/sampler"
 	"github.com/libeks/go-scene-renderer/scenes"
+	"github.com/libeks/go-scene-renderer/textures"
 )
 
 var (
-	blackBackground = scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform(colors.Black)))
+	blackBackground = scenes.BackgroundFromTexture(textures.StaticTexture(textures.Uniform(colors.Black)))
 
 	EinsteinOnTheBeach = scenes.BackgroundScene(
-		scenes.BackgroundFromTexture(colors.FuzzyDynamic{
-			Texture: colors.StaticTexture(
-				colors.VerticalGradient{
+		scenes.BackgroundFromTexture(textures.FuzzyDynamic{
+			Texture: textures.StaticTexture(
+				textures.VerticalGradient{
 					Gradient: colors.LinearGradient{
 						Points: []colors.Color{
 							// einstein on the beach kind of gradient
@@ -46,9 +47,9 @@ var (
 					geometry.Point{X: -1, Y: -1, Z: -2},
 					geometry.Point{X: -1, Y: 1, Z: -2},
 					geometry.Point{X: 1, Y: -1, Z: -2},
-					colors.OpaqueDynamicTexture(
-						colors.DynamicFromAnimatedTexture(
-							colors.GetAniTextureFromSampler(
+					textures.OpaqueDynamicTexture(
+						textures.DynamicFromAnimatedTexture(
+							textures.GetAniTextureFromSampler(
 								sampler.Sigmoid{
 									Sampler: sampler.Wiggle{
 										Sampler: sampler.Rotated{
@@ -70,8 +71,8 @@ var (
 			),
 		},
 		Background: scenes.BackgroundFromTexture(
-			colors.DynamicFromAnimatedTexture(
-				colors.GetAniTextureFromSampler(
+			textures.DynamicFromAnimatedTexture(
+				textures.GetAniTextureFromSampler(
 					sampler.Sigmoid{
 						Sampler: sampler.Wiggle{
 							Sampler: sampler.SineWave{
@@ -89,9 +90,9 @@ var (
 	}
 
 	CharMap = scenes.BackgroundScene(
-		scenes.BackgroundFromTexture(colors.DynamicFromAnimatedTexture(
-			colors.NewDynamicSubtexturer(
-				colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+		scenes.BackgroundFromTexture(textures.DynamicFromAnimatedTexture(
+			textures.NewDynamicSubtexturer(
+				textures.GetSpecialMapper(colors.White, colors.Black, 0.2),
 				100,
 				sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 10},
 			),
@@ -100,17 +101,17 @@ var (
 	)
 
 	MinecraftCube = scenes.DummyTextureSpinningCube(
-		colors.OpaqueDynamicTexture(colors.DynamicFromAnimatedTexture(
-			colors.NewDynamicSubtexturer(
-				colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+		textures.OpaqueDynamicTexture(textures.DynamicFromAnimatedTexture(
+			textures.NewDynamicSubtexturer(
+				textures.GetSpecialMapper(colors.White, colors.Black, 0.2),
 				8,
 				sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5},
 			),
 		)),
 		scenes.BackgroundFromTexture(
-			colors.DynamicFromAnimatedTexture(
-				colors.NewDynamicSubtexturer(
-					colors.GetSpecialMapper(colors.White, colors.Black, 0.2),
+			textures.DynamicFromAnimatedTexture(
+				textures.NewDynamicSubtexturer(
+					textures.GetSpecialMapper(colors.White, colors.Black, 0.2),
 					32,
 					sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5},
 				),
@@ -120,8 +121,8 @@ var (
 
 	RoundedSquare = scenes.BackgroundScene(
 		scenes.BackgroundFromTexture(
-			colors.StaticTexture(
-				colors.RoundedSquare(
+			textures.StaticTexture(
+				textures.RoundedSquare(
 					colors.White,
 					colors.Black,
 					0.9,
@@ -136,8 +137,8 @@ var (
 		colors.SimpleGradient{Start: colors.Black, End: colors.Green},
 		colors.SimpleGradient{Start: colors.Black, End: colors.Blue},
 		scenes.BackgroundFromTexture(
-			colors.DynamicFromAnimatedTexture(
-				colors.GetAniTextureFromSampler(
+			textures.DynamicFromAnimatedTexture(
+				textures.GetAniTextureFromSampler(
 					sampler.SineWaveAnimation{
 						XYRatio:      0.1,
 						SigmoidRatio: 2,
@@ -151,8 +152,8 @@ var (
 
 	SpinningMulticube = scenes.SpinningMulticube(
 		scenes.BackgroundFromTexture(
-			colors.DynamicFromAnimatedTexture(
-				colors.GetAniTextureFromSampler(
+			textures.DynamicFromAnimatedTexture(
+				textures.GetAniTextureFromSampler(
 					sampler.SineWaveAnimation{
 						XYRatio:      0.1,
 						SigmoidRatio: 2,
@@ -163,16 +164,16 @@ var (
 			),
 		),
 	)
-	Checkckerboard   = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform(colors.Blue))))
-	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform(colors.Blue))))
-	SpinningHolyCube = scenes.SpinningIndividualMulticubeWithHoles(scenes.BackgroundFromTexture(colors.StaticTexture(colors.Uniform(colors.Blue))))
+	Checkckerboard   = scenes.CheckerboardSquare(scenes.BackgroundFromTexture(textures.StaticTexture(textures.Uniform(colors.Blue))))
+	SpinningTriangle = scenes.SingleSpinningTriangle(scenes.BackgroundFromTexture(textures.StaticTexture(textures.Uniform(colors.Blue))))
+	SpinningHolyCube = scenes.SpinningIndividualMulticubeWithHoles(scenes.BackgroundFromTexture(textures.StaticTexture(textures.Uniform(colors.Blue))))
 	// TODO: fix
 	// HeightMap        = scenes.HeightMap(blackBackground)
 
 	SpinningTriangleWithHole = scenes.CheckerboardSquareWithRoundHole(
 		scenes.BackgroundFromTexture(
-			colors.DynamicFromAnimatedTexture(
-				colors.GetAniTextureFromSampler(
+			textures.DynamicFromAnimatedTexture(
+				textures.GetAniTextureFromSampler(
 					sampler.SineWaveAnimation{
 						XYRatio:      0.1,
 						SigmoidRatio: 2,

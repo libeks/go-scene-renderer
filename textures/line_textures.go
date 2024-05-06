@@ -1,10 +1,11 @@
-package colors
+package textures
 
 import (
+	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/sampler"
 )
 
-func RotatingLine(on, off Color, thickness float64) BinaryDynamicSamplerWithColors {
+func RotatingLine(on, off colors.Color, thickness float64) BinaryDynamicSamplerWithColors {
 	return BinaryDynamicSamplerWithColors{
 		DynamicSampler: sampler.RotatingLine(thickness),
 		On:             on,
@@ -12,7 +13,7 @@ func RotatingLine(on, off Color, thickness float64) BinaryDynamicSamplerWithColo
 	}
 }
 
-func RotatingCross(on, off Color, thickness float64) AnimatedTexture {
+func RotatingCross(on, off colors.Color, thickness float64) AnimatedTexture {
 	return BinaryDynamicSamplerWithColors{
 		DynamicSampler: sampler.RotatingCross(thickness),
 		On:             on,
@@ -20,7 +21,7 @@ func RotatingCross(on, off Color, thickness float64) AnimatedTexture {
 	}
 }
 
-func PulsingSquare(on, off Color) AnimatedTexture {
+func PulsingSquare(on, off colors.Color) AnimatedTexture {
 	return BinaryAnimatedSamplerWithColors{
 		Sampler: sampler.PulsingSquare{},
 		On:      on,
@@ -28,7 +29,7 @@ func PulsingSquare(on, off Color) AnimatedTexture {
 	}
 }
 
-func VerticalLine(on, off Color, thickness float64) Texture {
+func VerticalLine(on, off colors.Color, thickness float64) Texture {
 	return BinarySamplerWithColors{
 		StaticSampler: sampler.VerticalLine(thickness),
 		On:            on,
@@ -36,7 +37,7 @@ func VerticalLine(on, off Color, thickness float64) Texture {
 	}
 }
 
-func HorizontalLine(on, off Color, thickness float64) Texture {
+func HorizontalLine(on, off colors.Color, thickness float64) Texture {
 	return BinarySamplerWithColors{
 		StaticSampler: sampler.HorizontalLine(thickness),
 		On:            on,
@@ -44,7 +45,7 @@ func HorizontalLine(on, off Color, thickness float64) Texture {
 	}
 }
 
-func Cross(on, off Color, thickness float64) Texture {
+func Cross(on, off colors.Color, thickness float64) Texture {
 	return BinarySamplerWithColors{
 		StaticSampler: sampler.Cross(thickness),
 		On:            on,
@@ -52,7 +53,7 @@ func Cross(on, off Color, thickness float64) Texture {
 	}
 }
 
-func Square(on, off Color, thickness float64) Texture {
+func Square(on, off colors.Color, thickness float64) Texture {
 	return BinarySamplerWithColors{
 		StaticSampler: sampler.Square{
 			Thickness: thickness,
@@ -62,7 +63,7 @@ func Square(on, off Color, thickness float64) Texture {
 	}
 }
 
-func RoundedSquare(on, off Color, halfwidth, radius float64) Texture {
+func RoundedSquare(on, off colors.Color, halfwidth, radius float64) Texture {
 	return BinarySamplerWithColors{
 		StaticSampler: sampler.RoundedSquare{
 			HalfWidth: halfwidth,
@@ -73,7 +74,7 @@ func RoundedSquare(on, off Color, halfwidth, radius float64) Texture {
 	}
 }
 
-func Circle(on, off Color, radius float64) Texture {
+func Circle(on, off colors.Color, radius float64) Texture {
 	return BinarySamplerWithColors{
 		StaticSampler: sampler.Circle{
 			Thickness: radius,

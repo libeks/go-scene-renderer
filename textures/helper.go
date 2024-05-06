@@ -1,14 +1,15 @@
-package colors
+package textures
 
 import (
 	"fmt"
 	"sync"
 
+	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/sampler"
 )
 
 type AnimatedTexture interface {
-	GetFrameColor(x, y, f float64) Color
+	GetFrameColor(x, y, f float64) colors.Color
 }
 
 type dynamicTextureHelper struct {
@@ -27,7 +28,7 @@ type dynamicTextureFrameHelper struct {
 	ani AnimatedTexture
 }
 
-func (f dynamicTextureFrameHelper) GetTextureColor(x, y float64) Color {
+func (f dynamicTextureFrameHelper) GetTextureColor(x, y float64) colors.Color {
 	return f.ani.GetFrameColor(x, y, f.t)
 }
 
@@ -46,14 +47,14 @@ func bucketRemainder(x, d float64) (float64, float64) {
 
 type samplerColorer struct {
 	sampler  sampler.Sampler
-	gradient Gradient
+	gradient colors.Gradient
 }
 
-func (s samplerColorer) GetFrameColor(x, y, t float64) Color {
+func (s samplerColorer) GetFrameColor(x, y, t float64) colors.Color {
 	return s.gradient.Interpolate(s.sampler.GetFrameValue(x, y, t))
 }
 
-func GetAniTextureFromSampler(s sampler.Sampler, g Gradient) AnimatedTexture {
+func GetAniTextureFromSampler(s sampler.Sampler, g colors.Gradient) AnimatedTexture {
 	return samplerColorer{
 		sampler:  s,
 		gradient: g,
@@ -104,7 +105,7 @@ func (s DynamicSubtexturer) getCellValue(xMeta, yMeta, t float64) float64 {
 	}
 }
 
-func (s DynamicSubtexturer) GetFrameColor(x, y, t float64) Color {
+func (s DynamicSubtexturer) GetFrameColor(x, y, t float64) colors.Color {
 	d := 1 / float64(s.N)
 	xMeta, xValue := bucketRemainder(x, d)
 	yMeta, yValue := bucketRemainder(y, d)
@@ -124,17 +125,17 @@ type StaticMapper struct {
 	Mapping []TextureValueMapping // ordered in decreasing order of Above
 }
 
-func (m StaticMapper) GetFrameColor(x, y, t float64) Color {
+func (m StaticMapper) GetFrameColor(x, y, t float64) colors.Color {
 	for _, mapping := range m.Mapping {
 		if t >= mapping.Above {
 			return mapping.Texture.GetTextureColor(x, y)
 		}
 	}
 	// t is most likely < 0
-	return Red // shouldn't ever happen if the last Mapping starts at 0.0
+	return colors.Red // shouldn't ever happen if the last Mapping starts at 0.0
 }
 
-func GetSpecialMapper(on, off Color, thickness float64) StaticMapper {
+func GetSpecialMapper(on, off colors.Color, thickness float64) StaticMapper {
 	return StaticMapper{
 		Mapping: []TextureValueMapping{
 			{0.9, Square(on, off, 1.0)},
@@ -151,11 +152,11 @@ func GetSpecialMapper(on, off Color, thickness float64) StaticMapper {
 // implements AnimatedTexture
 type BinaryAnimatedSamplerWithColors struct {
 	sampler.Sampler
-	On  Color
-	Off Color
+	On  colors.Color
+	Off colors.Color
 }
 
-func (s BinaryAnimatedSamplerWithColors) GetFrameColor(x, y, t float64) Color {
+func (s BinaryAnimatedSamplerWithColors) GetFrameColor(x, y, t float64) colors.Color {
 	val := s.Sampler.GetFrameValue(x, y, t)
 	if val == 1 {
 		return s.On
@@ -169,11 +170,11 @@ func (s BinaryAnimatedSamplerWithColors) GetFrameColor(x, y, t float64) Color {
 // implements AnimatedTexture
 type BinaryDynamicSamplerWithColors struct {
 	sampler.DynamicSampler
-	On  Color
-	Off Color
+	On  colors.Color
+	Off colors.Color
 }
 
-func (s BinaryDynamicSamplerWithColors) GetFrameColor(x, y, t float64) Color {
+func (s BinaryDynamicSamplerWithColors) GetFrameColor(x, y, t float64) colors.Color {
 	return s.GetFrame(t).GetTextureColor(x, y)
 }
 
@@ -188,12 +189,12 @@ func (s BinaryDynamicSamplerWithColors) GetFrame(t float64) Texture {
 
 type BinarySamplerWithColors struct {
 	sampler.StaticSampler
-	On  Color
-	Off Color
+	On  colors.Color
+	Off colors.Color
 }
 
 // Implements Texture
-func (s BinarySamplerWithColors) GetTextureColor(x, y float64) Color {
+func (s BinarySamplerWithColors) GetTextureColor(x, y float64) colors.Color {
 	val := s.StaticSampler.GetValue(x, y)
 	if val == 1 {
 		return s.On

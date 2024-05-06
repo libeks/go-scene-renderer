@@ -1,9 +1,12 @@
 package scenes
 
-import "github.com/libeks/go-scene-renderer/colors"
+import (
+	"github.com/libeks/go-scene-renderer/colors"
+	"github.com/libeks/go-scene-renderer/textures"
+)
 
 type textureBackground struct {
-	t colors.Texture
+	t textures.Texture
 }
 
 func (b textureBackground) GetColor(x, y float64) colors.Color {
@@ -12,7 +15,7 @@ func (b textureBackground) GetColor(x, y float64) colors.Color {
 }
 
 type dynamicTextureBackground struct {
-	t colors.DynamicTexture
+	t textures.DynamicTexture
 }
 
 func (b dynamicTextureBackground) GetFrame(t float64) Background {
@@ -21,7 +24,7 @@ func (b dynamicTextureBackground) GetFrame(t float64) Background {
 	}
 }
 
-func BackgroundFromTexture(t colors.DynamicTexture) DynamicBackground {
+func BackgroundFromTexture(t textures.DynamicTexture) DynamicBackground {
 	return dynamicTextureBackground{
 		t,
 	}

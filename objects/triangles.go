@@ -7,6 +7,7 @@ import (
 
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
+	"github.com/libeks/go-scene-renderer/textures"
 )
 
 func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC colors.Color) dynamicBasicObject {
@@ -16,7 +17,7 @@ func GradientTriangle(a, b, c geometry.Point, colorA, colorB, colorC colors.Colo
 			B: b,
 			C: c,
 		},
-		colors.OpaqueDynamicTexture(colors.StaticTexture(colors.TriangleGradientTexture(colorA, colorB, colorC))),
+		textures.OpaqueDynamicTexture(textures.StaticTexture(textures.TriangleGradientTexture(colorA, colorB, colorC))),
 	)
 }
 

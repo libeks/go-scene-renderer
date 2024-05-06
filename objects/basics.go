@@ -5,9 +5,10 @@ import (
 
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/geometry"
+	"github.com/libeks/go-scene-renderer/textures"
 )
 
-func DynamicBasicObject(b BasicObject, colorer colors.DynamicTransparentTexture) dynamicBasicObject {
+func DynamicBasicObject(b BasicObject, colorer textures.DynamicTransparentTexture) dynamicBasicObject {
 	return dynamicBasicObject{
 		BasicObject: b,
 		Colorer:     colorer,
@@ -17,7 +18,7 @@ func DynamicBasicObject(b BasicObject, colorer colors.DynamicTransparentTexture)
 // dynamicBasicObject is a BasicObject with a DynamicTexture, which can be evaluated for a specific frame
 type dynamicBasicObject struct {
 	BasicObject
-	Colorer colors.DynamicTransparentTexture
+	Colorer textures.DynamicTransparentTexture
 }
 
 func (t dynamicBasicObject) Frame(f float64) StaticBasicObject {
@@ -48,7 +49,7 @@ func (t dynamicBasicObject) String() string {
 // 	return t.BasicObject.GetWireframe()
 // }
 
-func NewStaticBasicObject(t BasicObject, colorer colors.TransparentTexture) StaticBasicObject {
+func NewStaticBasicObject(t BasicObject, colorer textures.TransparentTexture) StaticBasicObject {
 	return StaticBasicObject{
 		BasicObject: t,
 		Colorer:     colorer,
@@ -60,7 +61,7 @@ type StaticBasicObject struct {
 	BasicObject
 	// Colorer will be evaluated with two parameters (b,c), each from (0,1), but b+c<1.0
 	// it describes the coordinates on the BasicObject from A towards B and C, respectively
-	Colorer colors.TransparentTexture
+	Colorer textures.TransparentTexture
 }
 
 // returns the color of the BasicObject at a ray

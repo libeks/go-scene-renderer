@@ -1,4 +1,4 @@
-package colors
+package textures
 
 import "github.com/libeks/go-scene-renderer/sampler"
 

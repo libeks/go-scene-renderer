@@ -1,8 +1,8 @@
 package scenes
 
 import (
-	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/sampler"
+	"github.com/libeks/go-scene-renderer/textures"
 )
 
 func PerlinColors() DynamicScene {
@@ -17,7 +17,7 @@ func PerlinColors() DynamicScene {
 	redPerlin := sampler.TimeShifted(perlin, redOffset)
 	greenPerlin := sampler.TimeShifted(perlin, greenOffset)
 	bluePerlin := sampler.TimeShifted(perlin, blueOffset)
-	background := BackgroundFromTexture(colors.RBGSamplerTexture(redPerlin, greenPerlin, bluePerlin))
+	background := BackgroundFromTexture(textures.RBGSamplerTexture(redPerlin, greenPerlin, bluePerlin))
 	return BackgroundScene(background)
 }
 
@@ -33,6 +33,6 @@ func ColorRotation() DynamicScene {
 	redTexture := sampler.TimeShiftedDynamic(texture, redOffset)
 	greenTexture := sampler.TimeShiftedDynamic(texture, greenOffset)
 	blueTexture := sampler.TimeShiftedDynamic(texture, blueOffset)
-	background := BackgroundFromTexture(colors.RBGSamplerDynamicTexture(redTexture, greenTexture, blueTexture))
+	background := BackgroundFromTexture(textures.RBGSamplerDynamicTexture(redTexture, greenTexture, blueTexture))
 	return BackgroundScene(background)
 }
