@@ -50,13 +50,20 @@ type Renderer struct {
 	lineChannel chan chunkReport // each line completion is sent on lineChannel
 	fileChannel chan fileReport  // each file completion is sent on fileChannel
 	doneChannel chan struct{}    // doneChannel sends a message when all frames are rendered
+	offsets     []Offset
 }
 
-func newRenderer() Renderer {
+func newRenderer(ip ImagePreset) Renderer {
+	offsets := make([]Offset, ip.interpolateN)
+	dx, dy := getPixelWiggle(ip.width), getPixelWiggle(ip.height)
+	for i := range ip.interpolateN {
+		offsets[i] = Offset{rand.Float64() * dx, rand.Float64() * dy}
+	}
 	return Renderer{
 		lineChannel: make(chan chunkReport, 10),
 		fileChannel: make(chan fileReport, 10),
 		doneChannel: make(chan struct{}, 1),
+		offsets:     offsets,
 	}
 }
 
@@ -74,7 +81,7 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 		if err := createSubdirectories(outFileFormat); err != nil {
 			return err
 		}
-		r := newRenderer()
+		r := newRenderer(vp.ImagePreset)
 		var sem = semaphore.NewWeighted(int64(frameConcurrency))
 		go r.progressbar(vp.nFrameCount, vp.nFrameCount*vp.width*vp.height) // start progressbar before launching goroutines to not deadlock
 
@@ -176,7 +183,7 @@ func RenderPNG(scene scenes.StaticScene, im ImagePreset, outfile string, wirefra
 	}
 	defer f.Close()
 	var frame *Image
-	r := newRenderer()
+	r := newRenderer(im)
 	go r.progressbar(1, im.width) // block until completion
 	go func() {
 		if wireframe {
@@ -235,11 +242,6 @@ func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) *Im
 	img := NewImage(ip)
 	windows := subdivideSceneIntoWindows(scene, ip)
 	var imageTriangles, imageChecks int
-	dx, dy := getPixelWiggle(ip.width), getPixelWiggle(ip.height)
-	offsets := make([]Offset, ip.interpolateN)
-	for i := range ip.interpolateN {
-		offsets[i] = Offset{rand.Float64() * dx, rand.Float64() * dy}
-	}
 	for _, window := range windows {
 		var nTriangles, windowChecks int
 		for x := window.xMin; x < window.xMax; x++ {
@@ -248,7 +250,7 @@ func (r Renderer) getWindowedImage(scene scenes.StaticScene, ip ImagePreset) *Im
 				var pixelColor colors.Color
 				if ip.interpolateN > 1 {
 					samples := make([]colors.Color, ip.interpolateN)
-					for i, offset := range offsets {
+					for i, offset := range r.offsets {
 						var nChecks int
 						samples[i], nTriangles, nChecks = window.GetColor(xR+offset.dx, yR+offset.dy)
 						windowChecks += nChecks

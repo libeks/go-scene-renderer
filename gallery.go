@@ -199,4 +199,5 @@ var (
 	VerticalWiggler               = scenes.VerticalWiggler()
 	ShuffledConcentricCircles     = scenes.ShuffledConcentricCircles()
 	ConcentricCircles             = scenes.ConcentricCircles()
+	IntegratedSpinners            = scenes.IntegratedSpinners()
 )

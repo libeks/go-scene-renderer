@@ -1,4 +1,4 @@
-package textures
+package grid
 
 import (
 	"testing"

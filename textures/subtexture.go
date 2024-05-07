@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/libeks/go-scene-renderer/colors"
+	"github.com/libeks/go-scene-renderer/grid"
 	"github.com/libeks/go-scene-renderer/sampler"
 )
 
@@ -31,7 +32,7 @@ func (s *dynamicSubtexturer) getCellValue(xMeta, yMeta, t float64) float64 {
 func (s dynamicSubtexturer) GetFrame(t float64) Texture {
 	d := 1 / float64(s.N)
 	// calculate the grid sampler values to use in this frame
-	grid := NewGrid(s.N)
+	grid := grid.NewGrid(s.N)
 	for x := range s.N {
 		for y := range s.N {
 			grid.Set(x, y, s.getCellValue(float64(x)*d, float64(y)*d, t))
@@ -40,15 +41,37 @@ func (s dynamicSubtexturer) GetFrame(t float64) Texture {
 	fmt.Printf("grid %s\n", grid)
 	return staticSubtexture{
 		AnimatedTexture: s.subtexture,
-		n:               s.N,
-		grid:            grid,
+		N:               s.N,
+		Grid:            grid,
+	}
+}
+
+func DynamicGridSubtexturer(s AnimatedTexture, N int, g grid.DynamicGrid) *dynamicGridSubtexturer {
+	return &dynamicGridSubtexturer{
+		DynamicGrid: g,
+		subtexture:  s,
+		N:           N,
+	}
+}
+
+type dynamicGridSubtexturer struct {
+	grid.DynamicGrid
+	subtexture AnimatedTexture
+	N          int
+}
+
+func (s dynamicGridSubtexturer) GetFrame(t float64) Texture {
+	return staticSubtexture{
+		AnimatedTexture: s.subtexture,
+		N:               s.N,
+		Grid:            s.DynamicGrid.GetFrame(t),
 	}
 }
 
 type staticSubtexture struct {
 	AnimatedTexture // renders the visual of each subcell, indexed by t, which doesn't have to be by time
-	n               int
-	grid            // grid contains the sampler values for this frame
+	N               int
+	grid.Grid       // grid contains the sampler values for this frame
 }
 
 func (s staticSubtexture) GetTextureColor(b, c float64) colors.Color {
@@ -56,7 +79,7 @@ func (s staticSubtexture) GetTextureColor(b, c float64) colors.Color {
 	xMeta, xValue := bucketRemainder(b, d)
 	yMeta, yValue := bucketRemainder(c, d)
 
-	tHere := s.grid.Get(int(xMeta*float64(s.N)), int(yMeta*float64(s.N)))
+	tHere := s.Grid.Get(int(xMeta*float64(s.N)), int(yMeta*float64(s.N)))
 	return s.AnimatedTexture.GetFrameColor(xValue, yValue, tHere)
 }
 
@@ -102,13 +125,10 @@ func (s cellRemapper) GetTextureColor(x, y float64) colors.Color {
 	d := 1 / float64(s.N)
 	xMeta, xValue := bucketRemainder(x, d)
 	yMeta, yValue := bucketRemainder(y, d)
-	coord := GetCoord(int(xMeta*float64(s.N)), int(yMeta*float64(s.N)), s.N)
+	coord := grid.GetCoord(int(xMeta*float64(s.N)), int(yMeta*float64(s.N)), s.N)
 	newCoord := s.cellMapping[coord]
-	xInt, yInt := IndexToCoord(newCoord, s.N)
+	xInt, yInt := grid.IndexToCoord(newCoord, s.N)
 	newX, newY := float64(xInt)*d+xValue*d, float64(yInt)*d+yValue*d
-	// if x != newX || y != newY {
-	// 	fmt.Printf("%d coord %.3f, %.3f newCoord %.3f, %.3f, (%d -> %d) xInt, yInt: %d %d, %.3f %.3f\n", s.N, x, y, newX, newY, coord, newCoord, xInt, yInt, xValue, yValue)
-	// }
 	return s.Texture.GetTextureColor(newX, newY)
 }
 

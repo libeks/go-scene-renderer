@@ -143,3 +143,19 @@ func ConcentricCircles() DynamicScene {
 	return BackgroundScene(background)
 
 }
+
+func IntegratedSpinners() DynamicScene {
+	nBlocks := 50
+	integrationConstant := 2.0
+	integratedSampler := sampler.Integrate(sampler.RotatingCross(0.3), 500, nBlocks, integrationConstant)
+	return BackgroundScene(
+		BackgroundFromTexture(
+			textures.DynamicGridSubtexturer(
+				textures.RotatingLine(colors.White, colors.Black, 0.2),
+				// textures.GetSpecialMapper(colors.White, colors.Black, 0.2),
+				nBlocks,
+				integratedSampler,
+			),
+		),
+	)
+}
