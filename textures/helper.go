@@ -2,15 +2,10 @@ package textures
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/sampler"
 )
-
-type AnimatedTexture interface {
-	GetFrameColor(x, y, f float64) colors.Color
-}
 
 type dynamicTextureHelper struct {
 	ani AnimatedTexture
@@ -61,60 +56,6 @@ func GetAniTextureFromSampler(s sampler.Sampler, g colors.Gradient) AnimatedText
 	}
 }
 
-type v struct {
-	x float64
-	y float64
-	t float64
-}
-
-func NewDynamicSubtexturer(s AnimatedTexture, n int, sampler sampler.Sampler) DynamicSubtexturer {
-	cache := make(map[v]float64, 0)
-	return DynamicSubtexturer{
-		Subtexture:   s,
-		N:            n,
-		PointSampler: sampler,
-
-		cache:   cache,
-		RWMutex: &sync.RWMutex{},
-	}
-}
-
-type DynamicSubtexturer struct {
-	Subtexture   AnimatedTexture
-	N            int // number of squares to tile
-	PointSampler sampler.Sampler
-
-	cache map[v]float64
-	*sync.RWMutex
-}
-
-func (s DynamicSubtexturer) getCellValue(xMeta, yMeta, t float64) float64 {
-	s.RLock()
-	val, ok := s.cache[v{x: xMeta, y: yMeta, t: t}]
-	s.RUnlock()
-	if ok {
-		return val
-	} else {
-		val := s.PointSampler.GetFrameValue(xMeta, yMeta, t)
-
-		s.Lock()
-		s.cache[v{x: xMeta, y: yMeta, t: t}] = val
-		s.Unlock()
-		// s.Unlock()
-		return val
-	}
-}
-
-func (s DynamicSubtexturer) GetFrameColor(x, y, t float64) colors.Color {
-	d := 1 / float64(s.N)
-	xMeta, xValue := bucketRemainder(x, d)
-	yMeta, yValue := bucketRemainder(y, d)
-	tHere := s.getCellValue(xMeta, yMeta, t)
-
-	// tHere := s.PointSampler.GetFrameValue(xMeta, yMeta, t)
-	return s.Subtexture.GetFrameColor(xValue, yValue, tHere)
-}
-
 type TextureValueMapping struct {
 	Above float64
 	Texture
@@ -133,20 +74,6 @@ func (m StaticMapper) GetFrameColor(x, y, t float64) colors.Color {
 	}
 	// t is most likely < 0
 	return colors.Red // shouldn't ever happen if the last Mapping starts at 0.0
-}
-
-func GetSpecialMapper(on, off colors.Color, thickness float64) StaticMapper {
-	return StaticMapper{
-		Mapping: []TextureValueMapping{
-			{0.9, Square(on, off, 1.0)},
-			{0.8, Square(on, off, max(0.7, 2*thickness))},
-			{0.7, Cross(on, off, thickness)},
-			{0.5, HorizontalLine(on, off, thickness)},
-			{0.4, VerticalLine(on, off, thickness)},
-			{0.1, Circle(on, off, thickness)},
-			{0.0, Uniform(off)},
-		},
-	}
 }
 
 // implements AnimatedTexture

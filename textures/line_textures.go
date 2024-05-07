@@ -13,7 +13,7 @@ func RotatingLine(on, off colors.Color, thickness float64) BinaryDynamicSamplerW
 	}
 }
 
-func RotatingCross(on, off colors.Color, thickness float64) AnimatedTexture {
+func RotatingCross(on, off colors.Color, thickness float64) BinaryDynamicSamplerWithColors {
 	return BinaryDynamicSamplerWithColors{
 		DynamicSampler: sampler.RotatingCross(thickness),
 		On:             on,
@@ -81,5 +81,19 @@ func Circle(on, off colors.Color, radius float64) Texture {
 		},
 		On:  on,
 		Off: off,
+	}
+}
+
+func GetSpecialMapper(on, off colors.Color, thickness float64) StaticMapper {
+	return StaticMapper{
+		Mapping: []TextureValueMapping{
+			{0.9, Square(on, off, 1.0)},
+			{0.8, Square(on, off, max(0.7, 2*thickness))},
+			{0.7, Cross(on, off, thickness)},
+			{0.5, HorizontalLine(on, off, thickness)},
+			{0.4, VerticalLine(on, off, thickness)},
+			{0.1, Circle(on, off, thickness)},
+			{0.0, Uniform(off)},
+		},
 	}
 }

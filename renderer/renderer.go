@@ -25,7 +25,7 @@ const (
 	minWindowCount         = 1
 	wireframeTriangleDepth = false
 	applyWireframe         = false // draw wireframes on top of rendered objects
-	render_h265            = true  // if false, will render with h264
+	render_h265            = false // if false, will render with h264
 )
 
 var (
@@ -127,7 +127,7 @@ func RenderVideo(scene scenes.DynamicScene, vp VideoPreset, outFile string, wire
 	// render video file from png frame images in .tmp/
 	params := []string{
 		"-y",
-		"-framerate", fmt.Sprintf("%d", vp.frameRate),
+		"-framerate", fmt.Sprintf("%.2f", vp.frameRate),
 		"-i", outFileFormat,
 	}
 	if render_h265 {

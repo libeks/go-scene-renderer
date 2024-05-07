@@ -90,31 +90,28 @@ var (
 	}
 
 	CharMap = scenes.BackgroundScene(
-		scenes.BackgroundFromTexture(textures.DynamicFromAnimatedTexture(
-			textures.NewDynamicSubtexturer(
+		scenes.BackgroundFromTexture(
+			textures.DynamicSubtexturer(
 				textures.GetSpecialMapper(colors.White, colors.Black, 0.2),
 				100,
 				sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 10},
 			),
 		),
-		),
 	)
 
 	MinecraftCube = scenes.DummyTextureSpinningCube(
-		textures.OpaqueDynamicTexture(textures.DynamicFromAnimatedTexture(
-			textures.NewDynamicSubtexturer(
+		textures.OpaqueDynamicTexture(
+			textures.DynamicSubtexturer(
 				textures.GetSpecialMapper(colors.White, colors.Black, 0.2),
 				8,
 				sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5},
 			),
-		)),
+		),
 		scenes.BackgroundFromTexture(
-			textures.DynamicFromAnimatedTexture(
-				textures.NewDynamicSubtexturer(
-					textures.GetSpecialMapper(colors.White, colors.Black, 0.2),
-					32,
-					sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5},
-				),
+			textures.DynamicSubtexturer(
+				textures.GetSpecialMapper(colors.White, colors.Black, 0.2),
+				32,
+				sampler.Sigmoid{Sampler: sampler.NewPerlinNoise(), Ratio: 5},
 			),
 		),
 	)
@@ -193,7 +190,12 @@ var (
 	OneBigSphere               = scenes.OneBigSphere(blackBackground)
 	CameraWithAxisTriangles    = scenes.CameraWithAxisTriangles(blackBackground)
 	// Perlin = scenes.NewPerlinNoise(color.Grayscale)
-	PerlinColors   = scenes.PerlinColors()
-	ColorRotation  = scenes.ColorRotation()
-	HeightMapCross = scenes.HeightMapCross(blackBackground)
+	PerlinColors                  = scenes.PerlinColors()
+	ColorRotation                 = scenes.ColorRotation()
+	HeightMapCross                = scenes.HeightMapCross(blackBackground)
+	ShuffledColorRotation         = scenes.ShuffledColorRotation()
+	FourColorSquares              = scenes.FourColorSquares()
+	VerticalLineConcentricCircles = scenes.VerticalLineConcentricCircles()
+	VerticalWiggler               = scenes.VerticalWiggler()
+	ShuffledConcentricCircles     = scenes.ShuffledConcentricCircles()
 )

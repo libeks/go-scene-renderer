@@ -22,6 +22,10 @@ type DynamicTransparentTexture interface {
 	GetFrame(t float64) TransparentTexture
 }
 
+type AnimatedTexture interface {
+	GetFrameColor(x, y, f float64) colors.Color
+}
+
 // a helper for when a static texture is needed as a dynamic texture
 type staticTexture struct {
 	t Texture

@@ -305,3 +305,117 @@ type timeShiftedDynamic struct {
 func (s timeShiftedDynamic) GetFrame(t float64) StaticSampler {
 	return s.DynamicSampler.GetFrame(t + s.timeOffset)
 }
+
+func Invert(s StaticSampler) StaticSampler {
+	return invert{s}
+}
+
+type invert struct {
+	StaticSampler
+}
+
+func (s invert) GetValue(x, y float64) float64 {
+	return 1 - s.StaticSampler.GetValue(x, y)
+}
+
+func VerticalLines(N int) StaticSampler {
+	return verticalLines{N}
+}
+
+type verticalLines struct {
+	N int
+}
+
+func (s verticalLines) GetValue(x, y float64) float64 {
+	if int(x*float64(2*s.N))%2 == 0 {
+		return 0
+	}
+	return 1
+}
+
+func InvertCircle(s StaticSampler, radius float64) StaticSampler {
+	return invertCircle{
+		StaticSampler: s,
+		R:             radius,
+	}
+}
+
+type invertCircle struct {
+	StaticSampler
+	R float64
+}
+
+func (s invertCircle) GetValue(x, y float64) float64 {
+	dx, dy := x*2-1, y*2-1
+	if dx*dx+dy*dy < s.R*s.R {
+		return 1 - s.StaticSampler.GetValue(x, y)
+	}
+	return s.StaticSampler.GetValue(x, y)
+}
+
+func InvertAndRotateCircle(s StaticSampler, radius float64, angle float64) StaticSampler {
+	return invertRotateCircle{
+		StaticSampler: s,
+		R:             radius,
+		Angle:         angle,
+	}
+}
+
+type invertRotateCircle struct {
+	StaticSampler
+	R     float64
+	Angle float64
+}
+
+func (s invertRotateCircle) GetValue(x, y float64) float64 {
+	dx, dy := x*2-1, y*2-1
+	if dx*dx+dy*dy < s.R*s.R {
+		return 1 - RotatedStatic(s.StaticSampler, s.Angle).GetValue(x, y)
+	}
+	return s.StaticSampler.GetValue(x, y)
+}
+
+func VerticalWiggler(nLines int, maxAngle float64) DynamicSampler {
+	return verticalWiggler{
+		nLines:   nLines,
+		maxAngle: maxAngle,
+	}
+}
+
+type verticalWiggler struct {
+	nLines   int
+	maxAngle float64
+}
+
+func (s verticalWiggler) GetFrame(t float64) StaticSampler {
+	angle := math.Sin(t*maths.Rotation) * s.maxAngle
+	lineWidth := 1 / float64(s.nLines)
+	sam := VerticalLines(s.nLines)
+
+	for i := range 8 {
+		sam = InvertAndRotateCircle(
+			sam,
+			float64(i+3)*lineWidth,
+			angle,
+		)
+	}
+	return sam
+
+}
+
+func Repeat(s DynamicSampler, n int) DynamicSampler {
+	return repeat{
+		DynamicSampler: s,
+		N:              n,
+	}
+}
+
+type repeat struct {
+	DynamicSampler
+	N int
+}
+
+func (s repeat) GetFrame(t float64) StaticSampler {
+	t = math.Mod(t*float64(s.N), 1)
+	return s.DynamicSampler.GetFrame(t)
+}

@@ -15,7 +15,7 @@ type ImagePreset struct {
 type VideoPreset struct {
 	ImagePreset
 	nFrameCount int
-	frameRate   int
+	frameRate   float64
 }
 
 type Pixel struct {
@@ -47,12 +47,12 @@ var (
 	VideoPresetTest = VideoPreset{
 		ImagePreset: ImagePresetTest,
 		nFrameCount: 30,
-		frameRate:   15,
+		frameRate:   1.5,
 	}
 	VideoPresetIntermediate = VideoPreset{
 		ImagePreset: ImagePresetIntermediate,
 		nFrameCount: 100,
-		frameRate:   30,
+		frameRate:   5,
 	}
 	VideoPresetHiDef = VideoPreset{
 		ImagePreset: ImagePresetHiDef,
@@ -128,7 +128,7 @@ func ParseVideoPreset(flagVal string) (VideoPreset, error) {
 				interpolate,
 			},
 			nFrameCount: frames,
-			frameRate:   frameRate,
+			frameRate:   float64(frameRate),
 		}, nil
 	}
 	switch flagVal {

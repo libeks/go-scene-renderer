@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	maxUInt32 = 0xffff
+	maxUInt32   = 0xffff
+	gammaFactor = 1.8
 )
 
 var (
@@ -37,9 +38,9 @@ type Color struct {
 func (c Color) RGBA() (r, g, b, a uint32) {
 	// only apply gamma correction when rendered values are requested,
 	// keep raw values otherwise
-	return uint32(maxUInt32 * math.Pow(c.R, 1.8)),
-		uint32(maxUInt32 * math.Pow(c.G, 1.8)),
-		uint32(maxUInt32 * math.Pow(c.B, 1.8)),
+	return uint32(maxUInt32 * gamma(c.R)),
+		uint32(maxUInt32 * gamma(c.G)),
+		uint32(maxUInt32 * gamma(c.B)),
 		maxUInt32
 }
 
@@ -63,6 +64,15 @@ func Average(colors []Color) Color {
 	retCol.G = retCol.G / n
 	retCol.B = retCol.B / n
 	return retCol
+}
+
+// Inverse of gamma fuction, so that gamma(inverseGamma) = input
+func inverseGamma(v float64) float64 {
+	return math.Pow(v, float64(1)/1.8)
+}
+
+func gamma(v float64) float64 {
+	return math.Pow(v, 1.8)
 }
 
 func (c Color) Add(d Color) Color {
@@ -97,9 +107,9 @@ func Hex(s string) Color {
 		b *= 17
 	}
 	c := Color{
-		R: uInt32ToFloat(r),
-		G: uInt32ToFloat(g),
-		B: uInt32ToFloat(b),
+		R: inverseGamma(uInt32ToFloat(r)),
+		G: inverseGamma(uInt32ToFloat(g)),
+		B: inverseGamma(uInt32ToFloat(b)),
 	}
 	return c
 }
