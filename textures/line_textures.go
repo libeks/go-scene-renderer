@@ -1,6 +1,8 @@
 package textures
 
 import (
+	"math"
+
 	"github.com/libeks/go-scene-renderer/colors"
 	"github.com/libeks/go-scene-renderer/sampler"
 )
@@ -96,4 +98,14 @@ func GetSpecialMapper(on, off colors.Color, thickness float64) StaticMapper {
 			{0.0, Uniform(off)},
 		},
 	}
+}
+
+func Rainbow() AnimatedTexture {
+	return rainbow{}
+}
+
+type rainbow struct{}
+
+func (r rainbow) GetFrameColor(x, y, t float64) colors.Color {
+	return colors.HSL(math.Mod(t, 1), 0.75, 0.5)
 }

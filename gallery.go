@@ -200,4 +200,5 @@ var (
 	ShuffledConcentricCircles     = scenes.ShuffledConcentricCircles()
 	ConcentricCircles             = scenes.ConcentricCircles()
 	IntegratedSpinners            = scenes.IntegratedSpinners()
+	IntegratedCrossColors         = scenes.IntegratedCrossColors()
 )

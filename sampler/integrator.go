@@ -1,10 +1,13 @@
 package sampler
 
 import (
+	"fmt"
+
 	"github.com/libeks/go-scene-renderer/grid"
 )
 
 func Integrate(s DynamicSampler, steps int, nBlocks int, intConstant float64) grid.DynamicGrid {
+	fmt.Printf("Generating scene integral...")
 	invStep := 1 / float64(steps)
 	d := 1 / float64(nBlocks)
 	g := grid.NewGrid(nBlocks)
@@ -24,5 +27,6 @@ func Integrate(s DynamicSampler, steps int, nBlocks int, intConstant float64) gr
 		grids.AddFrame(t, newGrid)
 		g = newGrid
 	}
+	fmt.Printf(" Done!\n")
 	return grids
 }

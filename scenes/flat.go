@@ -152,7 +152,21 @@ func IntegratedSpinners() DynamicScene {
 		BackgroundFromTexture(
 			textures.DynamicGridSubtexturer(
 				textures.RotatingLine(colors.White, colors.Black, 0.2),
-				// textures.GetSpecialMapper(colors.White, colors.Black, 0.2),
+				nBlocks,
+				integratedSampler,
+			),
+		),
+	)
+}
+
+func IntegratedCrossColors() DynamicScene {
+	nBlocks := 1080
+	integrationConstant := 2.0
+	integratedSampler := sampler.Integrate(sampler.RotatingCross(0.3), 500, nBlocks, integrationConstant)
+	return BackgroundScene(
+		BackgroundFromTexture(
+			textures.DynamicGridSubtexturer(
+				textures.Rainbow(),
 				nBlocks,
 				integratedSampler,
 			),

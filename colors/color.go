@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"image/color"
 	"math"
+
+	"github.com/crazy3lf/colorconv"
 )
 
 const (
@@ -112,6 +114,40 @@ func Hex(s string) Color {
 		B: inverseGamma(uInt32ToFloat(b)),
 	}
 	return c
+}
+
+// h,s,v each range from 0 to 1
+func HSL(h, s, l float64) Color {
+	r, g, b, err := colorconv.HSLToRGB(h*360, s, l)
+	if err != nil {
+		fmt.Printf("hsl %.3f, %.3f, %.3f -> rgb: %d %d %d\n", h, s, l, r, g, b)
+		panic(err)
+	}
+	c := Color{
+		R: inverseGamma(uInt8ToFloat(r)),
+		G: inverseGamma(uInt8ToFloat(g)),
+		B: inverseGamma(uInt8ToFloat(b)),
+	}
+	return c
+}
+
+// h,s,v each range from 0 to 1
+func HSV(h, s, v float64) Color {
+	r, g, b, err := colorconv.HSVToRGB(h*360, s, v)
+	if err != nil {
+		fmt.Printf("hsv %.3f, %.3f, %.3f -> rgb: %d %d %d\n", h, s, v, r, g, b)
+		panic(err)
+	}
+	c := Color{
+		R: inverseGamma(uInt8ToFloat(r)),
+		G: inverseGamma(uInt8ToFloat(g)),
+		B: inverseGamma(uInt8ToFloat(b)),
+	}
+	return c
+}
+
+func uInt8ToFloat(r uint8) float64 {
+	return float64(r) / float64(0xff)
 }
 
 func uInt32ToFloat(r uint32) float64 {
