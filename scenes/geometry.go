@@ -735,9 +735,13 @@ func CameraThroughSquaresAlongPath(background DynamicBackground) DynamicScene {
 	).WithTransform(geometry.ScaleMatrix(0.6))
 	cameraPath := geometry.SamplePath(path, 0, 0.8)
 	spherePath := geometry.SamplePath(path, 0.2, 1)
-	checkerTexture := textures.DynamicTexture(textures.StaticTexture(textures.Checkerboard{Squares: 100}))
+	gateTexture := textures.StaticTexture(textures.BinarySamplerWithColors{
+		StaticSampler: sampler.ConcentricCircles(0.01),
+		On:            colors.Black,
+		Off:           colors.White,
+	})
 	texture := textures.GetDynamicTransparentTexture(
-		checkerTexture,
+		gateTexture,
 		textures.DynamicFromAnimatedTransparency(
 			textures.CircleCutout{Radius: 0.12},
 		),

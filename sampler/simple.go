@@ -174,3 +174,38 @@ func (s Circle) GetValue(x, y float64) float64 {
 	}
 	return 0
 }
+
+func VerticalLines(N int) StaticSampler {
+	return verticalLines{N}
+}
+
+type verticalLines struct {
+	N int
+}
+
+func (s verticalLines) GetValue(x, y float64) float64 {
+	if int(x*float64(2*s.N))%2 == 0 {
+		return 0
+	}
+	return 1
+}
+
+func ConcentricCircles(width float64) StaticSampler {
+	return concentricCircles{
+		width,
+	}
+}
+
+type concentricCircles struct {
+	width float64
+}
+
+func (s concentricCircles) GetValue(x, y float64) float64 {
+	x, y = x*2-1, y*2-1 // do math in the square -1 to 1
+	r := math.Sqrt(x*x + y*y)
+	ratio := r / s.width
+	if int(ratio)%2 == 0 {
+		return 1
+	}
+	return 0
+}

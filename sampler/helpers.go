@@ -318,21 +318,6 @@ func (s invert) GetValue(x, y float64) float64 {
 	return 1 - s.StaticSampler.GetValue(x, y)
 }
 
-func VerticalLines(N int) StaticSampler {
-	return verticalLines{N}
-}
-
-type verticalLines struct {
-	N int
-}
-
-func (s verticalLines) GetValue(x, y float64) float64 {
-	if int(x*float64(2*s.N))%2 == 0 {
-		return 0
-	}
-	return 1
-}
-
 func InvertCircle(s StaticSampler, radius float64) StaticSampler {
 	return invertCircle{
 		StaticSampler: s,

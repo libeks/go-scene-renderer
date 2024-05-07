@@ -127,3 +127,19 @@ func ShuffledConcentricCircles() DynamicScene {
 	)
 	return BackgroundScene(background)
 }
+
+func ConcentricCircles() DynamicScene {
+	on := colors.Red
+	off := colors.White
+	background := BackgroundFromTexture(
+		textures.StaticTexture(
+			textures.BinarySamplerWithColors{
+				StaticSampler: sampler.ConcentricCircles(0.1),
+				On:            on,
+				Off:           off,
+			},
+		),
+	)
+	return BackgroundScene(background)
+
+}
